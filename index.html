@@ -90,6 +90,49 @@
   }
   .btn-print:hover { opacity: 0.9; }
 
+  /* Dynamic Customizer Bar */
+  .customizer-bar {
+    background: #0b1329;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .customizer-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .custom-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 600;
+  }
+  .custom-input {
+    background: #040711;
+    border: 1px solid #334155;
+    color: #38bdf8;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: bold;
+    outline: none;
+    transition: 0.15s;
+  }
+  .custom-input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+
   /* Document Header */
   .doc-banner {
     background: linear-gradient(135deg, #1e3a8a 0%, #091124 100%);
@@ -349,13 +392,32 @@
     </div>
   </div>
 
+  <!-- Contestant & Team Customizer Bar (Screen Only) -->
+  <div class="customizer-bar no-print">
+    <div class="customizer-group">
+      <span style="color:#60a5fa; font-weight:700; font-size:0.75rem;">⚙️ Contestant / Team Print Header:</span>
+      <label class="custom-label">Name:
+        <input type="text" id="inputName" class="custom-input" value="Soyebuzaman Naim" oninput="updateContestInfo()" placeholder="Contestant Name" style="width: 140px;">
+      </label>
+      <label class="custom-label">Team:
+        <input type="text" id="inputTeam" class="custom-input" value="Team Hoffnang" oninput="updateContestInfo()" placeholder="Team Name" style="width: 120px;">
+      </label>
+      <label class="custom-label">Institution / Contest:
+        <input type="text" id="inputInst" class="custom-input" value="Southeast University" oninput="updateContestInfo()" placeholder="University / Contest" style="width: 160px;">
+      </label>
+    </div>
+    <div style="font-size:0.68rem; color:#34d399; font-weight:600;">
+      ✓ Auto-updates running header on all 25 printed pages
+    </div>
+  </div>
+
   <!-- Document Header -->
   <div class="doc-banner">
     <div>
-      <h1>TEAM HOFFNANG — ALGORITHM REFERENCE NOTEBOOK</h1>
+      <h1 id="bannerTitle">TEAM HOFFNANG — ALGORITHM REFERENCE NOTEBOOK</h1>
     </div>
     <div class="contest-meta">
-      <strong>Soyebuzaman Naim</strong> | SEU CS Carnival 2026 | C++17
+      <strong id="displayContestant">Soyebuzaman Naim</strong> | <span id="displayTeam">Team Hoffnang</span> (<span id="displayInst">Southeast University</span>) | C++17
     </div>
   </div>
 
@@ -408,24 +470,197 @@ long long ans = 1LL * a * b; // 1LL prevents 32-bit overflow!
 cout &lt;&lt; fixed &lt;&lt; setprecision(9) &lt;&lt; ans &lt;&lt; "\n";</code></pre>
     </div>
 
-    <div class="item" data-search="stl vector set map priority_queue multiset sort">
+    <div class="item" data-search="cmath math exp power ln log sqrt root cbrt sin cos tan trig radians pi hypot">
       <div class="item-head">
-        <span class="item-title">STL Containers &amp; Algorithms Cheat Sheet</span>
+        <span class="item-title">C++ &lt;cmath&gt; Functions (exp, ln, root, sin, cos)</span>
+        <span class="item-meta"><span class="prefix">cmath</span></span>
       </div>
-<pre><code>// Vector: vector&lt;int&gt; v; v.push_back(10); v.pop_back(); int n = v.size();
-// Set: unique, sorted O(log N). Multiset: duplicates allowed
-set&lt;int&gt; s; s.insert(5); s.erase(5); bool in = s.count(5);
-multiset&lt;int&gt; ms; ms.erase(ms.find(5)); // Erases ONLY ONE 5!
-// Map: map&lt;string, int&gt; mp; mp["k"]++; for(auto&amp; [k,v]: mp)
-// Priority Queue:
-priority_queue&lt;int&gt; max_pq; // Max-heap
-priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; min_pq; // Min-heap
-// Sorting &amp; Bounds:
-sort(all(v)); sort(rall(v));
-auto it1 = lower_bound(all(v), x); // first &gt;= x
-auto it2 = upper_bound(all(v), x); // first &gt; x
-v.erase(unique(all(v)), v.end());  // Deduplication
-next_permutation(all(v));          // Next permutation</code></pre>
+      <div class="item-desc">e^x, natural log ln(x), square/cube/k-th roots, trigonometry, and angle conversions.</div>
+<pre><code>const double PI = acos(-1.0); // Exact π: 3.141592653589793
+
+// 1. Exponential (e^x) &amp; Powers:
+double e_to_x   = exp(x);              // e^x (for long double use expl(x))
+double power    = pow(base, exp);      // base^exp (e.g. pow(2.0, 10.0) = 1024.0)
+
+// 2. Natural Logarithm (ln) &amp; Logarithms:
+double natural  = log(x);              // ln(x) (natural log, base e)
+double log_10   = log10(x);            // log10(x) (base 10)
+double log_2    = log2(x);             // log2(x) (base 2)
+double log_b    = log(x) / log(b);     // log_b(x) in arbitrary base b
+
+// 3. Roots (Square, Cube &amp; k-th Root):
+double sq_root  = sqrt(x);             // √x (Square root: x &gt;= 0)
+double cb_root  = cbrt(x);             // ∛x (Cube root: negative inputs allowed!)
+double kth_root = pow(x, 1.0 / k);     // k-th root of x: x^(1/k)
+
+// 4. Trigonometry: sin, cos, tan (Input MUST be in RADIANS!):
+double deg = 60.0;
+double rad = deg * (PI / 180.0);       // Degrees to Radians!
+double s   = sin(rad);                 // sin(60°) = √3 / 2 ≈ 0.866025
+double c   = cos(rad);                 // cos(60°) = 0.5
+double t   = tan(rad);                 // tan(60°) ≈ 1.73205
+
+// 5. Inverse Trigonometry &amp; Angles:
+double angle_rad = atan2(y, x);        // Angle in radians [-π, π] from (x, y)
+double angle_deg = angle_rad * 180.0 / PI; // Radians to Degrees!
+double asin_val  = asin(s);            // arcsin (returns [-π/2, π/2])
+double acos_val  = acos(c);            // arccos (returns [0, π])
+
+// 6. Absolute &amp; Hypotenuse:
+double abs_val   = fabs(x);            // |x| for floating point (fabsl for long double)
+double hyp       = hypot(x, y);        // √(x^2 + y^2) (safely prevents overflow)</code></pre>
+    </div>
+
+    <div class="item" data-search="matrix 2d vector input output grid traversal row column">
+      <div class="item-head">
+        <span class="item-title">Matrix I/O &amp; Grid Helpers</span>
+        <span class="item-meta"><span class="prefix">mat_io</span> | <span class="time">O(N &times; M)</span></span>
+      </div>
+      <div class="item-desc">Dynamic 2D vector input/output, char grids, and 4/8-direction movement arrays.</div>
+<pre><code>// 1. Numeric Matrix N x M
+int n, m; cin &gt;&gt; n &gt;&gt; m;
+vector&lt;vector&lt;int&gt;&gt; a(n, vector&lt;int&gt;(m));
+for (int i = 0; i &lt; n; i++)
+  for (int j = 0; j &lt; m; j++) cin &gt;&gt; a[i][j];
+
+// Output Matrix (space-separated, newline per row)
+for (int i = 0; i &lt; n; i++) {
+  for (int j = 0; j &lt; m; j++) cout &lt;&lt; a[i][j] &lt;&lt; (j == m - 1 ? "" : " ");
+  cout &lt;&lt; '\n';
+}
+
+// 2. Character Grid (Maze / Labyrinth input)
+vector&lt;string&gt; grid(n);
+for (int i = 0; i &lt; n; i++) cin &gt;&gt; grid[i];
+
+// 3. Direction Arrays for Grid Navigation
+int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right
+int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions (with diagonals)
+int dy8[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+bool valid(int x, int y, int n, int m) { return x &gt;= 0 &amp;&amp; x &lt; n &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m; }</code></pre>
+    </div>
+
+    <div class="item" data-search="convert converter stoi to_string stoll stod stringstream char int base binary hex">
+      <div class="item-head">
+        <span class="item-title">All Type Converters &amp; Parsers</span>
+        <span class="item-meta"><span class="prefix">convert</span></span>
+      </div>
+      <div class="item-desc">Converting between strings, numbers, characters, bases, and splitting tokens.</div>
+<pre><code>// 1. Number &lt;-&gt; String
+string s = to_string(12345LL);          // int / LL to string
+int num = stoi("123");                   // string to int
+long long lnum = stoll("1234567890123"); // string to long long
+double d = stod("3.14159");              // string to double
+long double ld = stold("3.1415926535");  // string to long double
+
+// 2. Char &lt;-&gt; Digit &amp; Alphabets
+int digit = '7' - '0';                   // '7' -&gt; 7
+char ch = 7 + '0';                       // 7 -&gt; '7'
+int lower_idx = 'c' - 'a';               // 'c' -&gt; 2 (0 to 25)
+int upper_idx = 'C' - 'A';               // 'C' -&gt; 2 (0 to 25)
+char lower_c = tolower('A');             // 'A' -&gt; 'a'
+char upper_c = toupper('a');             // 'a' -&gt; 'A'
+// Entire string to lower/upper:
+transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+// 3. Base Conversions (Binary, Hex, Octal)
+int from_bin = stoi("10110", nullptr, 2);  // "10110" -&gt; 22
+int from_hex = stoi("1A", nullptr, 16);    // "1A" -&gt; 26
+int from_oct = stoi("75", nullptr, 8);     // "75" -&gt; 61
+string to_bin = bitset&lt;32&gt;(22).to_string(); // 22 -&gt; "00...0010110"
+to_bin = to_bin.substr(to_bin.find('1'));  // Trim leading zeros
+stringstream ss; ss &lt;&lt; hex &lt;&lt; 255; string hex_str = ss.str(); // "ff"
+
+// 4. String Tokenizer (split by space / delimiter)
+stringstream ss2("apple banana cherry");
+string word; while (ss2 &gt;&gt; word) { /* process each word */ }
+stringstream ss3("1,2,3,4");
+string item; while (getline(ss3, item, ',')) { int val = stoi(item); }</code></pre>
+    </div>
+
+    <div class="item" data-search="stl containers operations vector set map priority_queue multiset deque bitset">
+      <div class="item-head">
+        <span class="item-title">All STL Containers: Operations &amp; Complexity</span>
+        <span class="item-meta"><span class="prefix">stl_containers</span></span>
+      </div>
+      <div class="item-desc">Methods, syntax, and complexities for every standard competitive programming container.</div>
+<pre><code>// 1. VECTOR (O(1) push/pop_back, O(1) random access)
+vector&lt;int&gt; v = {1, 2, 3};
+v.push_back(4); v.pop_back(); v.front(); v.back(); v.size(); v.empty();
+v.resize(10, 0); v.assign(5, -1); v.clear();
+v.insert(v.begin() + 1, 99); v.erase(v.begin() + 1); // O(N)
+
+// 2. PAIR &amp; TUPLE
+pair&lt;int, string&gt; p = {1, "ab"}; auto [id, name] = p; // C++17 structured binding
+tuple&lt;int, int, int&gt; tp = {1, 2, 3}; auto [x, y, z] = tp; int f = get&lt;0&gt;(tp);
+
+// 3. SET &amp; MULTISET (Red-Black Tree - O(log N) operations, sorted)
+set&lt;int&gt; s; s.insert(5); s.erase(5); bool has = s.count(5);
+auto it_lb = s.lower_bound(x); // first element &gt;= x
+auto it_ub = s.upper_bound(x); // first element &gt; x
+multiset&lt;int&gt; ms; ms.insert(5); ms.insert(5);
+ms.erase(ms.find(5)); // Erases ONLY ONE 5! (ms.erase(5) erases ALL 5s)
+
+// 4. MAP (Sorted key-value - O(log N)) & Frequency Counter
+map&lt;string, int&gt; mp; mp["apple"] = 5; mp.count("apple"); mp.erase("apple");
+for (auto&amp; [key, val] : mp) { /* sorted by key */ }
+// Frequency counter snippet:
+map&lt;int, int&gt; freq; for (int x : v) freq[x]++;
+int max_f = 0, most_frequent = -1;
+for (auto&amp; [val, count] : freq) {
+  if (count &gt; max_f) { max_f = count; most_frequent = val; }
+}
+
+// 5. PRIORITY_QUEUE (Heap - O(log N) push/pop, O(1) top)
+priority_queue&lt;int&gt; max_pq; // Max heap by default
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; min_pq; // Min heap
+max_pq.push(10); max_pq.top(); max_pq.pop();
+
+// 6. DEQUE, STACK &amp; QUEUE (O(1) push/pop)
+deque&lt;int&gt; dq; dq.push_front(1); dq.push_back(2); dq.pop_front(); dq.pop_back();
+stack&lt;int&gt; st; st.push(1); st.top(); st.pop();
+queue&lt;int&gt; q; q.push(1); q.front(); q.pop();
+
+// 7. BITSET (Fixed-size bit array - 64x faster bitwise ops)
+bitset&lt;64&gt; bs(15); bs.set(2); bs.reset(2); bs.flip(); bool bit = bs.test(0);
+int set_bits = bs.count(); unsigned long long val = bs.to_ullong();</code></pre>
+    </div>
+
+    <div class="item" data-search="stl algorithm sort binary_search lower_bound upper_bound rotate next_permutation">
+      <div class="item-head">
+        <span class="item-title">All STL Algorithms: Quick Syntax &amp; Uses</span>
+        <span class="item-meta"><span class="prefix">stl_algo</span></span>
+      </div>
+      <div class="item-desc">Essential functions in &lt;algorithm&gt; and &lt;numeric&gt; with parameter shortcuts.</div>
+<pre><code>// 1. Sorting &amp; Bounds (v is vector&lt;int&gt;)
+sort(all(v));                            // Ascending: O(N log N)
+sort(rall(v));                           // Descending: O(N log N)
+stable_sort(all(v), comp);               // Preserves relative order
+auto it1 = lower_bound(all(v), x);       // First iterator with *it &gt;= x
+int idx1 = lower_bound(all(v), x) - v.begin(); // 0-based index of first &gt;= x
+auto it2 = upper_bound(all(v), x);       // First iterator with *it &gt; x
+bool found = binary_search(all(v), x);   // True if x exists (O(log N))
+
+// 2. Element Operations &amp; Deduplication
+v.erase(unique(all(v)), v.end());        // Remove duplicates (sort first!)
+reverse(all(v));                         // Invert order: O(N)
+rotate(v.begin(), v.begin() + k, v.end()); // Left-rotates by k positions
+int mn = *min_element(all(v));           // Minimum element: O(N)
+int mx = *max_element(all(v));           // Maximum element: O(N)
+int cnt = count(all(v), x);              // Count occurrences of x: O(N)
+fill(all(v), 0);                         // Fill all with 0
+
+// 3. Numeric &amp; Prefix Sums (&lt;numeric&gt;)
+int sum = accumulate(all(v), 0LL);       // Sum (use 0LL to prevent overflow!)
+vector&lt;int&gt; pref(n);
+partial_sum(all(v), pref.begin());       // Prefix sum array in-place: O(N)
+iota(all(v), 0);                         // Fills with 0, 1, 2, ..., n-1
+
+// 4. Permutations &amp; Order Statistics
+next_permutation(all(v));                // Next lexicographical order
+prev_permutation(all(v));                // Previous order
+// nth_element: Rearranges so element at index k is in its sorted position: O(N) avg
+nth_element(v.begin(), v.begin() + k, v.end()); // v[k] is the k-th smallest!</code></pre>
     </div>
 
     <!-- ================= CHAPTER 3 ================= -->
@@ -570,6 +805,105 @@ void solve_quadratic(ld a, ld b, ld c) {
   ld x1 = q / a, x2 = c / q;
   if (x1 &gt; x2) swap(x1, x2);
   cout &lt;&lt; x1 &lt;&lt; '\n' &lt;&lt; x2 &lt;&lt; '\n';
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="basis conversion base converter number to basis string radix">
+      <div class="item-head">
+        <span class="item-title">Basis Conversion (Base 2 to 16)</span>
+        <span class="item-meta"><span class="prefix">base_conv</span> | <span class="time">O(log_b N)</span></span>
+      </div>
+      <div class="item-desc">Bidirectional conversion between base-b string and unsigned long long (b &le; 16).</div>
+<pre><code>const string DIGITS = "0123456789ABCDEF";
+
+// Base-b string to unsigned long long
+unsigned long long basis_string_to_number(string &amp;s, int b) {
+  unsigned long long result = 0ULL;
+  for (char d : s) {
+    result = b * result + (find(DIGITS.begin(), DIGITS.end(), d) - DIGITS.begin());
+  }
+  return result;
+}
+
+// Unsigned long long to base-b string
+string number_to_basis_string(unsigned long long n, int b) {
+  vector&lt;char&gt; ds;
+  do {
+    ds.push_back(DIGITS[n % b]);
+    n /= b;
+  } while (n != 0);
+  return string(ds.rbegin(), ds.rend());
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="binary operations bit manipulation builtin popcount clz ctz submask bitwise">
+      <div class="item-head">
+        <span class="item-title">All Binary Operations &amp; Bit Tricks</span>
+        <span class="item-meta"><span class="prefix">bits</span> | <span class="time">O(1)</span></span>
+      </div>
+      <div class="item-desc">GCC builtins, essential bitwise manipulations, power of 2, and submask iteration.</div>
+<pre><code>// 1. GCC Builtins (Append 'll' for 64-bit: e.g. __builtin_popcountll)
+int ones = __builtin_popcountll(x);   // Count set bits (number of 1s)
+int clz  = __builtin_clzll(x);        // Count leading zeros (undefined if x=0!)
+int ctz  = __builtin_ctzll(x);        // Count trailing zeros (lowest set bit index)
+int par  = __builtin_parityll(x);     // Parity: 1 if odd number of 1s, 0 if even
+int msb  = 63 - __builtin_clzll(x);   // Index of highest set bit (= floor(log2(x)))
+
+// 2. Essential Bit Hacks
+bool is_set   = (n &gt;&gt; k) &amp; 1;          // Check if k-th bit is 1 (0-indexed)
+n |= (1LL &lt;&lt; k);                      // Set k-th bit to 1
+n &amp;= ~(1LL &lt;&lt; k);                     // Clear k-th bit to 0
+n ^= (1LL &lt;&lt; k);                      // Toggle k-th bit (flip 0 &lt;-&gt; 1)
+bool is_pow2  = n &gt; 0 &amp;&amp; !(n &amp; (n - 1)); // True if n is a power of 2
+int lsb       = n &amp; (-n);             // Isolates lowest set bit: e.g. 12 (1100) -&gt; 4 (0100)
+n &amp;= (n - 1);                         // Clears the lowest set bit
+
+// 3. Iterate All Submasks of Mask m (descending order):
+for (int s = m; s &gt; 0; s = (s - 1) &amp; m) { /* s is a non-empty submask */ }
+// 4. Iterate All Masks of Size N:
+for (int mask = 0; mask &lt; (1 &lt;&lt; n); ++mask) { /* O(2^N) */ }</code></pre>
+    </div>
+
+    <div class="item" data-search="modulo arithmetic sheet mod inverse fermat ncr combinations factorials add sub mul power divi 1e9+7 998244353">
+      <div class="item-head">
+        <span class="item-title">Complete Modulo Sheet &amp; O(1) nCr</span>
+        <span class="item-meta"><span class="prefix">mod_sheet</span></span>
+      </div>
+      <div class="item-desc">Safe operations, fast exponentiation, Fermat inverse, modular division, and O(1) nCr.</div>
+<pre><code>const int MOD = 1e9 + 7; // or 998244353
+
+// 1. Safe Operations (handles negatives &amp; prevents overflow)
+long long add(long long a, long long b) { return (a + b) % MOD; }
+long long sub(long long a, long long b) { return (a - b + MOD) % MOD; }
+long long mul(long long a, long long b) { return (1LL * a * b) % MOD; }
+
+// 2. Fast Exponentiation: (base^exp) % MOD
+long long power(long long base, long long exp) {
+  long long res = 1; base %= MOD;
+  while (exp &gt; 0) {
+    if (exp % 2 == 1) res = (res * base) % MOD;
+    base = (base * base) % MOD;
+    exp /= 2;
+  }
+  return res;
+}
+
+// 3. Modular Inverse via Fermat (MOD must be prime) &amp; Division
+long long modInverse(long long n) { return power(n, MOD - 2); }
+long long divi(long long a, long long b) { return mul(a, modInverse(b)); }
+
+// 4. O(N) Precomputation for O(1) nCr Modulo P (N up to 10^6):
+const int MAXN = 1000005;
+long long fact[MAXN], invFact[MAXN];
+void precompute_nCr(int n = MAXN - 1) {
+  fact[0] = invFact[0] = 1;
+  for (int i = 1; i &lt;= n; i++) fact[i] = mul(fact[i - 1], i);
+  invFact[n] = modInverse(fact[n]);
+  for (int i = n - 1; i &gt;= 1; i--) invFact[i] = mul(invFact[i + 1], i + 1);
+}
+long long nCr_mod(int n, int r) {
+  if (r &lt; 0 || r &gt; n) return 0;
+  return mul(fact[n], mul(invFact[r], invFact[n - r]));
 }</code></pre>
     </div>
 
@@ -895,11 +1229,12 @@ public:
 };</code></pre>
     </div>
 
-    <div class="item" data-search="fenwick tree bit binary indexed tree">
+    <div class="item" data-search="fenwick tree bit binary indexed tree average range query sum">
       <div class="item-head">
-        <span class="item-title">Fenwick Tree (BIT - Prefix Sums)</span>
+        <span class="item-title">Fenwick Tree (BIT: Sum &amp; Range Average)</span>
         <span class="item-meta"><span class="time">O(log N)</span></span>
       </div>
+      <div class="item-desc">Point update, range sum, integer &amp; decimal range average (<code>avg = sum / count</code>).</div>
 <pre><code>struct Fenwick {
   int n; vector&lt;int&gt; bit;
   Fenwick(int n) : n(n), bit(n + 1, 0) {}
@@ -912,10 +1247,13 @@ public:
     return sum;
   }
   int range_query(int l, int r) { return query(r) - query(l - 1); }
+  // Average = sum / number_of_elements (count = r - l + 1)
+  int avg(int l, int r) { return range_query(l, r) / (r - l + 1); } // integer
+  double avg_d(int l, int r) { return (double)range_query(l, r) / (r - l + 1); } // decimal
 };</code></pre>
     </div>
 
-    <div class="item" data-search="segment tree segtree range query point update">
+    <div class="item" data-search="segment tree segtree range sum query point update">
       <div class="item-head">
         <span class="item-title">Iterative Segment Tree (Range Sum)</span>
         <span class="item-meta"><span class="time">O(log N)</span></span>
@@ -933,6 +1271,120 @@ public:
       if (r &amp; 1) res += t[--r];
     }
     return res;
+  }
+};</code></pre>
+    </div>
+
+    <div class="item" data-search="segment tree min max rmq range minimum maximum query">
+      <div class="item-head">
+        <span class="item-title">Segment Tree for MIN &amp; MAX (Minimal Changes)</span>
+        <span class="item-meta"><span class="time">O(log N)</span></span>
+      </div>
+      <div class="item-desc">Minimal changes to adapt base SegTree for Range Min / Max Query (RMQ).</div>
+<pre><code>// === SEGMENT TREE FOR MIN ===
+// 1. Initialize with infinity:
+SegTree(int n) : n(n), t(2 * n, INT_MAX) {}
+// 2. Update: change t[p&gt;&gt;1] = t[p] + t[p^1] to:
+void update(int p, int val) {
+  for (t[p += n] = val; p &gt; 1; p &gt;&gt;= 1) t[p &gt;&gt; 1] = min(t[p], t[p ^ 1]);
+}
+// 3. Query min on [l, r]:
+int query(int l, int r) {
+  int res = INT_MAX;
+  for (l += n, r += n + 1; l &lt; r; l &gt;&gt;= 1, r &gt;&gt;= 1) {
+    if (l &amp; 1) res = min(res, t[l++]);
+    if (r &amp; 1) res = min(res, t[--r]);
+  }
+  return res;
+}
+
+// === SEGMENT TREE FOR MAX ===
+// 1. Initialize: SegTree(int n) : n(n), t(2 * n, INT_MIN) {}
+// 2. Update:     t[p &gt;&gt; 1] = max(t[p], t[p ^ 1]);
+// 3. Query:      res = INT_MIN;
+//                if (l &amp; 1) res = max(res, t[l++]);
+//                if (r &amp; 1) res = max(res, t[--r]);</code></pre>
+    </div>
+
+    <div class="item" data-search="kactl segment tree associative range query unit 0f4bdb">
+      <div class="item-head">
+        <span class="item-title">KACTL Segment Tree (Associative f, [b, e))</span>
+        <span class="item-meta"><span class="prefix">SegTreeKACTL</span> | <span class="time">O(log N)</span></span>
+      </div>
+      <div class="item-desc">Zero-indexed, [b, e) semi-open interval. Modify T, f, unit for min/sum/gcd.</div>
+<pre><code>struct Tree {
+  typedef int T;
+  static constexpr T unit = INT_MIN;
+  T f(T a, T b) { return max(a, b); } // any associative fn
+  vector&lt;T&gt; s; int n;
+  Tree(int n = 0, T def = unit) : s(2 * n, def), n(n) {}
+  void update(int pos, T val) {
+    for (s[pos += n] = val; pos /= 2;)
+      s[pos] = f(s[pos * 2], s[pos * 2 + 1]);
+  }
+  T query(int b, int e) { // query [b, e)
+    T ra = unit, rb = unit;
+    for (b += n, e += n; b &lt; e; b /= 2, e /= 2) {
+      if (b % 2) ra = f(ra, s[b++]);
+      if (e % 2) rb = f(s[--e], rb);
+    }
+    return f(ra, rb);
+  }
+};</code></pre>
+    </div>
+
+    <div class="item" data-search="lazy segment tree range add set update range max kactl">
+      <div class="item-head">
+        <span class="item-title">Lazy Segment Tree (Range Add, Set &amp; Max)</span>
+        <span class="item-meta"><span class="prefix">LazySegTree</span> | <span class="time">O(log N)</span></span>
+      </div>
+      <div class="item-desc">Supports range add, range set, and range max queries on [L, R).</div>
+<pre><code>const int inf = 1e9;
+struct Node {
+  Node *l = 0, *r = 0;
+  int lo, hi, mset = inf, madd = 0, val = -inf;
+  Node(int lo, int hi) : lo(lo), hi(hi) {}
+  Node(vector&lt;int&gt;&amp; v, int lo, int hi) : lo(lo), hi(hi) {
+    if (lo + 1 &lt; hi) {
+      int mid = lo + (hi - lo) / 2;
+      l = new Node(v, lo, mid); r = new Node(v, mid, hi);
+      val = max(l-&gt;val, r-&gt;val);
+    } else val = v[lo];
+  }
+  int query(int L, int R) {
+    if (R &lt;= lo || hi &lt;= L) return -inf;
+    if (L &lt;= lo &amp;&amp; hi &lt;= R) return val;
+    push();
+    return max(l-&gt;query(L, R), r-&gt;query(L, R));
+  }
+  void set(int L, int R, int x) {
+    if (R &lt;= lo || hi &lt;= L) return;
+    if (L &lt;= lo &amp;&amp; hi &lt;= R) mset = val = x, madd = 0;
+    else {
+      push(), l-&gt;set(L, R, x), r-&gt;set(L, R, x);
+      val = max(l-&gt;val, r-&gt;val);
+    }
+  }
+  void add(int L, int R, int x) {
+    if (R &lt;= lo || hi &lt;= L) return;
+    if (L &lt;= lo &amp;&amp; hi &lt;= R) {
+      if (mset != inf) mset += x;
+      else madd += x;
+      val += x;
+    } else {
+      push(), l-&gt;add(L, R, x), r-&gt;add(L, R, x);
+      val = max(l-&gt;val, r-&gt;val);
+    }
+  }
+  void push() {
+    if (!l) {
+      int mid = lo + (hi - lo) / 2;
+      l = new Node(lo, mid); r = new Node(mid, hi);
+    }
+    if (mset != inf)
+      l-&gt;set(lo, hi, mset), r-&gt;set(lo, hi, mset), mset = inf;
+    else if (madd)
+      l-&gt;add(lo, hi, madd), r-&gt;add(lo, hi, madd), madd = 0;
   }
 };</code></pre>
     </div>
@@ -997,18 +1449,34 @@ for (int i = 0; i &lt; (1 &lt;&lt; n); i++) {
 cout &lt;&lt; ans &lt;&lt; endl;</code></pre>
     </div>
 
-    <div class="item" data-search="two pointers twopointer merge sorted">
+    <div class="item" data-search="two pointers sliding window opposite direction merge sorted subsegments">
       <div class="item-head">
-        <span class="item-title">Two Pointers (Merge 2 Sorted Lists)</span>
-        <span class="item-meta"><span class="prefix">twoPointer</span> | <span class="time">O(N + M)</span></span>
+        <span class="item-title">Two Pointers &amp; Sliding Window Patterns</span>
+        <span class="item-meta"><span class="prefix">two_pointers</span> | <span class="time">O(N)</span></span>
       </div>
-<pre><code>vector&lt;int&gt; a(n), b(m), c;
-for (int &amp;x : a) cin &gt;&gt; x;
-for (int &amp;x : b) cin &gt;&gt; x;
-int i = 0, j = 0;
+      <div class="item-desc">Opposite direction (2-Sum), same direction (Sliding Window), and merging 2 lists.</div>
+<pre><code>// 1. OPPOSITE DIRECTION (Target Sum on Sorted Array: O(N))
+int l = 0, r = n - 1;
+while (l &lt; r) {
+  int sum = a[l] + a[r];
+  if (sum == target) { /* found pair (l, r) */ break; }
+  else if (sum &lt; target) l++;
+  else r--;
+}
+
+// 2. SAME DIRECTION (Sliding Window: Longest subarray with sum &lt;= K: O(N))
+int left = 0, cur_sum = 0, max_len = 0;
+for (int right = 0; right &lt; n; ++right) {
+  cur_sum += a[right];
+  while (cur_sum &gt; K &amp;&amp; left &lt;= right) cur_sum -= a[left++];
+  max_len = max(max_len, right - left + 1);
+}
+
+// 3. MERGING TWO SORTED LISTS (Original twoPointer snippet: O(N + M))
+vector&lt;int&gt; c; int i = 0, j = 0;
 while (i &lt; n || j &lt; m) {
-  while ((i &lt; n) &amp;&amp; (j &gt;= m || (a[i] &lt;= b[j]))) { c.push_back(a[i]); i++; }
-  while ((j &lt; m) &amp;&amp; (i &gt;= n || b[j] &lt;= a[i])) { c.push_back(b[j]); j++; }
+  while (i &lt; n &amp;&amp; (j &gt;= m || a[i] &lt;= b[j])) { c.push_back(a[i]); i++; }
+  while (j &lt; m &amp;&amp; (i &gt;= n || b[j] &lt;= a[i])) { c.push_back(b[j]); j++; }
 }</code></pre>
     </div>
 
@@ -1040,6 +1508,82 @@ while (i &lt; n || j &lt; m) {
     else *it = x;
   }
   return tails.size();
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="kadane maximum subarray sum largest sum contiguous subarray">
+      <div class="item-head">
+        <span class="item-title">Kadane's Algorithm (Max Subarray Sum)</span>
+        <span class="item-meta"><span class="time">O(N)</span></span>
+      </div>
+      <div class="item-desc">Maximum contiguous sum and [best_l, best_r] range in single pass.</div>
+<pre><code>long long max_sum = -1e18, cur = 0;
+int best_l = 0, best_r = 0, start = 0;
+for (int i = 0; i &lt; n; i++) {
+  cur += a[i];
+  if (cur &gt; max_sum) { max_sum = cur; best_l = start; best_r = i; }
+  if (cur &lt; 0) { cur = 0; start = i + 1; }
+} // Maximum subarray sum = max_sum on range [best_l, best_r]</code></pre>
+    </div>
+
+    <div class="item" data-search="lcs longest common subsequence dynamic programming path reconstruction">
+      <div class="item-head">
+        <span class="item-title">Longest Common Subsequence (LCS)</span>
+        <span class="item-meta"><span class="time">O(N &times; M)</span></span>
+      </div>
+      <div class="item-desc">LCS length and string reconstruction via backtracking.</div>
+<pre><code>string get_lcs(const string &amp;s, const string &amp;t) {
+  int n = s.size(), m = t.size();
+  vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(m + 1, 0));
+  for (int i = 1; i &lt;= n; i++)
+    for (int j = 1; j &lt;= m; j++)
+      dp[i][j] = (s[i-1] == t[j-1]) ? 1 + dp[i-1][j-1] : max(dp[i-1][j], dp[i][j-1]);
+  string res = ""; int i = n, j = m;
+  while (i &gt; 0 &amp;&amp; j &gt; 0) {
+    if (s[i-1] == t[j-1]) { res += s[i-1]; i--; j--; }
+    else if (dp[i-1][j] &gt; dp[i][j-1]) i--;
+    else j--;
+  }
+  reverse(res.begin(), res.end()); return res; // Length = dp[n][m]
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="coin change min coins number of ways unbounded knapsack">
+      <div class="item-head">
+        <span class="item-title">Coin Change (Min Coins &amp; Total Ways)</span>
+        <span class="item-meta"><span class="time">O(N &times; Target)</span></span>
+      </div>
+      <div class="item-desc">Min coins to make amount X, and number of combinations modulo MOD.</div>
+<pre><code>// 1. Min coins to make target X:
+vector&lt;int&gt; dp(X + 1, 1e9); dp[0] = 0;
+for (int i = 1; i &lt;= X; i++)
+  for (int c : coins) if (i &gt;= c) dp[i] = min(dp[i], dp[i - c] + 1);
+int min_coins = (dp[X] &gt;= 1e9 ? -1 : dp[X]);
+
+// 2. Number of ways (Combinations - coins loop outside!):
+vector&lt;int&gt; ways(X + 1, 0); ways[0] = 1;
+for (int c : coins)
+  for (int i = c; i &lt;= X; i++) ways[i] = (ways[i] + ways[i - c]) % MOD;</code></pre>
+    </div>
+
+    <div class="item" data-search="edit distance levenshtein distance insert delete replace">
+      <div class="item-head">
+        <span class="item-title">Edit Distance (Levenshtein)</span>
+        <span class="item-meta"><span class="time">O(N &times; M)</span></span>
+      </div>
+      <div class="item-desc">Minimum operations (insert, delete, replace) to transform s1 into s2.</div>
+<pre><code>int edit_distance(const string &amp;s1, const string &amp;s2) {
+  int n = s1.size(), m = s2.size();
+  vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(m + 1));
+  for (int i = 0; i &lt;= n; i++) dp[i][0] = i;
+  for (int j = 0; j &lt;= m; j++) dp[0][j] = j;
+  for (int i = 1; i &lt;= n; i++) {
+    for (int j = 1; j &lt;= m; j++) {
+      if (s1[i-1] == s2[j-1]) dp[i][j] = dp[i-1][j-1];
+      else dp[i][j] = 1 + min({dp[i-1][j], dp[i][j-1], dp[i-1][j-1]});
+    }
+  }
+  return dp[n][m];
 }</code></pre>
     </div>
 
@@ -1115,6 +1659,104 @@ double polygon_area(const vector&lt;Point&gt;&amp; p) {
 }</code></pre>
     </div>
 
+    <div class="item" data-search="geometry 2d point vector dot cross product orientation collinear">
+      <div class="item-head">
+        <span class="item-title">2D Point, Vectors &amp; Products</span>
+        <span class="item-meta"><span class="prefix">geom2d</span></span>
+      </div>
+      <div class="item-desc">Vector operations, dot/cross products, CCW orientation, distance, angle.</div>
+<pre><code>struct Pt {
+  double x, y;
+  Pt(double x=0, double y=0) : x(x), y(y) {}
+  Pt operator+(Pt p) const { return {x + p.x, y + p.y}; }
+  Pt operator-(Pt p) const { return {x - p.x, y - p.y}; }
+  Pt operator*(double d) const { return {x * d, y * d}; }
+  Pt operator/(double d) const { return {x / d, y / d}; }
+  double dot(Pt p) const { return x * p.x + y * p.y; }       // |a||b|cos(θ)
+  double cross(Pt p) const { return x * p.y - y * p.x; }     // |a||b|sin(θ)
+  double dist2() const { return x * x + y * y; }
+  double dist() const { return sqrt(dist2()); }
+  double angle() const { return atan2(y, x); }
+};
+// Orientation: &gt; 0 = CCW (left turn), &lt; 0 = CW (right turn), == 0 = Collinear
+double ccw(Pt a, Pt b, Pt c) { return (b - a).cross(c - a); }</code></pre>
+    </div>
+
+    <div class="item" data-search="line segment distance intersection heron inradius circumradius cramer">
+      <div class="item-head">
+        <span class="item-title">Lines, Segments &amp; Triangles Equations</span>
+        <span class="item-meta"><span class="prefix">line_tri</span></span>
+      </div>
+      <div class="item-desc">Point-line distance, line intersection (Cramer), Heron, inradius, circumradius.</div>
+<pre><code>// 1. Distance from point P to line AB:
+double dist_to_line(Pt p, Pt a, Pt b) {
+  return fabs((b - a).cross(p - a)) / (b - a).dist();
+}
+// 2. Line Intersection (A1*x + B1*y = C1 and A2*x + B2*y = C2 via Cramer):
+bool line_inter(double a1, double b1, double c1, double a2, double b2, double c2, Pt &amp;out) {
+  double d = a1 * b2 - a2 * b1;
+  if (fabs(d) &lt; 1e-9) return false; // Parallel or identical
+  out.x = (c1 * b2 - c2 * b1) / d; out.y = (a1 * c2 - a2 * c1) / d;
+  return true;
+}
+// 3. Triangle Formulas: sides a, b, c
+// Heron's Area: s = (a + b + c) / 2
+double heron(double a, double b, double c) {
+  double s = (a + b + c) / 2.0;
+  return sqrt(max(0.0, s * (s - a) * (s - b) * (s - c)));
+}
+// Inradius: r = Area / s | Circumradius: R = (a * b * c) / (4 * Area)
+double inradius(double a, double b, double c) { return heron(a, b, c) / ((a + b + c) / 2.0); }
+double circumradius(double a, double b, double c) { return (a * b * c) / (4.0 * heron(a, b, c)); }</code></pre>
+    </div>
+
+    <div class="item" data-search="picks theorem polygon centroid circle circumcircle 3d sphere cylinder cone">
+      <div class="item-head">
+        <span class="item-title">Pick's Theorem, Centroid &amp; 3D Solids</span>
+        <span class="item-meta"><span class="prefix">geom_extra</span></span>
+      </div>
+      <div class="item-desc">Pick's Theorem, polygon centroid, circle, and 3D solid geometry equations.</div>
+<pre><code>// 1. Pick's Theorem: Area = I + B/2 - 1  =&gt;  I = Area - B/2 + 1
+// B = boundary lattice points = sum(gcd(|x2-x1|, |y2-y1|)) for all polygon edges
+// I = strictly interior lattice points
+
+// 2. Polygon Centroid (Center of Mass):
+Pt polygon_centroid(const vector&lt;Pt&gt;&amp; p) {
+  Pt c(0, 0); double A = 0; int n = p.size();
+  for (int i = 0; i &lt; n; i++) {
+    int j = (i + 1) % n; double cross = p[i].cross(p[j]);
+    A += cross; c = c + (p[i] + p[j]) * cross;
+  }
+  return c / (3.0 * A);
+}
+
+// 3. Circles &amp; 3D Solid Geometry Equations:
+// Circle:   Area = π * r^2, Circumference = 2 * π * r
+// Sphere:   Volume = (4/3) * π * r^3, Surface Area = 4 * π * r^2
+// Cylinder: Volume = π * r^2 * h, Surface Area = 2 * π * r * (r + h)
+// Cone:     Volume = (1/3) * π * r^2 * h, Slant height s = sqrt(r^2 + h^2)</code></pre>
+    </div>
+
+    <div class="item" data-search="math formulas series sum squares cubes geometric progression logarithm equations">
+      <div class="item-head">
+        <span class="item-title">Math Series, Logarithms &amp; Algebra</span>
+        <span class="item-meta"><span class="prefix">math_eq</span></span>
+      </div>
+      <div class="item-desc">Closed-form summations, geometric progressions, logarithm laws, digit counts.</div>
+<pre><code>// 1. Summation Formulas:
+// Sum of 1..N:           N * (N + 1) / 2
+// Sum of squares 1..N^2: N * (N + 1) * (2N + 1) / 6
+// Sum of cubes 1..N^3:   (N * (N + 1) / 2)^2
+// Geometric Progression: a + a*r + ... + a*r^(n-1) = a * (r^n - 1) / (r - 1)
+
+// 2. Logarithm &amp; Exponents:
+// log_b(a) = ln(a) / ln(b) = log10(a) / log10(b)
+// log(a * b) = log(a) + log(b), log(a / b) = log(a) - log(b), log(a^k) = k * log(a)
+
+// 3. Number of Digits of N in Base B: floor(log_B(N)) + 1
+// 4. Stirling's Approximation: n! ≈ sqrt(2 * π * n) * (n / e)^n</code></pre>
+    </div>
+
   </div> <!-- End columns -->
 </div>
 
@@ -1132,6 +1774,61 @@ function filterItems() {
     }
   }
 }
+
+function updateContestInfo() {
+  var name = (document.getElementById("inputName").value || "Soyebuzaman Naim").trim();
+  var team = (document.getElementById("inputTeam").value || "Team Hoffnang").trim();
+  var inst = (document.getElementById("inputInst").value || "Southeast University").trim();
+
+  var dispName = document.getElementById("displayContestant");
+  var dispTeam = document.getElementById("displayTeam");
+  var dispInst = document.getElementById("displayInst");
+  var bannerH1 = document.getElementById("bannerTitle");
+
+  if (dispName) dispName.innerText = name;
+  if (dispTeam) dispTeam.innerText = team;
+  if (dispInst) dispInst.innerText = inst;
+  if (bannerH1) bannerH1.innerText = team.toUpperCase() + " — ALGORITHM REFERENCE NOTEBOOK";
+  document.title = team + " — Official Team Reference Document";
+
+  // Injects dynamic CSS @page @top-left rule for printing
+  var styleEl = document.getElementById("dynamicPrintStyle");
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = "dynamicPrintStyle";
+    document.head.appendChild(styleEl);
+  }
+
+  var safeName = name.replace(/"/g, '\\"');
+  var safeTeam = team.replace(/"/g, '\\"');
+  var safeInst = inst.replace(/"/g, '\\"');
+
+  styleEl.innerHTML = `
+    @page {
+      @top-left {
+        content: "${safeName} — ${safeTeam} (${safeInst})" !important;
+      }
+    }
+  `;
+
+  try {
+    localStorage.setItem("cp_contestant_name", name);
+    localStorage.setItem("cp_team_name", team);
+    localStorage.setItem("cp_inst_name", inst);
+  } catch (e) {}
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+  try {
+    var sName = localStorage.getItem("cp_contestant_name");
+    var sTeam = localStorage.getItem("cp_team_name");
+    var sInst = localStorage.getItem("cp_inst_name");
+    if (sName) document.getElementById("inputName").value = sName;
+    if (sTeam) document.getElementById("inputTeam").value = sTeam;
+    if (sInst) document.getElementById("inputInst").value = sInst;
+  } catch (e) {}
+  updateContestInfo();
+});
 </script>
 </body>
 </html>

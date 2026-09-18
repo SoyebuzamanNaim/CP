@@ -91,44 +91,180 @@ bool are_equal(double a, double b) { return fabs(a - b) < EPS; }
 cout << fixed << setprecision(9) << ans << "\n";
 ```
 
-### 2.2 Standard Library Containers
+### 2.2 C++ `<cmath>` Math Functions (exp, ln, root, sin, cos)
 ```cpp
-// Vector (Dynamic Array)
-vector<int> v; v.push_back(10); v.pop_back(); int sz = v.size();
+const double PI = acos(-1.0); // Exact value of π: 3.141592653589793
 
-// Set (Strictly unique, ascending order, O(log N))
+// 1. Exponential (e^x) & Powers:
+double e_to_x   = exp(x);              // e^x (for long double use expl(x))
+double power    = pow(base, exp);      // base^exp (e.g. pow(2.0, 10.0) = 1024.0)
+
+// 2. Natural Logarithm (ln) & Logarithms:
+double natural  = log(x);              // ln(x) (natural log, base e)
+double log_10   = log10(x);            // log10(x) (base 10)
+double log_2    = log2(x);             // log2(x) (base 2)
+double log_b    = log(x) / log(b);     // log_b(x) in arbitrary base b
+
+// 3. Roots (Square, Cube & k-th Root):
+double sq_root  = sqrt(x);             // √x (Square root: x >= 0)
+double cb_root  = cbrt(x);             // ∛x (Cube root: works for negative inputs too!)
+double kth_root = pow(x, 1.0 / k);     // k-th root of x: x^(1/k)
+
+// 4. Trigonometry: sin, cos, tan (Input MUST be in RADIANS!):
+double deg = 60.0;
+double rad = deg * (PI / 180.0);       // Degrees to Radians!
+double s   = sin(rad);                 // sin(60°) = √3 / 2 ≈ 0.866025
+double c   = cos(rad);                 // cos(60°) = 0.5
+double t   = tan(rad);                 // tan(60°) ≈ 1.73205
+
+// 5. Inverse Trigonometry & Angles:
+double angle_rad = atan2(y, x);        // Angle in radians [-π, π] from (x, y)
+double angle_deg = angle_rad * 180.0 / PI; // Radians to Degrees!
+double asin_val  = asin(s);            // arcsin (returns [-π/2, π/2])
+double acos_val  = acos(c);            // arccos (returns [0, π])
+
+// 6. Absolute & Hypotenuse:
+double abs_val   = fabs(x);            // |x| for floating point (fabsl for long double)
+double hyp       = hypot(x, y);        // √(x^2 + y^2) (safely prevents overflow)
+```
+
+### 2.3 Matrix I/O & 2D Grid Helpers
+- **Time Complexity:** $O(N \times M)$
+```cpp
+// 1. Numeric Matrix N x M Input
+int n, m; cin >> n >> m;
+vector<vector<int>> a(n, vector<int>(m));
+for (int i = 0; i < n; i++)
+    for (int j = 0; j < m; j++)
+        cin >> a[i][j];
+
+// Matrix Output (space-separated, newline per row)
+for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++)
+        cout << a[i][j] << (j == m - 1 ? "" : " ");
+    cout << '\n';
+}
+
+// 2. Character Grid (Maze / Labyrinth Input)
+vector<string> grid(n);
+for (int i = 0; i < n; i++) cin >> grid[i];
+
+// 3. Direction Arrays for Grid Navigation
+int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right
+int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions (with diagonals)
+int dy8[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+bool valid(int x, int y, int n, int m) { return x >= 0 && x < n && y >= 0 && y < m; }
+```
+
+### 2.3 All Type Converters & String Parsers
+```cpp
+// 1. Number <-> String
+string s = to_string(12345LL);          // int / LL to string
+int num = stoi("123");                   // string to int
+long long lnum = stoll("1234567890123"); // string to long long
+double d = stod("3.14159");              // string to double
+long double ld = stold("3.1415926535");  // string to long double
+
+// 2. Char <-> Digit & Alphabets
+int digit = '7' - '0';                   // '7' -> 7
+char ch = 7 + '0';                       // 7 -> '7'
+int lower_idx = 'c' - 'a';               // 'c' -> 2 (0 to 25)
+int upper_idx = 'C' - 'A';               // 'C' -> 2 (0 to 25)
+char lower_c = tolower('A');             // 'A' -> 'a'
+char upper_c = toupper('a');             // 'a' -> 'A'
+// Entire string to lower/upper:
+transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+// 3. Base Conversions (Binary, Hex, Octal)
+int from_bin = stoi("10110", nullptr, 2);  // "10110" -> 22
+int from_hex = stoi("1A", nullptr, 16);    // "1A" -> 26
+int from_oct = stoi("75", nullptr, 8);     // "75" -> 61
+string to_bin = bitset<32>(22).to_string(); // 22 -> "00...0010110"
+to_bin = to_bin.substr(to_bin.find('1'));  // Trim leading zeros
+stringstream ss; ss << hex << 255; string hex_str = ss.str(); // "ff"
+
+// 4. String Tokenizer (split by space / delimiter)
+stringstream ss2("apple banana cherry");
+string word; while (ss2 >> word) { /* process each word */ }
+stringstream ss3("1,2,3,4");
+string item; while (getline(ss3, item, ',')) { int val = stoi(item); }
+```
+
+### 2.4 All STL Containers: Operations & Complexity
+```cpp
+// 1. VECTOR (Dynamic Array - O(1) push/pop_back, O(1) random access)
+vector<int> v = {1, 2, 3};
+v.push_back(4); v.pop_back(); v.front(); v.back(); v.size(); v.empty();
+v.resize(10, 0); v.assign(5, -1); v.clear();
+v.insert(v.begin() + 1, 99); v.erase(v.begin() + 1); // O(N)
+
+// 2. PAIR & TUPLE
+pair<int, string> p = {1, "ab"}; auto [id, name] = p; // C++17 structured binding
+tuple<int, int, int> tp = {1, 2, 3}; auto [x, y, z] = tp; int f = get<0>(tp);
+
+// 3. SET & MULTISET (Red-Black Tree - O(log N) operations, sorted)
 set<int> s; s.insert(5); s.erase(5); bool has = s.count(5);
-int min_val = *s.begin(), max_val = *s.rbegin();
-
-// Multiset (Allows duplicates, ascending order, O(log N))
+auto it_lb = s.lower_bound(x); // first element >= x
+auto it_ub = s.upper_bound(x); // first element > x
 multiset<int> ms; ms.insert(5); ms.insert(5);
 ms.erase(ms.find(5)); // Erases ONLY ONE 5! (ms.erase(5) deletes ALL 5s)
 
-// Map (Key-Value associative map, O(log N))
-map<string, int> mp; mp["team"] = 1;
-for (auto &[k, val] : mp) { /* sorted iteration */ }
+// 4. MAP (Sorted key-value - O(log N)) & Frequency Counter
+map<string, int> mp; mp["apple"] = 5; mp.count("apple"); mp.erase("apple");
+for (auto &[key, val] : mp) { /* sorted by key */ }
+// Frequency counter snippet:
+map<int, int> freq; for (int x : v) freq[x]++;
+int max_f = 0, most_frequent = -1;
+for (auto &[val, count] : freq) {
+    if (count > max_f) { max_f = count; most_frequent = val; }
+}
 
-// Heaps / Priority Queue: O(log N) push/pop, O(1) top
-priority_queue<int> max_heap; // largest on top
-priority_queue<int, vector<int>, greater<int>> min_heap; // smallest on top
+// 5. PRIORITY_QUEUE (Heap - O(log N) push/pop, O(1) top)
+priority_queue<int> max_pq; // Max heap by default
+priority_queue<int, vector<int>, greater<int>> min_pq; // Min heap
+max_pq.push(10); max_pq.top(); max_pq.pop();
+
+// 6. DEQUE, STACK & QUEUE (O(1) push/pop)
+deque<int> dq; dq.push_front(1); dq.push_back(2); dq.pop_front(); dq.pop_back();
+stack<int> st; st.push(1); st.top(); st.pop();
+queue<int> q; q.push(1); q.front(); q.pop();
+
+// 7. BITSET (Fixed-size bit array - 64x faster bitwise ops)
+bitset<64> bs(15); bs.set(2); bs.reset(2); bs.flip(); bool bit = bs.test(0);
+int set_bits = bs.count(); unsigned long long val = bs.to_ullong();
 ```
 
-### 2.3 `<algorithm>` Essentials
+### 2.5 All STL Algorithms: Quick Syntax & Uses
 ```cpp
-vector<int> a = {5, 2, 8, 1, 9};
+// 1. Sorting & Bounds (v is vector<int>)
+sort(all(v));                            // Ascending: O(N log N)
+sort(rall(v));                           // Descending: O(N log N)
+stable_sort(all(v), comp);               // Preserves relative order
+auto it1 = lower_bound(all(v), x);       // First iterator with *it >= x
+int idx1 = lower_bound(all(v), x) - v.begin(); // 0-based index of first >= x
+auto it2 = upper_bound(all(v), x);       // First iterator with *it > x
+bool found = binary_search(all(v), x);   // True if x exists (O(log N))
 
-// 1. Sort O(N log N)
-sort(all(a));                  // Ascending: {1, 2, 5, 8, 9}
-sort(rall(a));                 // Descending: {9, 8, 5, 2, 1}
+// 2. Element Operations & Deduplication
+v.erase(unique(all(v)), v.end());        // Remove duplicates (sort first!)
+reverse(all(v));                         // Invert order: O(N)
+rotate(v.begin(), v.begin() + k, v.end()); // Left-rotates by k positions
+int mn = *min_element(all(v));           // Minimum element: O(N)
+int mx = *max_element(all(v));           // Maximum element: O(N)
+int cnt = count(all(v), x);              // Count occurrences of x: O(N)
+fill(all(v), 0);                         // Fill all with 0
 
-// 2. Binary Search on Sorted Arrays: O(log N)
-auto it1 = lower_bound(all(a), 5); // first element >= 5
-int idx1 = it1 - a.begin();        // convert iterator to index
-auto it2 = upper_bound(all(a), 5); // first element > 5
+// 3. Numeric & Prefix Sums (<numeric>)
+int sum = accumulate(all(v), 0LL);       // Sum (use 0LL to prevent overflow!)
+vector<int> pref(n);
+partial_sum(all(v), pref.begin());       // Prefix sum array in-place: O(N)
+iota(all(v), 0);                         // Fills with 0, 1, 2, ..., n-1
 
-// 3. Deduplication (Coordinate Compression)
-sort(all(a));
-a.erase(unique(all(a)), a.end());
+// 4. Permutations & Order Statistics
+next_permutation(all(v));                // Next lexicographical order
+prev_permutation(all(v));                // Previous order
+// nth_element: Rearranges so element at index k is in its sorted position: O(N) avg
+nth_element(v.begin(), v.begin() + k, v.end()); // v[k] is the k-th smallest!
 ```
 
 ---
@@ -254,6 +390,119 @@ pair<int, int> ext_gcd(int a, int b) {
 int mod_inverse(int a, int m) {
     auto [x, y] = ext_gcd(a, m);
     return (x % m + m) % m;
+}
+```
+
+### 3.8 Numerically Stable Quadratic Equation Solver
+- **Trigger Prefix:** `quadf`
+- **Time Complexity:** $O(1)$
+- **Algorithm:** Citardauq formula $q = -0.5 \cdot (b + \text{copysign}(\sqrt{D}, b))$ avoids catastrophic floating-point cancellation when $b \approx \sqrt{b^2 - 4ac}$.
+- **Handles:** Degenerate linear cases ($a = 0$), repeated roots ($D = 0$), and no real roots ($D < 0$).
+```cpp
+using ld = long double;
+const ld EPS = 1e-12;
+
+void solve_quadratic(ld a, ld b, ld c) {
+    cout << fixed << setprecision(12);
+    // Linear equation: bx + c = 0
+    if (fabsl(a) < EPS) {
+        if (fabsl(b) < EPS) cout << "No solution\n";
+        else cout << -c / b << '\n';
+        return;
+    }
+
+    ld d = b * b - 4 * a * c;
+
+    // No real roots
+    if (d < -EPS) {
+        cout << "No real roots\n";
+        return;
+    }
+
+    // One repeated root
+    if (fabsl(d) <= EPS) {
+        cout << -b / (2 * a) << '\n';
+        return;
+    }
+
+    // Two real roots with Citardauq numerical stability
+    ld sq = sqrtl(d);
+    ld q = -0.5L * (b + copysignl(sq, b));
+
+    ld x1 = q / a;
+    ld x2 = c / q;
+
+    if (x1 > x2) swap(x1, x2);
+
+    cout << x1 << '\n' << x2 << '\n';
+}
+```
+
+### 3.10 All Binary Operations & Bit Manipulation Hacks
+- **Time Complexity:** $O(1)$ per operation
+```cpp
+// 1. GCC Builtin Functions (Append 'll' for 64-bit integers: e.g. __builtin_popcountll)
+int ones = __builtin_popcountll(x);   // Count set bits (number of 1s)
+int clz  = __builtin_clzll(x);        // Count leading zeros (undefined if x=0!)
+int ctz  = __builtin_ctzll(x);        // Count trailing zeros (lowest set bit index)
+int par  = __builtin_parityll(x);     // Parity: 1 if odd number of 1s, 0 if even
+int msb  = 63 - __builtin_clzll(x);   // Index of highest set bit (= floor(log2(x)))
+
+// 2. Essential Bit Hacks
+bool is_set   = (n >> k) & 1;          // Check if k-th bit is 1 (0-indexed)
+n |= (1LL << k);                      // Set k-th bit to 1
+n &= ~(1LL << k);                     // Clear k-th bit to 0
+n ^= (1LL << k);                      // Toggle k-th bit (flip 0 <-> 1)
+bool is_pow2  = n > 0 && !(n & (n - 1)); // True if n is a power of 2
+int lsb       = n & (-n);             // Isolates lowest set bit: e.g. 12 (1100) -> 4 (0100)
+n &= (n - 1);                         // Clears the lowest set bit
+
+// 3. Iterate All Submasks of Mask m (in strictly descending order)
+for (int s = m; s > 0; s = (s - 1) & m) {
+    // s is a non-empty submask of m. Total operations across all masks: O(3^N)
+}
+
+// 4. Iterate All Masks of Size N
+for (int mask = 0; mask < (1 << n); ++mask) { /* O(2^N) */ }
+```
+
+### 3.11 Complete Modulo Sheet & $O(1)$ nCr Combinatorics
+- **Primes:** Standard CP moduli are $10^9 + 7$ or $998244353$ (NTT friendly).
+```cpp
+const int MOD = 1e9 + 7; // or 998244353
+
+// 1. Safe Operations (handles negatives & prevents overflow)
+long long add(long long a, long long b) { return (a + b) % MOD; }
+long long sub(long long a, long long b) { return (a - b + MOD) % MOD; }
+long long mul(long long a, long long b) { return (1LL * a * b) % MOD; }
+
+// 2. Fast Exponentiation: (base^exp) % MOD
+long long power(long long base, long long exp) {
+    long long res = 1; base %= MOD;
+    while (exp > 0) {
+        if (exp % 2 == 1) res = (res * base) % MOD;
+        base = (base * base) % MOD;
+        exp /= 2;
+    }
+    return res;
+}
+
+// 3. Modular Inverse via Fermat's Little Theorem (MOD must be prime) & Division
+long long modInverse(long long n) { return power(n, MOD - 2); }
+long long divi(long long a, long long b) { return mul(a, modInverse(b)); }
+
+// 4. O(N) Precomputation for O(1) nCr Modulo P (N up to 10^6):
+const int MAXN = 1000005;
+long long fact[MAXN], invFact[MAXN];
+void precompute_nCr(int n = MAXN - 1) {
+    fact[0] = invFact[0] = 1;
+    for (int i = 1; i <= n; i++) fact[i] = mul(fact[i - 1], i);
+    invFact[n] = modInverse(fact[n]);
+    for (int i = n - 1; i >= 1; i--) invFact[i] = mul(invFact[i + 1], i + 1);
+}
+long long nCr_mod(int n, int r) {
+    if (r < 0 || r > n) return 0;
+    return mul(fact[n], mul(invFact[r], invFact[n - r]));
 }
 ```
 
@@ -658,8 +907,9 @@ public:
 };
 ```
 
-### 7.2 Fenwick Tree (Binary Indexed Tree / BIT)
+### 7.2 Fenwick Tree (BIT: Sum & Range Average)
 - **Time Complexity:** $O(\log N)$ query and update, $O(N)$ memory.
+- **Average Property:** Average is easily computed as `sum / (r - l + 1)`.
 ```cpp
 struct Fenwick {
     int n; vector<int> bit;
@@ -676,6 +926,14 @@ struct Fenwick {
     }
 
     int range_query(int l, int r) { return query(r) - query(l - 1); }
+
+    // Range Average (Integer & Decimal): average = sum / number_of_elements
+    int avg(int l, int r) { // Integer average
+        return range_query(l, r) / (r - l + 1);
+    }
+    double avg_d(int l, int r) { // Decimal average
+        return (double)range_query(l, r) / (r - l + 1);
+    }
 };
 ```
 
@@ -699,6 +957,143 @@ struct SegTree {
             if (r & 1) res += t[--r];
         }
         return res;
+    }
+};
+```
+
+### 7.4 Segment Tree for MIN & MAX (Minimal Adaptations)
+- **Segment Tree for MIN:**
+  1. Initialize with infinity: `SegTree(int n) : n(n), t(2 * n, INT_MAX) {}`
+  2. Update change: `t[p >> 1] = min(t[p], t[p ^ 1]);`
+  3. Query:
+  ```cpp
+  int query(int l, int r) {
+      int res = INT_MAX;
+      for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1) {
+          if (l & 1) res = min(res, t[l++]);
+          if (r & 1) res = min(res, t[--r]);
+      }
+      return res;
+  }
+  ```
+- **Segment Tree for MAX:**
+  1. Initialize: `SegTree(int n) : n(n), t(2 * n, INT_MIN) {}`
+  2. Update change: `t[p >> 1] = max(t[p], t[p ^ 1]);`
+  3. Query:
+  ```cpp
+  int query(int l, int r) {
+      int res = INT_MIN;
+      for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1) {
+          if (l & 1) res = max(res, t[l++]);
+          if (r & 1) res = max(res, t[--r]);
+      }
+      return res;
+  ```
+
+### Basis conversion (Arbitrary Base 2 to 16)
+- **Time Complexity:** $O(\log_b N)$
+- **Capability:** Bidirectional conversion between base-$b$ string and `unsigned long long` for any base $b \le 16$.
+```cpp
+#include <algorithm>
+#include <string>
+#include <vector>
+
+const std::string DIGITS = "0123456789ABCDEF";
+
+// Convert base-b string to unsigned long long
+unsigned long long int basis_string_to_number(std::string &s, int b) {
+    unsigned long long int result = 0ULL;
+    for (char d : s) {
+        result = b * result + (std::find(DIGITS.begin(), DIGITS.end(), d) - DIGITS.begin());
+    }
+    return result;
+}
+
+// Convert unsigned long long to base-b string
+std::string number_to_basis_string(unsigned long long int n, int b) {
+    std::vector<char> ds;
+    do {
+        ds.push_back(DIGITS[n % b]);
+        n = n / b;
+    } while (n != 0);
+    return std::string(ds.rbegin(), ds.rend());
+}
+```
+
+### 7.5 KACTL Iterative Segment Tree (Associative f, [b, e))
+- **Time Complexity:** $O(\log N)$
+- **Interval:** Semi-open $[b, e)$.
+```cpp
+struct Tree {
+    typedef int T;
+    static constexpr T unit = INT_MIN;
+    T f(T a, T b) { return max(a, b); } // any associative fn
+    vector<T> s; int n;
+    Tree(int n = 0, T def = unit) : s(2 * n, def), n(n) {}
+    void update(int pos, T val) {
+        for (s[pos += n] = val; pos /= 2;)
+            s[pos] = f(s[pos * 2], s[pos * 2 + 1]);
+    }
+    T query(int b, int e) { // query [b, e)
+        T ra = unit, rb = unit;
+        for (b += n, e += n; b < e; b /= 2, e /= 2) {
+            if (b % 2) ra = f(ra, s[b++]);
+            if (e % 2) rb = f(s[--e], rb);
+        }
+        return f(ra, rb);
+    }
+};
+```
+
+### 7.6 Lazy Segment Tree (Range Add, Set & Max)
+- **Time Complexity:** $O(\log N)$ per operation
+```cpp
+const int inf = 1e9;
+struct Node {
+    Node *l = 0, *r = 0;
+    int lo, hi, mset = inf, madd = 0, val = -inf;
+    Node(int lo, int hi) : lo(lo), hi(hi) {}
+    Node(vector<int>& v, int lo, int hi) : lo(lo), hi(hi) {
+        if (lo + 1 < hi) {
+            int mid = lo + (hi - lo) / 2;
+            l = new Node(v, lo, mid); r = new Node(v, mid, hi);
+            val = max(l->val, r->val);
+        } else val = v[lo];
+    }
+    int query(int L, int R) {
+        if (R <= lo || hi <= L) return -inf;
+        if (L <= lo && hi <= R) return val;
+        push();
+        return max(l->query(L, R), r->query(L, R));
+    }
+    void set(int L, int R, int x) {
+        if (R <= lo || hi <= L) return;
+        if (L <= lo && hi <= R) mset = val = x, madd = 0;
+        else {
+            push(), l->set(L, R, x), r->set(L, R, x);
+            val = max(l->val, r->val);
+        }
+    }
+    void add(int L, int R, int x) {
+        if (R <= lo || hi <= L) return;
+        if (L <= lo && hi <= R) {
+            if (mset != inf) mset += x;
+            else madd += x;
+            val += x;
+        } else {
+            push(), l->add(L, R, x), r->add(L, R, x);
+            val = max(l->val, r->val);
+        }
+    }
+    void push() {
+        if (!l) {
+            int mid = lo + (hi - lo) / 2;
+            l = new Node(lo, mid); r = new Node(mid, hi);
+        }
+        if (mset != inf)
+            l->set(lo, hi, mset), r->set(lo, hi, mset), mset = inf;
+        else if (madd)
+            l->add(lo, hi, madd), r->add(lo, hi, madd), madd = 0;
     }
 };
 ```
@@ -772,22 +1167,34 @@ for (int i = 0; i < (1 << n); i++) {
 cout << ans << endl;
 ```
 
-### 9.2 Two Pointers Merge of Two Sorted Lists
-- **Trigger Prefix:** `twoPointer`
-- **Time Complexity:** $O(N + M)$
+### 9.2 Two Pointers & Sliding Window Patterns
+- **Time Complexity:** $O(N)$
 ```cpp
+// 1. OPPOSITE DIRECTION (Target Sum on Sorted Array: O(N))
+int l = 0, r = n - 1;
+while (l < r) {
+    int sum = a[l] + a[r];
+    if (sum == target) { /* found pair (l, r) */ break; }
+    else if (sum < target) l++;
+    else r--;
+}
+
+// 2. SAME DIRECTION (Sliding Window: Longest subarray with sum <= K: O(N))
+int left = 0, cur_sum = 0, max_len = 0;
+for (int right = 0; right < n; ++right) {
+    cur_sum += a[right];
+    while (cur_sum > K && left <= right) cur_sum -= a[left++];
+    max_len = max(max_len, right - left + 1);
+}
+
+// 3. MERGING TWO SORTED LISTS (Original twoPointer snippet: O(N + M))
 vector<int> a(n), b(m), c;
 for (int &x : a) cin >> x;
 for (int &x : b) cin >> x;
-
 int i = 0, j = 0;
 while (i < n || j < m) {
-    while ((i < n) && (j >= m || (a[i] <= b[j]))) {
-        c.push_back(a[i]); i++;
-    }
-    while ((j < m) && (i >= n || b[j] <= a[i])) {
-        c.push_back(b[j]); j++;
-    }
+    while ((i < n) && (j >= m || (a[i] <= b[j]))) { c.push_back(a[i]); i++; }
+    while ((j < m) && (i >= n || b[j] <= a[i])) { c.push_back(b[j]); j++; }
 }
 ```
 
@@ -803,7 +1210,7 @@ int knapsack_01(int W, const vector<int>& wt, const vector<int>& val, int n) {
     return dp[W];
 }
 
-// Unbounded Knapsack: change loop to: for (int w = wt[i]; w <= W; w++)
+// Unbounded Knapsack: change inner loop to: for (int w = wt[i]; w <= W; w++)
 ```
 
 ### 9.4 Longest Increasing Subsequence ($O(N \log N)$)
@@ -816,6 +1223,71 @@ int lis(const vector<int>& a) {
         else *it = x;
     }
     return tails.size();
+}
+```
+
+### 9.5 Kadane's Algorithm (Max Subarray Sum with Range Indices)
+- **Time Complexity:** $O(N)$
+```cpp
+long long max_sum = -1e18, cur = 0;
+int best_l = 0, best_r = 0, start = 0;
+for (int i = 0; i < n; i++) {
+    cur += a[i];
+    if (cur > max_sum) { max_sum = cur; best_l = start; best_r = i; }
+    if (cur < 0) { cur = 0; start = i + 1; }
+} // Max contiguous subarray sum is on range [best_l, best_r]
+```
+
+### 9.6 Longest Common Subsequence (LCS with Path Reconstruction)
+- **Time Complexity:** $O(N \cdot M)$
+```cpp
+string get_lcs(const string &s, const string &t) {
+    int n = s.size(), m = t.size();
+    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+    for (int i = 1; i <= n; i++)
+        for (int j = 1; j <= m; j++)
+            dp[i][j] = (s[i - 1] == t[j - 1]) ? 1 + dp[i - 1][j - 1] : max(dp[i - 1][j], dp[i][j - 1]);
+    string res = ""; int i = n, j = m;
+    while (i > 0 && j > 0) {
+        if (s[i - 1] == t[j - 1]) { res += s[i - 1]; i--; j--; }
+        else if (dp[i - 1][j] > dp[i][j - 1]) i--;
+        else j--;
+    }
+    reverse(res.begin(), res.end());
+    return res; // Length is dp[n][m]
+}
+```
+
+### 9.7 Coin Change (Min Coins & Total Combinations)
+- **Time Complexity:** $O(N \cdot X)$
+```cpp
+// 1. Min coins to make target amount X:
+vector<int> dp(X + 1, 1e9); dp[0] = 0;
+for (int i = 1; i <= X; i++)
+    for (int c : coins) if (i >= c) dp[i] = min(dp[i], dp[i - c] + 1);
+int min_coins = (dp[X] >= 1e9 ? -1 : dp[X]);
+
+// 2. Number of distinct combinations (coins outer loop):
+vector<int> ways(X + 1, 0); ways[0] = 1;
+for (int c : coins)
+    for (int i = c; i <= X; i++) ways[i] = (ways[i] + ways[i - c]) % MOD;
+```
+
+### 9.8 Edit Distance (Levenshtein Distance)
+- **Time Complexity:** $O(N \cdot M)$
+```cpp
+int edit_distance(const string &s1, const string &s2) {
+    int n = s1.size(), m = s2.size();
+    vector<vector<int>> dp(n + 1, vector<int>(m + 1));
+    for (int i = 0; i <= n; i++) dp[i][0] = i;
+    for (int j = 0; j <= m; j++) dp[0][j] = j;
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            if (s1[i - 1] == s2[j - 1]) dp[i][j] = dp[i - 1][j - 1];
+            else dp[i][j] = 1 + min({dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]});
+        }
+    }
+    return dp[n][m];
 }
 ```
 
@@ -889,4 +1361,89 @@ double polygon_area(const vector<Point>& p) {
     }
     return fabs(area) / 2.0;
 }
+```
+
+### 10.4 2D Point, Vectors, Dot & Cross Products
+```cpp
+struct Pt {
+    double x, y;
+    Pt(double x = 0, double y = 0) : x(x), y(y) {}
+    Pt operator+(Pt p) const { return {x + p.x, y + p.y}; }
+    Pt operator-(Pt p) const { return {x - p.x, y - p.y}; }
+    Pt operator*(double d) const { return {x * d, y * d}; }
+    Pt operator/(double d) const { return {x / d, y / d}; }
+    double dot(Pt p) const { return x * p.x + y * p.y; }       // |a||b|cos(θ)
+    double cross(Pt p) const { return x * p.y - y * p.x; }     // |a||b|sin(θ)
+    double dist2() const { return x * x + y * y; }
+    double dist() const { return sqrt(dist2()); }
+    double angle() const { return atan2(y, x); }
+};
+// Orientation: > 0 = CCW (left turn), < 0 = CW (right turn), == 0 = Collinear
+double ccw(Pt a, Pt b, Pt c) { return (b - a).cross(c - a); }
+```
+
+### 10.5 Lines, Segments & Triangles Equations
+```cpp
+// 1. Distance from point P to line AB:
+double dist_to_line(Pt p, Pt a, Pt b) {
+    return fabs((b - a).cross(p - a)) / (b - a).dist();
+}
+
+// 2. Line Intersection (A1*x + B1*y = C1 and A2*x + B2*y = C2 via Cramer):
+bool line_inter(double a1, double b1, double c1, double a2, double b2, double c2, Pt &out) {
+    double d = a1 * b2 - a2 * b1;
+    if (fabs(d) < 1e-9) return false; // Parallel or collinear
+    out.x = (c1 * b2 - c2 * b1) / d;
+    out.y = (a1 * c2 - a2 * c1) / d;
+    return true;
+}
+
+// 3. Triangle Formulas: sides a, b, c
+// Heron's Area: s = (a + b + c) / 2
+double heron(double a, double b, double c) {
+    double s = (a + b + c) / 2.0;
+    return sqrt(max(0.0, s * (s - a) * (s - b) * (s - c)));
+}
+// Inradius: r = Area / s | Circumradius: R = (a * b * c) / (4 * Area)
+double inradius(double a, double b, double c) { return heron(a, b, c) / ((a + b + c) / 2.0); }
+double circumradius(double a, double b, double c) { return (a * b * c) / (4.0 * heron(a, b, c)); }
+```
+
+### 10.6 Pick's Theorem, Centroid & 3D Solids
+```cpp
+// 1. Pick's Theorem: Area = I + B/2 - 1  =>  I = Area - B/2 + 1
+// B = boundary lattice points = sum(gcd(|x2-x1|, |y2-y1|)) for all polygon edges
+// I = strictly interior lattice points
+
+// 2. Polygon Centroid (Center of Mass):
+Pt polygon_centroid(const vector<Pt>& p) {
+    Pt c(0, 0); double A = 0; int n = p.size();
+    for (int i = 0; i < n; i++) {
+        int j = (i + 1) % n; double cross = p[i].cross(p[j]);
+        A += cross; c = c + (p[i] + p[j]) * cross;
+    }
+    return c / (3.0 * A);
+}
+
+// 3. Circles & 3D Solid Geometry Equations:
+// Circle:   Area = π * r^2, Circumference = 2 * π * r
+// Sphere:   Volume = (4/3) * π * r^3, Surface Area = 4 * π * r^2
+// Cylinder: Volume = π * r^2 * h, Surface Area = 2 * π * r * (r + h)
+// Cone:     Volume = (1/3) * π * r^2 * h, Slant height s = sqrt(r^2 + h^2)
+```
+
+### 10.7 Math Series, Logarithms & Algebra Cheatsheet
+```cpp
+// 1. Summation Formulas:
+// Sum of 1..N:           N * (N + 1) / 2
+// Sum of squares 1..N^2: N * (N + 1) * (2N + 1) / 6
+// Sum of cubes 1..N^3:   (N * (N + 1) / 2)^2
+// Geometric Progression: a + a*r + ... + a*r^(n-1) = a * (r^n - 1) / (r - 1)
+
+// 2. Logarithm & Exponent Rules:
+// log_b(a) = ln(a) / ln(b) = log10(a) / log10(b)
+// log(a * b) = log(a) + log(b), log(a / b) = log(a) - log(b), log(a^k) = k * log(a)
+
+// 3. Number of Digits of N in Base B: floor(log_B(N)) + 1
+// 4. Stirling's Approximation: n! ≈ sqrt(2 * π * n) * (n / e)^n
 ```
