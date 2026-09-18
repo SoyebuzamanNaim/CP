@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hoffnang — Official Team Reference Document (25-Page Limit)</title>
+<style>
+  :root {
+    --bg: #070a12;
+    --card: #0d1322;
+    --border: #1e293b;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --primary: #38bdf8;
+    --accent: #10b981;
+    --code-bg: #040711;
+    --code-border: #1a2333;
+    --code-text: #f8fafc;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 8px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .container {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  /* Screen Toolbar & Navigation */
+  .screen-bar {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .nav-pills {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+  }
+  .nav-pills a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: #1e293b;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: 0.15s;
+  }
+  .nav-pills a:hover {
+    color: #fff;
+    background: #0284c7;
+  }
+  .search-input {
+    background: #070a12;
+    border: 1px solid #334155;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    outline: none;
+    width: 180px;
+  }
+  .search-input:focus { border-color: #38bdf8; }
+  .btn-print {
+    background: #10b981;
+    color: #042f2e;
+    font-weight: 700;
+    padding: 4px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.74rem;
+  }
+  .btn-print:hover { opacity: 0.9; }
+
+  /* Document Header */
+  .doc-banner {
+    background: linear-gradient(135deg, #1e3a8a 0%, #091124 100%);
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .doc-banner h1 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #60a5fa;
+    letter-spacing: -0.3px;
+  }
+  .contest-meta {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: #cbd5e1;
+    text-align: right;
+  }
+  .contest-meta strong { color: #38bdf8; }
+
+  /* Continuous Multi-Column Flow (ZERO EMPTY SPACE) */
+  .kactl-columns {
+    column-count: 3;
+    column-gap: 6px;
+  }
+  @media (max-width: 1200px) {
+    .kactl-columns { column-count: 2; }
+  }
+
+  /* Inline Chapter Header (Does NOT break or span columns!) */
+  .chapter-title {
+    background: #1e293b;
+    border-left: 3px solid #38bdf8;
+    color: #fff;
+    padding: 3px 6px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    margin: 6px 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    break-inside: avoid-column;
+    page-break-inside: avoid;
+  }
+
+  /* Ultra-dense Snippet Box */
+  .item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+    break-inside: avoid-column;
+    page-break-inside: avoid;
+  }
+  .item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid #1a2333;
+    padding-bottom: 1px;
+    margin-bottom: 2px;
+  }
+  .item-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #7dd3fc;
+  }
+  .item-meta {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    font-family: "Consolas", monospace;
+  }
+  .item-meta .prefix {
+    background: #1e293b;
+    color: #38bdf8;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: 700;
+  }
+  .item-meta .time {
+    color: #34d399;
+    font-weight: 600;
+  }
+  .item-desc {
+    font-size: 0.68rem;
+    color: #cbd5e1;
+    margin: 1px 0 2px 0;
+    line-height: 1.2;
+  }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 2px;
+    padding: 3px 5px;
+    margin: 1px 0 0 0;
+    overflow-x: auto;
+    font-family: "Consolas", "Fira Code", monospace;
+    font-size: 0.72rem;
+    line-height: 1.18;
+    color: var(--code-text);
+  }
+  code { font-family: "Consolas", "Fira Code", monospace; }
+
+  table.comp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.67rem;
+    margin: 2px 0;
+  }
+  table.comp-table th, table.comp-table td {
+    border: 1px solid #1e293b;
+    padding: 2px 4px;
+    text-align: left;
+  }
+  table.comp-table th { background: #1e293b; color: #38bdf8; }
+
+  /* ========================================================= */
+  /* OFFICIAL ICPC TRD PRINT SPECIFICATIONS (MAX 25 PAGES)     */
+  /* - Upper Left Corner: Contestant Name & Team Name          */
+  /* - Upper Right Corner: Page Number                         */
+  /* - Native @page margin boxes (NO fixed overlap!)           */
+  /* ========================================================= */
+  @page {
+    size: A4 portrait;
+    margin-top: 13mm !important;
+    margin-bottom: 6mm !important;
+    margin-left: 6mm !important;
+    margin-right: 6mm !important;
+
+    @top-left {
+      content: "Soyebuzaman Naim — Team Hoffnang (Southeast University)";
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 7.2pt;
+      font-weight: 700;
+      color: #000;
+      border-bottom: 0.5pt solid #000;
+      padding-bottom: 1.5mm;
+      vertical-align: bottom;
+    }
+    @top-right {
+      content: "Page " counter(page);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 7.2pt;
+      font-weight: 700;
+      color: #000;
+      border-bottom: 0.5pt solid #000;
+      padding-bottom: 1.5mm;
+      vertical-align: bottom;
+    }
+    @bottom-left { content: none !important; }
+    @bottom-center { content: none !important; }
+    @bottom-right { content: none !important; }
+  }
+
+  @media print {
+    body {
+      background: #fff !important;
+      color: #000 !important;
+      font-size: 6.8pt !important;
+      line-height: 1.12 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .no-print { display: none !important; }
+
+    .doc-banner {
+      background: #f8fafc !important;
+      border: 0.5pt solid #94a3b8 !important;
+      color: #000 !important;
+      padding: 2pt 4pt !important;
+      margin-bottom: 3pt !important;
+    }
+    .doc-banner h1 { font-size: 8pt !important; color: #000 !important; }
+    .contest-meta { font-size: 6.2pt !important; color: #000 !important; }
+
+    .kactl-columns {
+      column-count: 2 !important;
+      column-gap: 6pt !important;
+      margin-top: 2pt !important;
+    }
+
+    .chapter-title {
+      background: #f1f5f9 !important;
+      color: #000 !important;
+      border: 0.5pt solid #cbd5e1 !important;
+      border-left: 2pt solid #000 !important;
+      font-size: 7.2pt !important;
+      padding: 1.5pt 3pt !important;
+      margin: 3pt 0 2pt 0 !important;
+    }
+
+    .item {
+      background: #fff !important;
+      border: 0.4pt solid #94a3b8 !important;
+      border-radius: 1.5pt !important;
+      padding: 1.5pt 3pt !important;
+      margin-bottom: 2.5pt !important;
+      break-inside: avoid-column !important;
+      page-break-inside: avoid !important;
+    }
+    .item-head {
+      border-bottom: 0.3pt solid #cbd5e1 !important;
+      padding-bottom: 0.5pt !important;
+      margin-bottom: 1pt !important;
+    }
+    .item-title { font-size: 7pt !important; color: #000 !important; font-weight: bold !important; }
+    .item-meta { font-size: 5.8pt !important; color: #334155 !important; }
+    .item-meta .prefix { background: #f1f5f9 !important; color: #000 !important; border: 0.3pt solid #cbd5e1 !important; }
+    .item-meta .time { color: #000 !important; font-weight: bold !important; }
+    .item-desc { font-size: 6pt !important; color: #334155 !important; margin: 0.5pt 0 1pt 0 !important; }
+
+    pre {
+      background: #fafafa !important;
+      color: #000 !important;
+      border: 0.3pt solid #cbd5e1 !important;
+      font-size: 6.1pt !important;
+      line-height: 1.08 !important;
+      padding: 1.5pt 2.5pt !important;
+      margin: 1pt 0 0 0 !important;
+      white-space: pre-wrap !important;
+      word-break: break-all !important;
+    }
+    table.comp-table { font-size: 5.8pt !important; margin: 1pt 0 !important; }
+    table.comp-table th, table.comp-table td { border: 0.3pt solid #94a3b8 !important; padding: 0.8pt 2.5pt !important; }
+    table.comp-table th { background: #f1f5f9 !important; color: #000 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Screen Toolbar -->
+  <div class="screen-bar no-print">
+    <div class="nav-pills">
+      <a href="#ch-1">1. Template</a>
+      <a href="#ch-2">2. C++ STL</a>
+      <a href="#ch-3">3. Math &amp; Bits</a>
+      <a href="#ch-4">4. Graphs</a>
+      <a href="#ch-5">5. Shortest Paths</a>
+      <a href="#ch-6">6. Trees</a>
+      <a href="#ch-7">7. DSU &amp; Trees</a>
+      <a href="#ch-8">8. Strings</a>
+      <a href="#ch-9">9. DP &amp; Search</a>
+      <a href="#ch-10">10. Geometry &amp; Math</a>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <input type="text" id="filterInput" class="search-input" placeholder="🔍 Filter code..." onkeyup="filterItems()">
+      <button class="btn-print" onclick="window.print()">🖨️ Print PDF</button>
+    </div>
+  </div>
+
+  <!-- Document Header -->
+  <div class="doc-banner">
+    <div>
+      <h1>TEAM HOFFNANG — ALGORITHM REFERENCE NOTEBOOK</h1>
+    </div>
+    <div class="contest-meta">
+      <strong>Soyebuzaman Naim</strong> | SEU CS Carnival 2026 | C++17
+    </div>
+  </div>
+
+  <!-- Multi-Column Continuous Flow (No blank columns!) -->
+  <div class="kactl-columns" id="contentColumns">
+
+    <!-- ================= CHAPTER 1 ================= -->
+    <div class="chapter-title" id="ch-1">1. Contest Setup &amp; Template</div>
+
+    <div class="item" data-search="cpp fast io template boilerplate">
+      <div class="item-head">
+        <span class="item-title">Fast I/O CP Template</span>
+        <span class="item-meta"><span class="prefix">cpp</span></span>
+      </div>
+      <div class="item-desc">Disables sync, unties cin, defines 64-bit int, standard loop shorthands.</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+#define int long long
+#define endl '\n'
+#define all(x) (x).begin(), (x).end()
+#define rall(x) (x).rbegin(), (x).rend()
+#define sz(x) (int)(x).size()
+void fast_io() { ios::sync_with_stdio(false); cin.tie(nullptr); }
+signed main() {
+  fast_io();
+  int t; cin &gt;&gt; t;
+  while (t--) {
+    int n; cin &gt;&gt; n;
+    vector&lt;int&gt; v(n);
+    for (int &amp;x : v) cin &gt;&gt; x;
+  }
+}</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 2 ================= -->
+    <div class="chapter-title" id="ch-2">2. C++ Basics &amp; STL Essentials</div>
+
+    <div class="item" data-search="types overflow limits long long float double">
+      <div class="item-head">
+        <span class="item-title">Types, Overflow &amp; Float Comparisons</span>
+      </div>
+      <table class="comp-table">
+        <tr><th>Type</th><th>Bytes</th><th>Range</th><th>Rule</th></tr>
+        <tr><td><code>int</code></td><td>4</td><td>[-2&times;10<sup>9</sup>, 2&times;10<sup>9</sup>]</td><td>Default loop variables</td></tr>
+        <tr><td><code>long long</code></td><td>8</td><td>[-9&times;10<sup>18</sup>, 9&times;10<sup>18</sup>]</td><td>Sums, products: <code>1LL*a*b</code></td></tr>
+        <tr><td><code>double</code></td><td>8</td><td>15-17 digits</td><td><code>fabs(a-b) &lt; 1e-9</code></td></tr>
+      </table>
+<pre><code>int a = 1e6, b = 1e6;
+long long ans = 1LL * a * b; // 1LL prevents 32-bit overflow!
+cout &lt;&lt; fixed &lt;&lt; setprecision(9) &lt;&lt; ans &lt;&lt; "\n";</code></pre>
+    </div>
+
+    <div class="item" data-search="stl vector set map priority_queue multiset sort">
+      <div class="item-head">
+        <span class="item-title">STL Containers &amp; Algorithms Cheat Sheet</span>
+      </div>
+<pre><code>// Vector: vector&lt;int&gt; v; v.push_back(10); v.pop_back(); int n = v.size();
+// Set: unique, sorted O(log N). Multiset: duplicates allowed
+set&lt;int&gt; s; s.insert(5); s.erase(5); bool in = s.count(5);
+multiset&lt;int&gt; ms; ms.erase(ms.find(5)); // Erases ONLY ONE 5!
+// Map: map&lt;string, int&gt; mp; mp["k"]++; for(auto&amp; [k,v]: mp)
+// Priority Queue:
+priority_queue&lt;int&gt; max_pq; // Max-heap
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; min_pq; // Min-heap
+// Sorting &amp; Bounds:
+sort(all(v)); sort(rall(v));
+auto it1 = lower_bound(all(v), x); // first &gt;= x
+auto it2 = upper_bound(all(v), x); // first &gt; x
+v.erase(unique(all(v)), v.end());  // Deduplication
+next_permutation(all(v));          // Next permutation</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 3 ================= -->
+    <div class="chapter-title" id="ch-3">3. Math, Number Theory &amp; Bits</div>
+
+    <div class="item" data-search="gcd gcdf greatest common divisor">
+      <div class="item-head">
+        <span class="item-title">Greatest Common Divisor (GCD)</span>
+        <span class="item-meta"><span class="prefix">gcdf</span> | <span class="time">O(log(min(a,b)))</span></span>
+      </div>
+<pre><code>int gcd(int a, int b) {
+  while (b) { a %= b; swap(a, b); }
+  return a;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="lcm lcmf least common multiple">
+      <div class="item-head">
+        <span class="item-title">Least Common Multiple (LCM)</span>
+        <span class="item-meta"><span class="prefix">lcmf</span> | <span class="time">O(log(min(a,b)))</span></span>
+      </div>
+<pre><code>int lcm(int a, int b) {
+  if (a == 0 || b == 0) return 0;
+  return a / __gcd(a, b) * b;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="sieve gprime prime generation eratosthenes">
+      <div class="item-head">
+        <span class="item-title">Sieve of Eratosthenes</span>
+        <span class="item-meta"><span class="prefix">gprime</span> | <span class="time">O(N log log N)</span></span>
+      </div>
+<pre><code>vector&lt;int&gt; primes; vector&lt;bool&gt; is_prime;
+void gprime(int n) {
+  is_prime.assign(n + 1, true);
+  is_prime[0] = is_prime[1] = false;
+  for (int i = 2; i * i &lt;= n; i++)
+    if (is_prime[i])
+      for (int j = i * i; j &lt;= n; j += i) is_prime[j] = false;
+  primes.clear();
+  for (int i = 2; i &lt;= n; i++) if (is_prime[i]) primes.push_back(i);
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="binary exponentiation binexpomod modular power">
+      <div class="item-head">
+        <span class="item-title">Binary Exponentiation with Modulo</span>
+        <span class="item-meta"><span class="prefix">binExpoMod</span> | <span class="time">O(log b)</span></span>
+      </div>
+<pre><code>long long binpow(long long a, long long b, long long m) {
+  a %= m; long long res = 1;
+  while (b &gt; 0) {
+    if (b &amp; 1) res = res * a % m;
+    a = a * a % m; b &gt;&gt;= 1;
+  }
+  return res;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="binary exponentiation binexpo standard power">
+      <div class="item-head">
+        <span class="item-title">Binary Exponentiation (Standard)</span>
+        <span class="item-meta"><span class="prefix">binExpo</span> | <span class="time">O(log b)</span></span>
+      </div>
+<pre><code>long long binpow(long long a, long long b) {
+  long long res = 1;
+  while (b &gt; 0) {
+    if (b &amp; 1) res = res * a;
+    a = a * a; b &gt;&gt;= 1;
+  }
+  return res;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="count set bits numofonef bit manipulation">
+      <div class="item-head">
+        <span class="item-title">Count Set Bits (1s) from 0 to N</span>
+        <span class="item-meta"><span class="prefix">numofonef</span> | <span class="time">O(log N)</span></span>
+      </div>
+<pre><code>int numofone(int n) {
+  int ans = 0;
+  for (int i = 0; (1ULL &lt;&lt; i) &lt;= n; i++) {
+    int vag = 1ULL &lt;&lt; (i + 1), arektavag = (n + 1) / vag;
+    ans += (arektavag * (vag &gt;&gt; 1ULL));
+    int obos = (n + 1) % vag;
+    if (obos &gt; (vag &gt;&gt; 1ULL)) ans += ((obos) - (vag &gt;&gt; 1ULL));
+    if (arektavag == 0) break;
+  }
+  return ans;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="extended euclidean modular inverse extgcd">
+      <div class="item-head">
+        <span class="item-title">Extended Euclidean &amp; Modular Inverse</span>
+        <span class="item-meta"><span class="time">O(log(min(a,b)))</span></span>
+      </div>
+<pre><code>pair&lt;int, int&gt; ext_gcd(int a, int b) {
+  if (b == 0) return {1, 0};
+  auto [x1, y1] = ext_gcd(b, a % b);
+  return {y1, x1 - y1 * (a / b)};
+}
+int mod_inv(int a, int m) {
+  auto [x, y] = ext_gcd(a, m); return (x % m + m) % m;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="combinatorics ncr npr combinations">
+      <div class="item-head">
+        <span class="item-title">Combinatorics: nCr in O(R)</span>
+      </div>
+<pre><code>int nCr(int n, int r) {
+  if (r &lt; 0 || r &gt; n) return 0;
+  if (r &gt; n / 2) r = n - r;
+  int ans = 1;
+  for (int i = 1; i &lt;= r; ++i) ans = ans * (n - i + 1) / i;
+  return ans;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="quadratic equation solver citardauq roots floating point">
+      <div class="item-head">
+        <span class="item-title">Stable Quadratic Equation Solver</span>
+        <span class="item-meta"><span class="prefix">quadf</span> | <span class="time">O(1)</span></span>
+      </div>
+      <div class="item-desc">Citardauq formula avoids catastrophic cancellation when b ≈ √D. Handles a=0 linear, D&lt;0, D=0.</div>
+<pre><code>using ld = long double;
+const ld EPS = 1e-12;
+
+void solve_quadratic(ld a, ld b, ld c) {
+  cout &lt;&lt; fixed &lt;&lt; setprecision(12);
+  if (fabsl(a) &lt; EPS) {
+    if (fabsl(b) &lt; EPS) cout &lt;&lt; "No solution\n";
+    else cout &lt;&lt; -c / b &lt;&lt; '\n';
+    return;
+  }
+  ld d = b * b - 4 * a * c;
+  if (d &lt; -EPS) { cout &lt;&lt; "No real roots\n"; return; }
+  if (fabsl(d) &lt;= EPS) { cout &lt;&lt; -b / (2 * a) &lt;&lt; '\n'; return; }
+  ld sq = sqrtl(d);
+  ld q = -0.5L * (b + copysignl(sq, b)); // Numerically stable
+  ld x1 = q / a, x2 = c / q;
+  if (x1 &gt; x2) swap(x1, x2);
+  cout &lt;&lt; x1 &lt;&lt; '\n' &lt;&lt; x2 &lt;&lt; '\n';
+}</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 4 ================= -->
+    <div class="chapter-title" id="ch-4">4. Graph Traversals &amp; Inputs</div>
+
+    <div class="item" data-search="adjacency list input adjlist graph">
+      <div class="item-head">
+        <span class="item-title">Adjacency List Input</span>
+        <span class="item-meta"><span class="prefix">adjlist</span></span>
+      </div>
+<pre><code>int V, E; cin &gt;&gt; V &gt;&gt; E;
+vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; adj(V);
+for (int i = 0; i &lt; E; ++i) {
+  int u, v, w; cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;
+  adj[u].push_back({v, w}); // adj[v].push_back({u, w}); // if undirected
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="edge list input adjmat graph">
+      <div class="item-head">
+        <span class="item-title">Edge List Input</span>
+        <span class="item-meta"><span class="prefix">adjmat</span></span>
+      </div>
+<pre><code>int V, E; cin &gt;&gt; V &gt;&gt; E;
+vector&lt;vector&lt;int&gt;&gt; edges;
+for (int i = 0; i &lt; E; ++i) {
+  int u, v, w; cin &gt;&gt; u &gt;&gt; v &gt;&gt; w; edges.push_back({u, v, w});
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="dfs traversal graph input dfs">
+      <div class="item-head">
+        <span class="item-title">DFS Traversal with Graph Input</span>
+        <span class="item-meta"><span class="prefix">dfs</span> | <span class="time">O(V + E)</span></span>
+      </div>
+<pre><code>void dfs(int node, const vector&lt;int&gt; adj[], vector&lt;bool&gt;&amp; visited) {
+  visited[node] = true;
+  for (int neighbor : adj[node])
+    if (!visited[neighbor]) dfs(neighbor, adj, visited);
+}
+signed main() {
+  int n, m; cin &gt;&gt; n &gt;&gt; m;
+  vector&lt;int&gt; adj[n + 1]; vector&lt;bool&gt; visited(n + 1, false);
+  for (int i = 0; i &lt; m; ++i) {
+    int u, v; cin &gt;&gt; u &gt;&gt; v;
+    adj[u].push_back(v); adj[v].push_back(u);
+  }
+  for (int i = 1; i &lt;= n; ++i) if (!visited[i]) dfs(i, adj, visited);
+  return 0;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="dfs function dfsfunc">
+      <div class="item-head">
+        <span class="item-title">DFS Function Only (Standalone)</span>
+        <span class="item-meta"><span class="prefix">dfsfunc</span></span>
+      </div>
+<pre><code>void dfs(int node, const vector&lt;int&gt; adj[], vector&lt;bool&gt;&amp; visited) {
+  visited[node] = true;
+  for (int neighbor : adj[node])
+    if (!visited[neighbor]) dfs(neighbor, adj, visited);
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="bfs traversal graph input bfs">
+      <div class="item-head">
+        <span class="item-title">BFS Traversal with Graph Input</span>
+        <span class="item-meta"><span class="prefix">bfs</span> | <span class="time">O(V + E)</span></span>
+      </div>
+<pre><code>void bfs(int start, const vector&lt;int&gt; adj[], vector&lt;bool&gt;&amp; visited) {
+  queue&lt;int&gt; q; q.push(start); visited[start] = true;
+  while (!q.empty()) {
+    int node = q.front(); q.pop();
+    for (int neighbor : adj[node]) {
+      if (!visited[neighbor]) { visited[neighbor] = true; q.push(neighbor); }
+    }
+  }
+}
+signed main() {
+  int n, m; cin &gt;&gt; n &gt;&gt; m;
+  vector&lt;int&gt; adj[n + 1]; vector&lt;bool&gt; visited(n + 1, false);
+  for (int i = 0; i &lt; m; ++i) {
+    int u, v; cin &gt;&gt; u &gt;&gt; v;
+    adj[u].push_back(v); adj[v].push_back(u);
+  }
+  for (int i = 1; i &lt;= n; ++i) if (!visited[i]) bfs(i, adj, visited);
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="bfs function bfsfunc">
+      <div class="item-head">
+        <span class="item-title">BFS Function Only (Standalone)</span>
+        <span class="item-meta"><span class="prefix">bfsfunc</span></span>
+      </div>
+<pre><code>void bfs(int start, const vector&lt;int&gt; adj[], vector&lt;bool&gt;&amp; visited) {
+  queue&lt;int&gt; q; q.push(start); visited[start] = true;
+  while (!q.empty()) {
+    int node = q.front(); q.pop();
+    for (int neighbor : adj[node]) {
+      if (!visited[neighbor]) { visited[neighbor] = true; q.push(neighbor); }
+    }
+  }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="topological sort topo kahn bfs">
+      <div class="item-head">
+        <span class="item-title">Topological Sort (Kahn's BFS)</span>
+        <span class="item-meta"><span class="time">O(V + E)</span></span>
+      </div>
+<pre><code>vector&lt;int&gt; topo_sort(int n, const vector&lt;vector&lt;int&gt;&gt; &amp;adj) {
+  vector&lt;int&gt; in_deg(n, 0), order;
+  for (int u = 0; u &lt; n; ++u)
+    for (int v : adj[u]) in_deg[v]++;
+  queue&lt;int&gt; q;
+  for (int i = 0; i &lt; n; ++i) if (in_deg[i] == 0) q.push(i);
+  while (!q.empty()) {
+    int u = q.front(); q.pop(); order.push_back(u);
+    for (int v : adj[u]) if (--in_deg[v] == 0) q.push(v);
+  }
+  return (order.size() == n) ? order : vector&lt;int&gt;();
+}</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 5 ================= -->
+    <div class="chapter-title" id="ch-5">5. Shortest Paths &amp; Cycles</div>
+
+    <div class="item" data-search="dijkstra shortest path priority queue dijkstra">
+      <div class="item-head">
+        <span class="item-title">Dijkstra (PQ + Path Print)</span>
+        <span class="item-meta"><span class="prefix">dijkstra</span> | <span class="time">O((V+E)log V)</span></span>
+      </div>
+<pre><code>int n, m; cin &gt;&gt; n &gt;&gt; m;
+vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; adj(n + 1);
+for (int i = 0; i &lt; m; i++) {
+  int u, v, w; cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;
+  adj[u].emplace_back(v, w); adj[v].emplace_back(u, w);
+}
+int s = 1, inf = LLONG_MAX / 2;
+vector&lt;int&gt; dis(n + 1, inf), parent(n + 1, -1);
+dis[s] = 0;
+priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, greater&lt;pair&lt;int, int&gt;&gt;&gt; pq;
+pq.emplace(0, s);
+while (!pq.empty()) {
+  auto [dv, v] = pq.top(); pq.pop();
+  if (dv &gt; dis[v]) continue;
+  for (auto &amp;edge : adj[v]) {
+    int to = edge.first, d = edge.second;
+    if (dis[v] + d &lt; dis[to]) {
+      dis[to] = dis[v] + d; parent[to] = v; pq.emplace(dis[to], to);
+    }
+  }
+}
+if (dis[n] == inf) cout &lt;&lt; -1 &lt;&lt; endl;
+else {
+  vector&lt;int&gt; path;
+  for (int i = n; i != -1; i = parent[i]) path.push_back(i);
+  reverse(path.begin(), path.end());
+  for (int node : path) cout &lt;&lt; node &lt;&lt; " ";
+  cout &lt;&lt; endl;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="dijkstra set dijkstraset">
+      <div class="item-head">
+        <span class="item-title">Dijkstra Algorithm (Set-Based)</span>
+        <span class="item-meta"><span class="prefix">dijkstraSet</span> | <span class="time">O((V+E)log V)</span></span>
+      </div>
+<pre><code>const int INF = 1000000000;
+vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; adj;
+void dijkstra(int s, vector&lt;int&gt; &amp; d, vector&lt;int&gt; &amp; p) {
+  int n = adj.size(); d.assign(n, INF); p.assign(n, -1);
+  d[s] = 0; set&lt;pair&lt;int, int&gt;&gt; q; q.insert({0, s});
+  while (!q.empty()) {
+    int v = q.begin()-&gt;second; q.erase(q.begin());
+    for (auto edge : adj[v]) {
+      int to = edge.first, len = edge.second;
+      if (d[v] + len &lt; d[to]) {
+        q.erase({d[to], to}); d[to] = d[v] + len; p[to] = v;
+        q.insert({d[to], to});
+      }
+    }
+  }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="bellman ford bellman_ford negative cycle">
+      <div class="item-head">
+        <span class="item-title">Bellman-Ford Algorithm</span>
+        <span class="item-meta"><span class="prefix">bellman_ford</span> | <span class="time">O(V * E)</span></span>
+      </div>
+<pre><code>vector&lt;int&gt; bellman_ford(int n, vector&lt;vector&lt;int&gt;&gt;&amp; edges, int S) {
+  vector&lt;int&gt; dis(n, 1e9); dis[S] = 0;
+  for (int i = 0; i &lt; n - 1; i++) {
+    bool updated = false;
+    for (auto &amp;e : edges) {
+      int u = e[0], v = e[1], w = e[2];
+      if (dis[u] != 1e9 &amp;&amp; dis[u] + w &lt; dis[v]) {
+        dis[v] = dis[u] + w; updated = true;
+      }
+    }
+    if (!updated) break;
+  }
+  for (auto &amp;e : edges) {
+    int u = e[0], v = e[1], w = e[2];
+    if (dis[u] != 1e9 &amp;&amp; dis[u] + w &lt; dis[v]) return {-1};
+  }
+  return dis;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="negative cycle print negcyclef bellman">
+      <div class="item-head">
+        <span class="item-title">Negative Cycle Detection &amp; Path Print</span>
+        <span class="item-meta"><span class="prefix">negcyclef</span> | <span class="time">O(V * E)</span></span>
+      </div>
+<pre><code>int n, m; cin &gt;&gt; n &gt;&gt; m;
+vector&lt;vector&lt;int&gt;&gt; edges;
+for (int i = 0; i &lt; m; ++i) {
+  int u, v, w; cin &gt;&gt; u &gt;&gt; v &gt;&gt; w; edges.push_back({u, v, w});
+}
+vector&lt;int&gt; dist(n + 1, 0), p(n + 1, -1);
+int x;
+for (int i = 0; i &lt; n; i++) {
+  x = -1;
+  for (auto &amp;edge : edges) {
+    int u = edge[0], v = edge[1], w = edge[2];
+    if (dist[u] + w &lt; dist[v]) {
+      dist[v] = dist[u] + w; p[v] = u; x = v;
+    }
+  }
+}
+if (x == -1) { cout &lt;&lt; "NO" &lt;&lt; endl; return 0; }
+for (int i = 0; i &lt; n; i++) x = p[x];
+cout &lt;&lt; "YES" &lt;&lt; endl;
+vector&lt;int&gt; path; int cur = x; path.push_back(cur);
+while (true) {
+  cur = p[cur]; path.push_back(cur);
+  if (cur == x) break;
+}
+reverse(all(path));
+for (int node : path) cout &lt;&lt; node &lt;&lt; " ";
+cout &lt;&lt; endl;</code></pre>
+    </div>
+
+    <div class="item" data-search="floyd warshall all pairs shortest path">
+      <div class="item-head">
+        <span class="item-title">Floyd-Warshall (All-Pairs)</span>
+        <span class="item-meta"><span class="time">O(V^3)</span></span>
+      </div>
+<pre><code>for (int k = 0; k &lt; n; ++k)
+  for (int i = 0; i &lt; n; ++i)
+    for (int j = 0; j &lt; n; ++j)
+      if (dist[i][k] &lt; INF &amp;&amp; dist[k][j] &lt; INF)
+        dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 6 ================= -->
+    <div class="chapter-title" id="ch-6">6. Tree Algorithms</div>
+
+    <div class="item" data-search="tree diameter bfs treediameter">
+      <div class="item-head">
+        <span class="item-title">Tree Diameter via Double BFS</span>
+        <span class="item-meta"><span class="prefix">treeDiameter</span> | <span class="time">O(V + E)</span></span>
+      </div>
+<pre><code>pair&lt;int, int&gt; bfs_farthest(int start, const vector&lt;vector&lt;int&gt;&gt;&amp; adj, int n) {
+  vector&lt;int&gt; dist(n + 1, -1);
+  queue&lt;int&gt; q; q.push(start); dist[start] = 0;
+  int farthest_node = start;
+  while (!q.empty()) {
+    int node = q.front(); q.pop();
+    for (int neighbor : adj[node]) {
+      if (dist[neighbor] == -1) {
+        dist[neighbor] = dist[node] + 1; q.push(neighbor);
+        if (dist[neighbor] &gt; dist[farthest_node]) farthest_node = neighbor;
+      }
+    }
+  }
+  return {farthest_node, dist[farthest_node]};
+}
+signed main() {
+  fastIO(); int n; cin &gt;&gt; n;
+  vector&lt;vector&lt;int&gt;&gt; adj(n + 1);
+  for (int i = 0; i &lt; n - 1; ++i) {
+    int u, v; cin &gt;&gt; u &gt;&gt; v; adj[u].push_back(v); adj[v].push_back(u);
+  }
+  int far1 = bfs_farthest(1, adj, n).first;
+  int diameter = bfs_farthest(far1, adj, n).second;
+  cout &lt;&lt; diameter &lt;&lt; '\n';
+}</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 7 ================= -->
+    <div class="chapter-title" id="ch-7">7. Data Structures (DSU &amp; Range Trees)</div>
+
+    <div class="item" data-search="disjoint set union dsu size dsu-size">
+      <div class="item-head">
+        <span class="item-title">Disjoint Set Union (Union by Size)</span>
+        <span class="item-meta"><span class="prefix">dsu-size</span> | <span class="time">O(α(N)) ≈ O(1)</span></span>
+      </div>
+<pre><code>class DisjointSet {
+  vector&lt;int&gt; rank, parent, size;
+public:
+  DisjointSet(int n) {
+    rank.resize(n + 1, 0); parent.resize(n + 1); size.resize(n + 1, 1);
+    for (int i = 0; i &lt;= n; i++) parent[i] = i;
+  }
+  int findUPar(int node) {
+    if (node == parent[node]) return node;
+    return parent[node] = findUPar(parent[node]);
+  }
+  void unionBySize(int u, int v) {
+    int ulpU = findUPar(u), ulpV = findUPar(v);
+    if (ulpU == ulpV) return;
+    if (size[ulpU] &lt; size[ulpV]) {
+      parent[ulpU] = ulpV; size[ulpV] += size[ulpU];
+    } else {
+      parent[ulpV] = ulpU; size[ulpU] += size[ulpV];
+    }
+  }
+  bool connected(int u, int v) { return findUPar(u) == findUPar(v); }
+};</code></pre>
+    </div>
+
+    <div class="item" data-search="fenwick tree bit binary indexed tree">
+      <div class="item-head">
+        <span class="item-title">Fenwick Tree (BIT - Prefix Sums)</span>
+        <span class="item-meta"><span class="time">O(log N)</span></span>
+      </div>
+<pre><code>struct Fenwick {
+  int n; vector&lt;int&gt; bit;
+  Fenwick(int n) : n(n), bit(n + 1, 0) {}
+  void add(int idx, int val) {
+    for (; idx &lt;= n; idx += idx &amp; -idx) bit[idx] += val;
+  }
+  int query(int idx) {
+    int sum = 0;
+    for (; idx &gt; 0; idx -= idx &amp; -idx) sum += bit[idx];
+    return sum;
+  }
+  int range_query(int l, int r) { return query(r) - query(l - 1); }
+};</code></pre>
+    </div>
+
+    <div class="item" data-search="segment tree segtree range query point update">
+      <div class="item-head">
+        <span class="item-title">Iterative Segment Tree (Range Sum)</span>
+        <span class="item-meta"><span class="time">O(log N)</span></span>
+      </div>
+<pre><code>struct SegTree {
+  int n; vector&lt;int&gt; t;
+  SegTree(int n) : n(n), t(2 * n, 0) {}
+  void update(int p, int val) {
+    for (t[p += n] = val; p &gt; 1; p &gt;&gt;= 1) t[p &gt;&gt; 1] = t[p] + t[p ^ 1];
+  }
+  int query(int l, int r) { // sum on [l, r]
+    int res = 0;
+    for (l += n, r += n + 1; l &lt; r; l &gt;&gt;= 1, r &gt;&gt;= 1) {
+      if (l &amp; 1) res += t[l++];
+      if (r &amp; 1) res += t[--r];
+    }
+    return res;
+  }
+};</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 8 ================= -->
+    <div class="chapter-title" id="ch-8">8. String Algorithms (KMP)</div>
+
+    <div class="item" data-search="kmp knuth morris pratt string matching">
+      <div class="item-head">
+        <span class="item-title">Knuth-Morris-Pratt (KMP) Algorithm</span>
+        <span class="item-meta"><span class="prefix">kmp</span> | <span class="time">O(N + M)</span></span>
+      </div>
+<pre><code>vector&lt;int&gt; buildLPS(const string &amp;pat) {
+  int m = pat.size(), len = 0;
+  vector&lt;int&gt; lps(m, 0);
+  for (int i = 1; i &lt; m;) {
+    if (pat[i] == pat[len]) { len++; lps[i] = len; i++; }
+    else {
+      if (len != 0) len = lps[len - 1];
+      else { lps[i] = 0; i++; }
+    }
+  }
+  return lps;
+}
+vector&lt;int&gt; KMPsearch(const string &amp;text, const string &amp;pat) {
+  int n = text.size(), m = pat.size();
+  vector&lt;int&gt; lps = buildLPS(pat), positions;
+  int i = 0, j = 0;
+  while (i &lt; n) {
+    if (text[i] == pat[j]) {
+      i++; j++;
+      if (j == m) { positions.push_back(i - j); j = lps[j - 1]; }
+    } else {
+      if (j != 0) j = lps[j - 1];
+      else i++;
+    }
+  }
+  return positions;
+}</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 9 ================= -->
+    <div class="chapter-title" id="ch-9">9. Paradigms &amp; Dynamic Programming</div>
+
+    <div class="item" data-search="bitmasking apple division bitmaskingappledivision">
+      <div class="item-head">
+        <span class="item-title">Bitmasking Search (Apple Division)</span>
+        <span class="item-meta"><span class="prefix">bitMaskingAppleDivision</span></span>
+      </div>
+<pre><code>int n; cin &gt;&gt; n;
+vector&lt;int&gt; v(n);
+for (int &amp;x : v) cin &gt;&gt; x;
+int ans = LLONG_MAX;
+for (int i = 0; i &lt; (1 &lt;&lt; n); i++) {
+  int a = 0, b = 0;
+  for (int pos = 0; pos &lt; n; pos++) {
+    if (i &amp; (1 &lt;&lt; pos)) a += v[pos];
+    else b += v[pos];
+  }
+  ans = min(ans, llabs(a - b));
+}
+cout &lt;&lt; ans &lt;&lt; endl;</code></pre>
+    </div>
+
+    <div class="item" data-search="two pointers twopointer merge sorted">
+      <div class="item-head">
+        <span class="item-title">Two Pointers (Merge 2 Sorted Lists)</span>
+        <span class="item-meta"><span class="prefix">twoPointer</span> | <span class="time">O(N + M)</span></span>
+      </div>
+<pre><code>vector&lt;int&gt; a(n), b(m), c;
+for (int &amp;x : a) cin &gt;&gt; x;
+for (int &amp;x : b) cin &gt;&gt; x;
+int i = 0, j = 0;
+while (i &lt; n || j &lt; m) {
+  while ((i &lt; n) &amp;&amp; (j &gt;= m || (a[i] &lt;= b[j]))) { c.push_back(a[i]); i++; }
+  while ((j &lt; m) &amp;&amp; (i &gt;= n || b[j] &lt;= a[i])) { c.push_back(b[j]); j++; }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="knapsack 0 1 unbounded dp">
+      <div class="item-head">
+        <span class="item-title">0-1 Knapsack &amp; Unbounded Knapsack</span>
+        <span class="item-meta"><span class="time">O(N * W)</span></span>
+      </div>
+<pre><code>int knapsack_01(int W, const vector&lt;int&gt;&amp; wt, const vector&lt;int&gt;&amp; val, int n) {
+  vector&lt;int&gt; dp(W + 1, 0);
+  for (int i = 0; i &lt; n; i++)
+    for (int w = W; w &gt;= wt[i]; w--) // BACKWARDS for 0-1
+      dp[w] = max(dp[w], dp[w - wt[i]] + val[i]);
+  return dp[W];
+}
+// Unbounded: loop forward: for (int w = wt[i]; w &lt;= W; w++)</code></pre>
+    </div>
+
+    <div class="item" data-search="lis longest increasing subsequence">
+      <div class="item-head">
+        <span class="item-title">Longest Increasing Subsequence (LIS)</span>
+        <span class="item-meta"><span class="time">O(N log N)</span></span>
+      </div>
+<pre><code>int lis(const vector&lt;int&gt;&amp; a) {
+  vector&lt;int&gt; tails;
+  for (int x : a) {
+    auto it = lower_bound(tails.begin(), tails.end(), x);
+    if (it == tails.end()) tails.push_back(x);
+    else *it = x;
+  }
+  return tails.size();
+}</code></pre>
+    </div>
+
+    <!-- ================= CHAPTER 10 ================= -->
+    <div class="chapter-title" id="ch-10">10. Advanced Tools (MST, Matrix &amp; Geometry)</div>
+
+    <div class="item" data-search="kruskal minimum spanning tree mst">
+      <div class="item-head">
+        <span class="item-title">Kruskal's Minimum Spanning Tree (MST)</span>
+        <span class="item-meta"><span class="time">O(E log E)</span></span>
+      </div>
+<pre><code>struct Edge {
+  int u, v, w;
+  bool operator&lt;(const Edge&amp; o) const { return w &lt; o.w; }
+};
+int kruskal(int n, vector&lt;Edge&gt;&amp; edges) {
+  sort(all(edges));
+  DisjointSet dsu(n);
+  int cost = 0, count = 0;
+  for (auto&amp; e : edges) {
+    if (!dsu.connected(e.u, e.v)) {
+      dsu.unionBySize(e.u, e.v); cost += e.w;
+      if (++count == n - 1) return cost;
+    }
+  }
+  return -1;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="matrix exponentiation linear recurrence fibonacci">
+      <div class="item-head">
+        <span class="item-title">Matrix Exponentiation (O(K^3 log N))</span>
+      </div>
+<pre><code>template&lt;typename T = long long&gt;
+struct Matrix {
+  int n; vector&lt;vector&lt;T&gt;&gt; a;
+  Matrix(int n) : n(n), a(n, vector&lt;T&gt;(n, 0)) {}
+  static Matrix eye(int n) {
+    Matrix res(n); for (int i = 0; i &lt; n; i++) res.a[i][i] = 1; return res;
+  }
+  Matrix operator*(const Matrix&amp; o) const {
+    Matrix res(n);
+    for (int i = 0; i &lt; n; i++)
+      for (int k = 0; k &lt; n; k++)
+        for (int j = 0; j &lt; n; j++)
+          res.a[i][j] = (res.a[i][j] + a[i][k] * o.a[k][j]) % 1000000007;
+    return res;
+  }
+  static Matrix power(Matrix m, long long p) {
+    Matrix res = Matrix::eye(m.n);
+    while (p) {
+      if (p &amp; 1) res = res * m;
+      m = m * m; p &gt;&gt;= 1;
+    }
+    return res;
+  }
+};</code></pre>
+    </div>
+
+    <div class="item" data-search="geometry shoelace polygon area">
+      <div class="item-head">
+        <span class="item-title">Shoelace Formula (Polygon Area)</span>
+        <span class="item-meta"><span class="time">O(N)</span></span>
+      </div>
+<pre><code>struct Point { double x, y; };
+double polygon_area(const vector&lt;Point&gt;&amp; p) {
+  double area = 0.0; int n = p.size();
+  for (int i = 0; i &lt; n; ++i) {
+    int j = (i + 1) % n;
+    area += p[i].x * p[j].y - p[j].x * p[i].y;
+  }
+  return fabs(area) / 2.0;
+}</code></pre>
+    </div>
+
+  </div> <!-- End columns -->
+</div>
+
+<script>
+function filterItems() {
+  var q = document.getElementById("filterInput").value.toLowerCase();
+  var items = document.getElementsByClassName("item");
+  for (var i = 0; i < items.length; i++) {
+    var search = items[i].getAttribute("data-search") || "";
+    var text = items[i].innerText || "";
+    if (search.toLowerCase().indexOf(q) > -1 || text.toLowerCase().indexOf(q) > -1) {
+      items[i].style.display = "";
+    } else {
+      items[i].style.display = "none";
+    }
+  }
+}
+</script>
+</body>
+</html>
