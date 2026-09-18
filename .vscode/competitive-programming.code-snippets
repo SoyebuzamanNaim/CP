@@ -1,0 +1,1404 @@
+{
+  "Fast I/O CP Template": {
+    "scope": "cpp",
+    "prefix": ["cpp", "template", "fastio"],
+    "body": [
+      "#include <bits/stdc++.h>",
+      "using namespace std;",
+      "",
+      "#define int long long",
+      "#define endl '\\n'",
+      "#define all(x) (x).begin(), (x).end()",
+      "#define rall(x) (x).rbegin(), (x).rend()",
+      "#define sz(x) (int)(x).size()",
+      "",
+      "void fast_io() {",
+      "    ios::sync_with_stdio(false);",
+      "    cin.tie(nullptr);",
+      "}",
+      "",
+      "void solve() {",
+      "    $0",
+      "}",
+      "",
+      "signed main() {",
+      "    fast_io();",
+      "    int t = 1;",
+      "    cin >> t;",
+      "    while (t--) {",
+      "        solve();",
+      "    }",
+      "    return 0;",
+      "}"
+    ],
+    "description": "Standard fast I/O competitive programming template with 64-bit int and loop macros."
+  },
+
+  "Custom Sort & Comparators": {
+    "scope": "cpp",
+    "prefix": ["custom_sort", "comp", "comparator"],
+    "body": [
+      "// 1. Lambda Comparator (Sort in-place without external function):",
+      "sort(${1:v}.begin(), ${1:v}.end(), [](const auto& a, const auto& b) {",
+      "    if (a.first != b.first) return a.first < b.first; // Ascending by first",
+      "    return a.second > b.second;                       // Descending by second",
+      "});",
+      "",
+      "// 2. Free Function Comparator:",
+      "bool comp(const pair<int, int>& a, const pair<int, int>& b) {",
+      "    return a.first < b.first;",
+      "}",
+      "// sort(v.begin(), v.end(), comp);",
+      "",
+      "// 3. Struct with Internal operator<:",
+      "struct Item {",
+      "    int val, id;",
+      "    bool operator<(const Item& o) const {",
+      "        if (val != o.val) return val < o.val;",
+      "        return id < o.id;",
+      "    }",
+      "};",
+      "",
+      "// 4. Index Sorting (argsort - sort original indices by values):",
+      "vector<int> p(${2:n}); iota(p.begin(), p.end(), 0);",
+      "sort(p.begin(), p.end(), [&](int i, int j) { return ${3:a}[i] < ${3:a}[j]; });",
+      "",
+      "// 5. Comparator Struct for Priority Queue (Min-Heap by first):",
+      "struct ComparePQ {",
+      "    bool operator()(const pair<int, int>& a, const pair<int, int>& b) {",
+      "        return a.first > b.first; // Greater-than creates Min-Heap!",
+      "    }",
+      "};",
+      "priority_queue<pair<int, int>, vector<pair<int, int>>, ComparePQ> pq;"
+    ],
+    "description": "Lambda, free function, struct operator<, argsort index sorting, and priority_queue comparator."
+  },
+
+  "GCC Optimization Pragmas": {
+    "scope": "cpp",
+    "prefix": ["pragma", "optimize"],
+    "body": [
+      "#pragma GCC optimize(\"O3,unroll-loops\")",
+      "#pragma GCC target(\"avx2,bmi,bmi2,lzcnt,popcnt\")"
+    ],
+    "description": "Hardware vectorization and loop unrolling for tight 1.0s time limits."
+  },
+
+  "__int128 Fast I/O & Output": {
+    "scope": "cpp",
+    "prefix": ["int128", "read128"],
+    "body": [
+      "__int128 read128() {",
+      "    __int128 x = 0; int f = 1; char ch = getchar();",
+      "    while (ch < '0' || ch > '9') { if (ch == '-') f = -1; ch = getchar(); }",
+      "    while (ch >= '0' && ch <= '9') { x = x * 10 + ch - '0'; ch = getchar(); }",
+      "    return x * f;",
+      "}",
+      "void print128(__int128 x) {",
+      "    if (x < 0) { putchar('-'); x = -x; }",
+      "    if (x > 9) print128(x / 10);",
+      "    putchar(x % 10 + '0');",
+      "}"
+    ],
+    "description": "Fast digit stream I/O and recursive print for 128-bit integers up to 3.4 x 10^38."
+  },
+
+  "Coordinate Compression": {
+    "scope": "cpp",
+    "prefix": ["compress", "coord_compress"],
+    "body": [
+      "// In-place coordinate compression on vector 'a':",
+      "vector<int> vals = ${1:a};",
+      "sort(vals.begin(), vals.end());",
+      "vals.erase(unique(vals.begin(), vals.end()), vals.end());",
+      "for (int &x : ${1:a}) {",
+      "    x = lower_bound(vals.begin(), vals.end(), x) - vals.begin(); // 0-based rank",
+      "}",
+      "// Original value from rank: vals[rank]"
+    ],
+    "description": "Maps arbitrary large coordinates (up to 10^9) to dense 0-based ranks in O(N log N)."
+  },
+
+  "C++ <cmath> Functions": {
+    "scope": "cpp",
+    "prefix": ["cmath", "math_fn"],
+    "body": [
+      "const double PI = acos(-1.0); // Exact π: 3.141592653589793",
+      "",
+      "// 1. Exponential & Powers:",
+      "double e_to_x   = exp(${1:x});              // e^x",
+      "double power    = pow(${2:base}, ${3:exp}); // base^exp",
+      "",
+      "// 2. Natural Logarithm & Logarithms:",
+      "double natural  = log(${1:x});              // ln(x) (base e)",
+      "double log_10   = log10(${1:x});            // log10(x) (base 10)",
+      "double log_2    = log2(${1:x});             // log2(x) (base 2)",
+      "double log_b    = log(${1:x}) / log(${4:b}); // log_b(x)",
+      "",
+      "// 3. Roots:",
+      "double sq_root  = sqrt(${1:x});             // √x",
+      "double cb_root  = cbrt(${1:x});             // ∛x",
+      "double kth_root = pow(${1:x}, 1.0 / ${5:k}); // k-th root",
+      "",
+      "// 4. Trigonometry (Input in RADIANS!):",
+      "double rad      = ${6:deg} * (PI / 180.0);  // Degrees to Radians!",
+      "double s        = sin(rad);",
+      "double c        = cos(rad);",
+      "double t        = tan(rad);",
+      "",
+      "// 5. Inverse Trigonometry & Angle:",
+      "double angle_rad = atan2(${7:y}, ${8:x});   // [-π, π] from (x, y)",
+      "double angle_deg = angle_rad * 180.0 / PI; // Radians to Degrees!",
+      "double hyp       = hypot(${8:x}, ${7:y});    // √(x^2 + y^2)"
+    ],
+    "description": "exp, ln, log10, log2, sqrt, cbrt, sin, cos, atan2, hypot and degree-radian conversions."
+  },
+
+  "Matrix I/O & Grid Navigation": {
+    "scope": "cpp",
+    "prefix": ["mat_io", "grid_helpers", "dxdy"],
+    "body": [
+      "// 1. Numeric Matrix N x M:",
+      "int n, m; cin >> n >> m;",
+      "vector<vector<int>> a(n, vector<int>(m));",
+      "for (int i = 0; i < n; i++)",
+      "    for (int j = 0; j < m; j++) cin >> a[i][j];",
+      "",
+      "// 2. Character Grid (Maze):",
+      "vector<string> grid(n);",
+      "for (int i = 0; i < n; i++) cin >> grid[i];",
+      "",
+      "// 3. Direction Arrays for Grid Navigation:",
+      "int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right",
+      "int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions",
+      "int dy8[] = {-1, 0, 1,-1, 1,-1, 0, 1};",
+      "bool valid(int x, int y, int n, int m) { return x >= 0 && x < n && y >= 0 && y < m; }"
+    ],
+    "description": "2D vectors, string grids, 4/8-direction arrays, and in-bounds validation helper."
+  },
+
+  "All Type Converters & Parsers": {
+    "scope": "cpp",
+    "prefix": ["convert", "to_string", "stoi"],
+    "body": [
+      "// 1. Number <-> String:",
+      "string s = to_string(12345LL);",
+      "int num = stoi(\"123\");",
+      "long long lnum = stoll(\"1234567890123\");",
+      "double d = stod(\"3.14159\");",
+      "",
+      "// 2. Char <-> Digit & Alphabets:",
+      "int digit = '7' - '0';",
+      "char ch = 7 + '0';",
+      "int lower_idx = 'c' - 'a'; // 0 to 25",
+      "char lower_c = tolower('A');",
+      "char upper_c = toupper('a');",
+      "transform(s.begin(), s.end(), s.begin(), ::tolower);",
+      "",
+      "// 3. Base Conversions:",
+      "int from_bin = stoi(\"10110\", nullptr, 2);",
+      "int from_hex = stoi(\"1A\", nullptr, 16);",
+      "string to_bin = bitset<32>(22).to_string();",
+      "to_bin = to_bin.substr(to_bin.find('1')); // Trim leading zeros",
+      "",
+      "// 4. String Tokenizer:",
+      "stringstream ss(\"apple banana cherry\");",
+      "string word; while (ss >> word) { /* process each word */ }",
+      "stringstream ss2(\"1,2,3,4\");",
+      "string item; while (getline(ss2, item, ',')) { int val = stoi(item); }"
+    ],
+    "description": "Conversions between string, number, char, binary/hex, and delimiter tokenizer."
+  },
+
+  "All STL Containers Operations": {
+    "scope": "cpp",
+    "prefix": ["stl_containers", "stl"],
+    "body": [
+      "// 1. Vector: push_back, pop_back, resize, assign, clear",
+      "vector<int> v = {1, 2, 3};",
+      "// 2. Pair & Tuple:",
+      "pair<int, string> p = {1, \"ab\"}; auto [id, name] = p;",
+      "tuple<int, int, int> tp = {1, 2, 3}; auto [x, y, z] = tp;",
+      "// 3. Set & Multiset (O(log N)):",
+      "set<int> s; s.insert(5); s.erase(5); auto it = s.lower_bound(x);",
+      "multiset<int> ms; ms.insert(5); ms.erase(ms.find(5)); // Erase ONLY ONE instance",
+      "// 4. Map & Frequency Counter:",
+      "map<int, int> freq; for (int x : v) freq[x]++;",
+      "for (auto& [val, count] : freq) { /* sorted by key */ }",
+      "// 5. Priority Queue (Heap - O(log N)):",
+      "priority_queue<int> max_pq;",
+      "priority_queue<int, vector<int>, greater<int>> min_pq;",
+      "// 6. Deque, Stack & Queue:",
+      "deque<int> dq; dq.push_front(1); dq.push_back(2);",
+      "stack<int> st; st.push(1); st.top(); st.pop();",
+      "queue<int> q; q.push(1); q.front(); q.pop();",
+      "// 7. Bitset (64x faster bitwise ops):",
+      "bitset<64> bs(15); bs.set(2); int set_bits = bs.count();"
+    ],
+    "description": "Essential syntax and usage patterns for every C++ STL container."
+  },
+
+  "All STL Algorithms": {
+    "scope": "cpp",
+    "prefix": ["stl_algo", "algorithms"],
+    "body": [
+      "// 1. Sorting & Binary Search:",
+      "sort(all(v));                            // Ascending: O(N log N)",
+      "sort(rall(v));                           // Descending: O(N log N)",
+      "auto it_lb = lower_bound(all(v), x);     // First iterator >= x",
+      "int idx_lb = lower_bound(all(v), x) - v.begin(); // 0-based index >= x",
+      "auto it_ub = upper_bound(all(v), x);     // First iterator > x",
+      "bool found = binary_search(all(v), x);   // True if x exists (O(log N))",
+      "",
+      "// 2. Vector Operations & Deduplication:",
+      "v.erase(unique(all(v)), v.end());        // Remove duplicates (sort first!)",
+      "reverse(all(v));                         // Invert order",
+      "rotate(v.begin(), v.begin() + k, v.end()); // Left-rotate by k",
+      "int mn = *min_element(all(v));",
+      "int mx = *max_element(all(v));",
+      "int cnt = count(all(v), x);",
+      "",
+      "// 3. Numeric & Prefix Sums:",
+      "int sum = accumulate(all(v), 0LL);       // Sum with 0LL overflow guard",
+      "vector<int> pref(n); partial_sum(all(v), pref.begin()); // Prefix sum array",
+      "iota(all(v), 0);                         // Fills 0, 1, 2, ..., n-1",
+      "",
+      "// 4. Permutations & Quick Select:",
+      "next_permutation(all(v));",
+      "nth_element(v.begin(), v.begin() + k, v.end()); // v[k] is the k-th smallest (O(N) avg)"
+    ],
+    "description": "Essential algorithms: sort, lower_bound, unique, accumulate, partial_sum, nth_element."
+  },
+
+  "Greatest Common Divisor (GCD)": {
+    "scope": "cpp",
+    "prefix": ["gcdf", "gcd"],
+    "body": [
+      "int gcd(int a, int b) {",
+      "    while (b) { a %= b; swap(a, b); }",
+      "    return a;",
+      "}"
+    ],
+    "description": "Euclidean Greatest Common Divisor in O(log(min(a,b)))."
+  },
+
+  "Least Common Multiple (LCM)": {
+    "scope": "cpp",
+    "prefix": ["lcmf", "lcm"],
+    "body": [
+      "int lcm(int a, int b) {",
+      "    return (a / gcd(a, b)) * b; // Divide first to prevent overflow",
+      "}"
+    ],
+    "description": "Safe Least Common Multiple."
+  },
+
+  "Sieve of Eratosthenes": {
+    "scope": "cpp",
+    "prefix": ["sieve", "gprime"],
+    "body": [
+      "vector<int> primes;",
+      "vector<bool> is_prime;",
+      "void gprime(int n) {",
+      "    is_prime.assign(n + 1, true);",
+      "    is_prime[0] = is_prime[1] = false;",
+      "    for (int i = 2; i * i <= n; i++)",
+      "        if (is_prime[i])",
+      "            for (int j = i * i; j <= n; j += i) is_prime[j] = false;",
+      "    primes.clear();",
+      "    for (int i = 2; i <= n; i++) if (is_prime[i]) primes.push_back(i);",
+      "}"
+    ],
+    "description": "Sieve of Eratosthenes prime generation up to N in O(N log log N)."
+  },
+
+  "Linear Sieve & Smallest Prime Factor (SPF)": {
+    "scope": "cpp",
+    "prefix": ["spf", "linear_sieve"],
+    "body": [
+      "const int MAXV = 1e7 + 5;",
+      "vector<int> spf(MAXV), primes_list;",
+      "void linear_sieve() {",
+      "    for (int i = 2; i < MAXV; ++i) {",
+      "        if (spf[i] == 0) { spf[i] = i; primes_list.push_back(i); }",
+      "        for (int p : primes_list) {",
+      "            if (p > spf[i] || i * p >= MAXV) break;",
+      "            spf[i * p] = p;",
+      "        }",
+      "    }",
+      "}",
+      "vector<pair<int, int>> get_factors(int x) {",
+      "    vector<pair<int, int>> factors;",
+      "    while (x > 1) {",
+      "        int p = spf[x], count = 0;",
+      "        while (x % p == 0) { count++; x /= p; }",
+      "        factors.push_back({p, count});",
+      "    }",
+      "    return factors;",
+      "}"
+    ],
+    "description": "Linear sieve precomputation in O(N) and O(log X) prime factorization queries."
+  },
+
+  "Binary Exponentiation with Modulo": {
+    "scope": "cpp",
+    "prefix": ["binExpoMod", "power_mod"],
+    "body": [
+      "long long binpow(long long a, long long b, long long m) {",
+      "    a %= m; long long res = 1;",
+      "    while (b > 0) {",
+      "        if (b & 1) res = res * a % m;",
+      "        a = a * a % m; b >>= 1;",
+      "    }",
+      "    return res;",
+      "}"
+    ],
+    "description": "Fast exponentiation (a^b % m) in O(log b)."
+  },
+
+  "Binary Exponentiation Standard": {
+    "scope": "cpp",
+    "prefix": ["binpow", "power"],
+    "body": [
+      "long long binpow(long long a, long long b) {",
+      "    long long res = 1;",
+      "    while (b > 0) {",
+      "        if (b & 1) res *= a;",
+      "        a *= a; b >>= 1;",
+      "    }",
+      "    return res;",
+      "}"
+    ],
+    "description": "Fast exponentiation (a^b) without modulo in O(log b)."
+  },
+
+  "Count Total Set Bits 0..N": {
+    "scope": "cpp",
+    "prefix": ["numofonef", "count_bits"],
+    "body": [
+      "int numofone(int n) {",
+      "    int ans = 0;",
+      "    for (int i = 0; (1ULL << i) <= n; i++) {",
+      "        int vag = 1ULL << (i + 1);",
+      "        int arektavag = (n + 1) / vag;",
+      "        ans += (arektavag * (vag >> 1ULL));",
+      "        int obos = (n + 1) % vag;",
+      "        if (obos > (vag >> 1ULL)) ans += ((obos) - (vag >> 1ULL));",
+      "        if (arektavag == 0) break;",
+      "    }",
+      "    return ans;",
+      "}"
+    ],
+    "description": "Counts total number of 1s in binary representations from 0 to N in O(log N)."
+  },
+
+  "Extended GCD & Modular Inverse": {
+    "scope": "cpp",
+    "prefix": ["extgcd", "modinverse"],
+    "body": [
+      "pair<int, int> ext_gcd(int a, int b) {",
+      "    if (b == 0) return {1, 0};",
+      "    auto [x1, y1] = ext_gcd(b, a % b);",
+      "    return {y1, x1 - y1 * (a / b)};",
+      "}",
+      "int mod_inverse(int a, int m) {",
+      "    auto [x, y] = ext_gcd(a, m);",
+      "    return (x % m + m) % m;",
+      "}"
+    ],
+    "description": "Extended Euclidean Algorithm and modular inverse."
+  },
+
+  "Numerically Stable Quadratic Solver": {
+    "scope": "cpp",
+    "prefix": ["quadf", "quadratic"],
+    "body": [
+      "using ld = long double;",
+      "const ld EPS = 1e-12;",
+      "void solve_quadratic(ld a, ld b, ld c) {",
+      "    cout << fixed << setprecision(12);",
+      "    if (fabsl(a) < EPS) {",
+      "        if (fabsl(b) < EPS) cout << \"No solution\\n\";",
+      "        else cout << -c / b << '\\n';",
+      "        return;",
+      "    }",
+      "    ld d = b * b - 4 * a * c;",
+      "    if (d < -EPS) { cout << \"No real roots\\n\"; return; }",
+      "    if (fabsl(d) <= EPS) { cout << -b / (2 * a) << '\\n'; return; }",
+      "    ld sq = sqrtl(d);",
+      "    ld q = -0.5L * (b + copysignl(sq, b));",
+      "    ld x1 = q / a, x2 = c / q;",
+      "    if (x1 > x2) swap(x1, x2);",
+      "    cout << x1 << '\\n' << x2 << '\\n';",
+      "}"
+    ],
+    "description": "Citardauq stable quadratic formula avoiding loss of significance."
+  },
+
+  "Basis Conversion (Base 2 to 16)": {
+    "scope": "cpp",
+    "prefix": ["basis_conv", "base_change"],
+    "body": [
+      "const string DIGITS = \"0123456789ABCDEF\";",
+      "unsigned long long basis_string_to_number(string &s, int b) {",
+      "    unsigned long long result = 0ULL;",
+      "    for (char d : s) result = b * result + (find(DIGITS.begin(), DIGITS.end(), d) - DIGITS.begin());",
+      "    return result;",
+      "}",
+      "string number_to_basis_string(unsigned long long n, int b) {",
+      "    vector<char> ds;",
+      "    do { ds.push_back(DIGITS[n % b]); n /= b; } while (n != 0);",
+      "    return string(ds.rbegin(), ds.rend());",
+      "}"
+    ],
+    "description": "Bidirectional conversion between base-b string and integer for any base 2 <= b <= 16."
+  },
+
+  "All Binary Operations & Bit Hacks": {
+    "scope": "cpp",
+    "prefix": ["bithacks", "bits"],
+    "body": [
+      "// 1. GCC Builtins (Append 'll' for 64-bit):",
+      "int ones = __builtin_popcountll(x);   // Count set bits",
+      "int clz  = __builtin_clzll(x);        // Leading zeros",
+      "int ctz  = __builtin_ctzll(x);        // Trailing zeros",
+      "int msb  = 63 - __builtin_clzll(x);   // Index of highest set bit",
+      "",
+      "// 2. Essential Bit Hacks:",
+      "bool is_set  = (n >> k) & 1;          // Check k-th bit (0-indexed)",
+      "n |= (1LL << k);                      // Set k-th bit",
+      "n &= ~(1LL << k);                     // Clear k-th bit",
+      "n ^= (1LL << k);                      // Toggle k-th bit",
+      "bool is_pow2 = n > 0 && !(n & (n - 1)); // Is power of 2",
+      "int lsb      = n & (-n);             // Lowest set bit",
+      "n &= (n - 1);                         // Clear lowest set bit",
+      "",
+      "// 3. Iterate Submasks of Mask m:",
+      "for (int s = m; s > 0; s = (s - 1) & m) {",
+      "    $0",
+      "}"
+    ],
+    "description": "Fast builtins, bit manipulation tricks, and submask iteration."
+  },
+
+  "Complete Modulo Sheet & O(1) nCr": {
+    "scope": "cpp",
+    "prefix": ["modsheet", "ncr", "combinations"],
+    "body": [
+      "const int MOD = 1e9 + 7; // or 998244353",
+      "long long add(long long a, long long b) { return (a + b) % MOD; }",
+      "long long sub(long long a, long long b) { return (a - b + MOD) % MOD; }",
+      "long long mul(long long a, long long b) { return (1LL * a * b) % MOD; }",
+      "long long power(long long base, long long exp) {",
+      "    long long res = 1; base %= MOD;",
+      "    while (exp > 0) {",
+      "        if (exp % 2 == 1) res = (res * base) % MOD;",
+      "        base = (base * base) % MOD; exp /= 2;",
+      "    }",
+      "    return res;",
+      "}",
+      "long long modInverse(long long n) { return power(n, MOD - 2); }",
+      "long long divi(long long a, long long b) { return mul(a, modInverse(b)); }",
+      "",
+      "const int MAXF = 1e6 + 5;",
+      "long long fact[MAXF], invFact[MAXF];",
+      "void precompute_nCr() {",
+      "    fact[0] = 1; invFact[0] = 1;",
+      "    for (int i = 1; i < MAXF; i++) fact[i] = mul(fact[i - 1], i);",
+      "    invFact[MAXF - 1] = modInverse(fact[MAXF - 1]);",
+      "    for (int i = MAXF - 2; i >= 1; i--) invFact[i] = mul(invFact[i + 1], i + 1);",
+      "}",
+      "long long nCr(int n, int r) {",
+      "    if (r < 0 || r > n) return 0;",
+      "    return mul(fact[n], mul(invFact[r], invFact[n - r]));",
+      "}"
+    ],
+    "description": "Safe modular arithmetic (add, sub, mul, power, modInverse, divi) and precomputed O(1) nCr."
+  },
+
+  "Adjacency List Input": {
+    "scope": "cpp",
+    "prefix": ["adjlist", "graph_adj"],
+    "body": [
+      "int V, E; cin >> V >> E;",
+      "vector<vector<pair<int, int>>> adj(V + 1);",
+      "for (int i = 0; i < E; ++i) {",
+      "    int u, v, w; cin >> u >> v >> w;",
+      "    adj[u].push_back({v, w});",
+      "    adj[v].push_back({u, w}); // Remove if directed",
+      "}"
+    ],
+    "description": "Read standard weighted/unweighted graph into adjacency list."
+  },
+
+  "Edge List Input": {
+    "scope": "cpp",
+    "prefix": ["edgelist", "graph_edges"],
+    "body": [
+      "int V, E; cin >> V >> E;",
+      "vector<vector<int>> edges;",
+      "for (int i = 0; i < E; ++i) {",
+      "    int u, v, w; cin >> u >> v >> w;",
+      "    edges.push_back({u, v, w});",
+      "}"
+    ],
+    "description": "Read graph into edge list for Bellman-Ford or Kruskal."
+  },
+
+  "DFS Traversal": {
+    "scope": "cpp",
+    "prefix": ["dfs", "dfsfunc"],
+    "body": [
+      "void dfs(int node, const vector<int> adj[], vector<bool>& visited) {",
+      "    visited[node] = true;",
+      "    for (int neighbor : adj[node])",
+      "        if (!visited[neighbor]) dfs(neighbor, adj, visited);",
+      "}"
+    ],
+    "description": "Depth-first search traversal on graph in O(V + E)."
+  },
+
+  "BFS Traversal": {
+    "scope": "cpp",
+    "prefix": ["bfs", "bfsfunc"],
+    "body": [
+      "void bfs(int start, const vector<int> adj[], vector<bool>& visited) {",
+      "    queue<int> q; q.push(start); visited[start] = true;",
+      "    while (!q.empty()) {",
+      "        int node = q.front(); q.pop();",
+      "        for (int neighbor : adj[node]) {",
+      "            if (!visited[neighbor]) {",
+      "                visited[neighbor] = true; q.push(neighbor);",
+      "            }",
+      "        }",
+      "    }",
+      "}"
+    ],
+    "description": "Breadth-first search traversal on graph in O(V + E)."
+  },
+
+  "Topological Sort (Kahn's BFS)": {
+    "scope": "cpp",
+    "prefix": ["topo", "topo_sort"],
+    "body": [
+      "vector<int> topo_sort(int n, const vector<vector<int>> &adj) {",
+      "    vector<int> in_deg(n, 0), order;",
+      "    for (int u = 0; u < n; ++u)",
+      "        for (int v : adj[u]) in_deg[v]++;",
+      "    queue<int> q;",
+      "    for (int i = 0; i < n; ++i) if (in_deg[i] == 0) q.push(i);",
+      "    while (!q.empty()) {",
+      "        int u = q.front(); q.pop(); order.push_back(u);",
+      "        for (int v : adj[u]) if (--in_deg[v] == 0) q.push(v);",
+      "    }",
+      "    return (order.size() == n) ? order : vector<int>(); // empty if cycle",
+      "}"
+    ],
+    "description": "Kahn's in-degree algorithm for Topological Sort in O(V + E)."
+  },
+
+  "Bipartite Graph Check & 2-Coloring": {
+    "scope": "cpp",
+    "prefix": ["bipartite", "two_color"],
+    "body": [
+      "bool is_bipartite(int n, const vector<vector<int>> &adj, vector<int> &color) {",
+      "    color.assign(n + 1, -1);",
+      "    for (int start = 1; start <= n; ++start) {",
+      "        if (color[start] != -1) continue;",
+      "        queue<int> q; q.push(start); color[start] = 0;",
+      "        while (!q.empty()) {",
+      "            int u = q.front(); q.pop();",
+      "            for (int v : adj[u]) {",
+      "                if (color[v] == -1) {",
+      "                    color[v] = color[u] ^ 1; q.push(v);",
+      "                } else if (color[v] == color[u]) return false; // Odd cycle detected!",
+      "            }",
+      "        }",
+      "    }",
+      "    return true;",
+      "}"
+    ],
+    "description": "Checks if graph is 2-colorable (bipartite) via BFS in O(V + E)."
+  },
+
+  "Dijkstra Algorithm": {
+    "scope": "cpp",
+    "prefix": ["dijkstra"],
+    "body": [
+      "int n, m; cin >> n >> m;",
+      "vector<vector<pair<int, int>>> adj(n + 1);",
+      "for (int i = 0; i < m; i++) {",
+      "    int u, v, w; cin >> u >> v >> w;",
+      "    adj[u].emplace_back(v, w); adj[v].emplace_back(u, w);",
+      "}",
+      "int s = 1, inf = LLONG_MAX / 2;",
+      "vector<int> dis(n + 1, inf), parent(n + 1, -1);",
+      "dis[s] = 0;",
+      "priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;",
+      "pq.emplace(0, s);",
+      "while (!pq.empty()) {",
+      "    auto [dv, v] = pq.top(); pq.pop();",
+      "    if (dv > dis[v]) continue;",
+      "    for (auto &edge : adj[v]) {",
+      "        int to = edge.first, d = edge.second;",
+      "        if (dis[v] + d < dis[to]) {",
+      "            dis[to] = dis[v] + d; parent[to] = v; pq.emplace(dis[to], to);",
+      "        }",
+      "    }",
+      "}",
+      "if (dis[n] == inf) cout << -1 << endl;",
+      "else {",
+      "    vector<int> path;",
+      "    for (int i = n; i != -1; i = parent[i]) path.push_back(i);",
+      "    reverse(path.begin(), path.end());",
+      "    for (int node : path) cout << node << \" \";",
+      "    cout << endl;",
+      "}"
+    ],
+    "description": "Dijkstra shortest path algorithm with priority_queue and path reconstruction."
+  },
+
+  "0-1 BFS": {
+    "scope": "cpp",
+    "prefix": ["bfs01", "zero_one_bfs"],
+    "body": [
+      "vector<int> zero_one_bfs(int start, int n, const vector<vector<pair<int, int>>> &adj) {",
+      "    vector<int> dist(n + 1, 1e9);",
+      "    deque<int> dq;",
+      "    dist[start] = 0;",
+      "    dq.push_back(start);",
+      "    while (!dq.empty()) {",
+      "        int u = dq.front(); dq.pop_front();",
+      "        for (auto &[v, w] : adj[u]) {",
+      "            if (dist[u] + w < dist[v]) {",
+      "                dist[v] = dist[u] + w; ",
+      "                if (w == 0) dq.push_front(v); // Push 0-cost edge to front!",
+      "                else dq.push_back(v);        // Push 1-cost edge to back!",
+      "            }",
+      "        }",
+      "    }",
+      "    return dist;",
+      "}"
+    ],
+    "description": "Shortest path on graphs with edge weights 0 and 1 in O(V + E) using deque."
+  },
+
+  "Bellman-Ford Algorithm": {
+    "scope": "cpp",
+    "prefix": ["bellman_ford", "bellman"],
+    "body": [
+      "vector<int> bellman_ford(int n, vector<vector<int>>& edges, int S) {",
+      "    vector<int> dis(n, 1e9); dis[S] = 0;",
+      "    for (int i = 0; i < n - 1; i++) {",
+      "        bool updated = false;",
+      "        for (auto &e : edges) {",
+      "            int u = e[0], v = e[1], w = e[2];",
+      "            if (dis[u] != 1e9 && dis[u] + w < dis[v]) {",
+      "                dis[v] = dis[u] + w; updated = true;",
+      "            }",
+      "        }",
+      "        if (!updated) break;",
+      "    }",
+      "    for (auto &e : edges) {",
+      "        int u = e[0], v = e[1], w = e[2];",
+      "        if (dis[u] != 1e9 && dis[u] + w < dis[v]) return {-1};",
+      "    }",
+      "    return dis;",
+      "}"
+    ],
+    "description": "Bellman-Ford shortest path with negative edge support and cycle check in O(V * E)."
+  },
+
+  "Negative Cycle Detection & Path Print": {
+    "scope": "cpp",
+    "prefix": ["negcyclef", "negative_cycle"],
+    "body": [
+      "int n, m; cin >> n >> m;",
+      "vector<vector<int>> edges;",
+      "for (int i = 0; i < m; ++i) {",
+      "    int u, v, w; cin >> u >> v >> w; edges.push_back({u, v, w});",
+      "}",
+      "vector<int> dist(n + 1, 0), p(n + 1, -1);",
+      "int x;",
+      "for (int i = 0; i < n; i++) {",
+      "    x = -1;",
+      "    for (auto &edge : edges) {",
+      "        int u = edge[0], v = edge[1], w = edge[2];",
+      "        if (dist[u] + w < dist[v]) {",
+      "            dist[v] = dist[u] + w; p[v] = u; x = v;",
+      "        }",
+      "    }",
+      "}",
+      "if (x == -1) { cout << \"NO\\n\"; return 0; }",
+      "for (int i = 0; i < n; i++) x = p[x];",
+      "cout << \"YES\\n\";",
+      "vector<int> path; int cur = x; path.push_back(cur);",
+      "while (true) { cur = p[cur]; path.push_back(cur); if (cur == x) break; }",
+      "reverse(path.begin(), path.end());",
+      "for (int node : path) cout << node << \" \";",
+      "cout << endl;"
+    ],
+    "description": "Detects negative cycle and reconstructs vertices in cycle."
+  },
+
+  "Floyd-Warshall All-Pairs": {
+    "scope": "cpp",
+    "prefix": ["floyd_warshall", "all_pairs"],
+    "body": [
+      "for (int k = 0; k < n; ++k)",
+      "    for (int i = 0; i < n; ++i)",
+      "        for (int j = 0; j < n; ++j)",
+      "            if (dist[i][k] < INF && dist[k][j] < INF)",
+      "                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j]);"
+    ],
+    "description": "Floyd-Warshall all-pairs shortest paths in O(V^3)."
+  },
+
+  "Tree Diameter via Double BFS": {
+    "scope": "cpp",
+    "prefix": ["treeDiameter", "tree_diameter"],
+    "body": [
+      "pair<int, int> bfs_farthest(int start, const vector<vector<int>>& adj, int n) {",
+      "    vector<int> dist(n + 1, -1);",
+      "    queue<int> q; q.push(start); dist[start] = 0;",
+      "    int farthest_node = start;",
+      "    while (!q.empty()) {",
+      "        int node = q.front(); q.pop();",
+      "        for (int neighbor : adj[node]) {",
+      "            if (dist[neighbor] == -1) {",
+      "                dist[neighbor] = dist[node] + 1; q.push(neighbor);",
+      "                if (dist[neighbor] > dist[farthest_node]) farthest_node = neighbor;",
+      "            }",
+      "        }",
+      "    }",
+      "    return {farthest_node, dist[farthest_node]};",
+      "}"
+    ],
+    "description": "Tree diameter in O(V + E) using double BFS."
+  },
+
+  "Lowest Common Ancestor (Binary Lifting)": {
+    "scope": "cpp",
+    "prefix": ["lca", "binary_lifting"],
+    "body": [
+      "const int MAXN = 2e5 + 5, LOGN = 20;",
+      "vector<int> tree_adj[MAXN];",
+      "int up[MAXN][LOGN], depth[MAXN];",
+      "",
+      "void dfs_lca(int u, int p, int d) {",
+      "    depth[u] = d; up[u][0] = p;",
+      "    for (int i = 1; i < LOGN; ++i)",
+      "        up[u][i] = (up[u][i - 1] != -1) ? up[up[u][i - 1]][i - 1] : -1;",
+      "    for (int v : tree_adj[u]) if (v != p) dfs_lca(v, u, d + 1);",
+      "}",
+      "int get_lca(int u, int v) {",
+      "    if (depth[u] < depth[v]) swap(u, v);",
+      "    int diff = depth[u] - depth[v];",
+      "    for (int i = 0; i < LOGN; ++i)",
+      "        if ((diff >> i) & 1) u = up[u][i];",
+      "    if (u == v) return u;",
+      "    for (int i = LOGN - 1; i >= 0; --i) {",
+      "        if (up[u][i] != up[v][i]) { u = up[u][i]; v = up[v][i]; }",
+      "    }",
+      "    return up[u][0];",
+      "}",
+      "int tree_dist(int u, int v) {",
+      "    return depth[u] + depth[v] - 2 * depth[get_lca(u, v)];",
+      "}"
+    ],
+    "description": "LCA, k-th ancestor, and tree path distance via binary lifting in O(N log N) + O(log N)."
+  },
+
+  "Disjoint Set Union (Union by Size)": {
+    "scope": "cpp",
+    "prefix": ["dsu-size", "dsu"],
+    "body": [
+      "class DisjointSet {",
+      "    vector<int> rank, parent, size;",
+      "public:",
+      "    DisjointSet(int n) {",
+      "        rank.resize(n + 1, 0); parent.resize(n + 1); size.resize(n + 1, 1);",
+      "        for (int i = 0; i <= n; i++) parent[i] = i;",
+      "    }",
+      "    int findUPar(int node) {",
+      "        if (node == parent[node]) return node;",
+      "        return parent[node] = findUPar(parent[node]);",
+      "    }",
+      "    void unionBySize(int u, int v) {",
+      "        int ulpU = findUPar(u), ulpV = findUPar(v);",
+      "        if (ulpU == ulpV) return;",
+      "        if (size[ulpU] < size[ulpV]) {",
+      "            parent[ulpU] = ulpV; size[ulpV] += size[ulpU];",
+      "        } else {",
+      "            parent[ulpV] = ulpU; size[ulpU] += size[ulpV];",
+      "        }",
+      "    }",
+      "    bool connected(int u, int v) { return findUPar(u) == findUPar(v); }",
+      "};"
+    ],
+    "description": "Disjoint Set Union (DSU) with union by size and path compression in O(alpha(N))."
+  },
+
+  "Fenwick Tree (BIT: Sum & Range Average)": {
+    "scope": "cpp",
+    "prefix": ["fenwick", "bit_tree"],
+    "body": [
+      "struct Fenwick {",
+      "    int n; vector<int> bit;",
+      "    Fenwick(int n) : n(n), bit(n + 1, 0) {}",
+      "    void add(int idx, int val) {",
+      "        for (; idx <= n; idx += idx & -idx) bit[idx] += val;",
+      "    }",
+      "    int query(int idx) {",
+      "        int sum = 0;",
+      "        for (; idx > 0; idx -= idx & -idx) sum += bit[idx];",
+      "        return sum;",
+      "    }",
+      "    int range_query(int l, int r) { return query(r) - query(l - 1); }",
+      "    int avg(int l, int r) { return range_query(l, r) / (r - l + 1); }",
+      "};"
+    ],
+    "description": "Fenwick Tree (Binary Indexed Tree) for point update and range sum in O(log N)."
+  },
+
+  "Iterative Segment Tree (Range Sum)": {
+    "scope": "cpp",
+    "prefix": ["segtree", "segment_tree"],
+    "body": [
+      "struct SegTree {",
+      "    int n; vector<int> t;",
+      "    SegTree(int n) : n(n), t(2 * n, 0) {}",
+      "    void update(int p, int val) {",
+      "        for (t[p += n] = val; p > 1; p >>= 1) t[p >> 1] = t[p] + t[p ^ 1];",
+      "    }",
+      "    int query(int l, int r) { // sum on [l, r]",
+      "        int res = 0;",
+      "        for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1) {",
+      "            if (l & 1) res += t[l++];",
+      "            if (r & 1) res += t[--r];",
+      "        }",
+      "        return res;",
+      "    }",
+      "};"
+    ],
+    "description": "Iterative Segment Tree for point update and range sum in O(log N)."
+  },
+
+  "KACTL Segment Tree (Associative f, [b, e))": {
+    "scope": "cpp",
+    "prefix": ["SegTreeKACTL", "kactl_seg"],
+    "body": [
+      "struct Tree {",
+      "    typedef int T;",
+      "    static constexpr T unit = INT_MIN;",
+      "    T f(T a, T b) { return max(a, b); } // any associative fn",
+      "    vector<T> s; int n;",
+      "    Tree(int n = 0, T def = unit) : s(2 * n, def), n(n) {}",
+      "    void update(int pos, T val) {",
+      "        for (s[pos += n] = val; pos /= 2;)",
+      "            s[pos] = f(s[pos * 2], s[pos * 2 + 1]);",
+      "    }",
+      "    T query(int b, int e) { // query [b, e)",
+      "        T ra = unit, rb = unit;",
+      "        for (b += n, e += n; b < e; b /= 2, e /= 2) {",
+      "            if (b % 2) ra = f(ra, s[b++]);",
+      "            if (e % 2) rb = f(s[--e], rb);",
+      "        }",
+      "        return f(ra, rb);",
+      "    }",
+      "};"
+    ],
+    "description": "KACTL iterative segment tree supporting any associative operation on [b, e)."
+  },
+
+  "Lazy Segment Tree (Range Add, Set & Max)": {
+    "scope": "cpp",
+    "prefix": ["LazySegTree", "lazy_segtree"],
+    "body": [
+      "const int inf = 1e9;",
+      "struct Node {",
+      "    Node *l = 0, *r = 0;",
+      "    int lo, hi, mset = inf, madd = 0, val = -inf;",
+      "    Node(int lo, int hi) : lo(lo), hi(hi) {}",
+      "    Node(vector<int>& v, int lo, int hi) : lo(lo), hi(hi) {",
+      "        if (lo + 1 < hi) {",
+      "            int mid = lo + (hi - lo) / 2;",
+      "            l = new Node(v, lo, mid); r = new Node(v, mid, hi);",
+      "            val = max(l->val, r->val);",
+      "        } else val = v[lo];",
+      "    }",
+      "    int query(int L, int R) {",
+      "        if (R <= lo || hi <= L) return -inf;",
+      "        if (L <= lo && hi <= R) return val;",
+      "        push();",
+      "        return max(l->query(L, R), r->query(L, R));",
+      "    }",
+      "    void set(int L, int R, int x) {",
+      "        if (R <= lo || hi <= L) return;",
+      "        if (L <= lo && hi <= R) mset = val = x, madd = 0;",
+      "        else { push(), l->set(L, R, x), r->set(L, R, x); val = max(l->val, r->val); }",
+      "    }",
+      "    void add(int L, int R, int x) {",
+      "        if (R <= lo || hi <= L) return;",
+      "        if (L <= lo && hi <= R) {",
+      "            if (mset != inf) mset += x;",
+      "            else madd += x;",
+      "            val += x;",
+      "        } else { push(), l->add(L, R, x), r->add(L, R, x); val = max(l->val, r->val); }",
+      "    }",
+      "    void push() {",
+      "        if (!l) { int mid = lo + (hi - lo) / 2; l = new Node(lo, mid); r = new Node(mid, hi); }",
+      "        if (mset != inf) { l->set(lo, hi, mset); r->set(lo, hi, mset); mset = inf; }",
+      "        else if (madd) { l->add(lo, hi, madd); r->add(lo, hi, madd); madd = 0; }",
+      "    }",
+      "};"
+    ],
+    "description": "Lazy Segment tree supporting range add, set, and range max queries on [L, R)."
+  },
+
+  "Sparse Table (O(1) Static RMQ & GCD)": {
+    "scope": "cpp",
+    "prefix": ["sparsetable", "sparse_table"],
+    "body": [
+      "template<typename T>",
+      "struct SparseTable {",
+      "    int n, K;",
+      "    vector<vector<T>> st;",
+      "    SparseTable(const vector<T>& a) {",
+      "        n = a.size(); K = __lg(n) + 1;",
+      "        st.assign(K, vector<T>(n));",
+      "        st[0] = a;",
+      "        for (int j = 1; j < K; ++j)",
+      "            for (int i = 0; i + (1 << j) <= n; ++i)",
+      "                st[j][i] = min(st[j - 1][i], st[j - 1][i + (1 << (j - 1))]);",
+      "    }",
+      "    T query(int L, int R) { // 0-based inclusive range [L, R]",
+      "        int j = __lg(R - L + 1);",
+      "        return min(st[j][L], st[j][R - (1 << j) + 1]);",
+      "    }",
+      "};"
+    ],
+    "description": "Static range minimum/maximum/GCD queries in O(1) time after O(N log N) precomputation."
+  },
+
+  "Knuth-Morris-Pratt (KMP) Algorithm": {
+    "scope": "cpp",
+    "prefix": ["kmp", "kmp_search"],
+    "body": [
+      "vector<int> buildLPS(const string &pat) {",
+      "    int m = pat.size(), len = 0;",
+      "    vector<int> lps(m, 0);",
+      "    for (int i = 1; i < m;) {",
+      "        if (pat[i] == pat[len]) { len++; lps[i] = len; i++; }",
+      "        else {",
+      "            if (len != 0) len = lps[len - 1];",
+      "            else { lps[i] = 0; i++; }",
+      "        }",
+      "    }",
+      "    return lps;",
+      "}",
+      "vector<int> KMPsearch(const string &text, const string &pat) {",
+      "    int n = text.size(), m = pat.size();",
+      "    vector<int> lps = buildLPS(pat), positions;",
+      "    int i = 0, j = 0;",
+      "    while (i < n) {",
+      "        if (text[i] == pat[j]) {",
+      "            i++; j++;",
+      "            if (j == m) { positions.push_back(i - j); j = lps[j - 1]; }",
+      "        } else {",
+      "            if (j != 0) j = lps[j - 1];",
+      "            else i++;",
+      "        }",
+      "    }",
+      "    return positions;",
+      "}"
+    ],
+    "description": "KMP pattern search in O(N + M)."
+  },
+
+  "Trie & Binary Trie (Max XOR Pair)": {
+    "scope": "cpp",
+    "prefix": ["trie", "bit_trie"],
+    "body": [
+      "// 1. Character Trie (Prefix search & frequency):",
+      "struct TrieNode { int next[26] = {}, pass = 0, end = 0; };",
+      "vector<TrieNode> trie(1);",
+      "void insert_str(const string &s) {",
+      "    int cur = 0;",
+      "    for (char ch : s) {",
+      "        int c = ch - 'a';",
+      "        if (!trie[cur].next[c]) {",
+      "            trie[cur].next[c] = trie.size();",
+      "            trie.emplace_back();",
+      "        }",
+      "        cur = trie[cur].next[c]; trie[cur].pass++;",
+      "    }",
+      "    trie[cur].end++;",
+      "}",
+      "",
+      "// 2. Binary Trie (Maximum XOR):",
+      "struct BitTrie { int nxt[2] = {}; };",
+      "vector<BitTrie> bt(1);",
+      "void insert_num(int x) {",
+      "    int cur = 0;",
+      "    for (int i = 30; i >= 0; --i) {",
+      "        int b = (x >> i) & 1;",
+      "        if (!bt[cur].nxt[b]) { bt[cur].nxt[b] = bt.size(); bt.emplace_back(); }",
+      "        cur = bt[cur].nxt[b];",
+      "    }",
+      "}",
+      "int query_max_xor(int x) {",
+      "    int cur = 0, max_xor = 0;",
+      "    for (int i = 30; i >= 0; --i) {",
+      "        int b = (x >> i) & 1, opp = b ^ 1;",
+      "        if (bt[cur].nxt[opp]) { max_xor |= (1 << i); cur = bt[cur].nxt[opp]; }",
+      "        else cur = bt[cur].nxt[b];",
+      "    }",
+      "    return max_xor;",
+      "}"
+    ],
+    "description": "Character word trie and 32-bit binary trie to find maximum XOR of two numbers in O(30*N)."
+  },
+
+  "Bitmasking Complete Search": {
+    "scope": "cpp",
+    "prefix": ["bitMaskingAppleDivision", "subset_search"],
+    "body": [
+      "int n; cin >> n;",
+      "vector<int> v(n);",
+      "for (int &x : v) cin >> x;",
+      "int ans = LLONG_MAX;",
+      "for (int i = 0; i < (1 << n); i++) {",
+      "    int a = 0, b = 0;",
+      "    for (int pos = 0; pos < n; pos++) {",
+      "        if (i & (1 << pos)) a += v[pos];",
+      "        else b += v[pos];",
+      "    }",
+      "    ans = min(ans, llabs(a - b));",
+      "}",
+      "cout << ans << endl;"
+    ],
+    "description": "Iterate all 2^N subsets to partition an array with minimum difference."
+  },
+
+  "Two Pointers & Sliding Window": {
+    "scope": "cpp",
+    "prefix": ["two_pointers", "sliding_window"],
+    "body": [
+      "// 1. OPPOSITE DIRECTION (Target Sum: O(N)):",
+      "int l = 0, r = n - 1;",
+      "while (l < r) {",
+      "    int sum = a[l] + a[r];",
+      "    if (sum == target) { /* found pair */ break; }",
+      "    else if (sum < target) l++;",
+      "    else r--;",
+      "}",
+      "",
+      "// 2. SAME DIRECTION (Sliding Window: subarray sum <= K: O(N)):",
+      "int left = 0, cur_sum = 0, max_len = 0;",
+      "for (int right = 0; right < n; ++right) {",
+      "    cur_sum += a[right];",
+      "    while (cur_sum > K && left <= right) cur_sum -= a[left++];",
+      "    max_len = max(max_len, right - left + 1);",
+      "}",
+      "",
+      "// 3. MERGING TWO SORTED LISTS (O(N + M)):",
+      "vector<int> c; int i = 0, j = 0;",
+      "while (i < n || j < m) {",
+      "    while (i < n && (j >= m || a[i] <= b[j])) { c.push_back(a[i]); i++; }",
+      "    while (j < m && (i >= n || b[j] <= a[i])) { c.push_back(b[j]); j++; }",
+      "}"
+    ],
+    "description": "Two pointers (opposite direction, sliding window, and merging two lists)."
+  },
+
+  "Binary Search on Answer": {
+    "scope": "cpp",
+    "prefix": ["bs_ans", "binary_search_answer"],
+    "body": [
+      "// 1. Integer Range: Find minimum valid mid satisfying check(mid)",
+      "long long lo = ${1:1}, hi = ${2:1e18}, best = -1;",
+      "while (lo <= hi) {",
+      "    long long mid = lo + (hi - lo) / 2;",
+      "    if (${3:check}(mid)) {",
+      "        best = mid; hi = mid - 1; // Try smaller",
+      "    } else {",
+      "        lo = mid + 1; // Must go larger",
+      "    }",
+      "}",
+      "",
+      "// 2. Real Number / Float Range (100 iterations gives ~10^-30 precision)",
+      "double l = ${4:0.0}, r = ${5:1e9};",
+      "for (int iter = 0; iter < 100; ++iter) {",
+      "    double mid = (l + r) / 2.0;",
+      "    if (${6:check_double}(mid)) r = mid;",
+      "    else l = mid;",
+      "}"
+    ],
+    "description": "Binary search on monotonic answer predicate for integer and float ranges."
+  },
+
+  "0-1 Knapsack & Unbounded Knapsack": {
+    "scope": "cpp",
+    "prefix": ["knapsack", "knapsack_dp"],
+    "body": [
+      "int knapsack_01(int W, const vector<int>& wt, const vector<int>& val, int n) {",
+      "    vector<int> dp(W + 1, 0);",
+      "    for (int i = 0; i < n; i++)",
+      "        for (int w = W; w >= wt[i]; w--) // BACKWARDS for 0-1",
+      "            dp[w] = max(dp[w], dp[w - wt[i]] + val[i]);",
+      "    return dp[W];",
+      "}",
+      "// Unbounded: loop forward: for (int w = wt[i]; w <= W; w++)"
+    ],
+    "description": "Space-optimized 0-1 and unbounded knapsack dynamic programming."
+  },
+
+  "Longest Increasing Subsequence (LIS)": {
+    "scope": "cpp",
+    "prefix": ["lis", "longest_increasing"],
+    "body": [
+      "int lis(const vector<int>& a) {",
+      "    vector<int> tails;",
+      "    for (int x : a) {",
+      "        auto it = lower_bound(tails.begin(), tails.end(), x);",
+      "        if (it == tails.end()) tails.push_back(x);",
+      "        else *it = x;",
+      "    }",
+      "    return tails.size();",
+      "}"
+    ],
+    "description": "Longest Increasing Subsequence in O(N log N) using patience sorting / lower_bound."
+  },
+
+  "Kadane's Algorithm (Max Subarray Sum)": {
+    "scope": "cpp",
+    "prefix": ["kadane", "max_subarray"],
+    "body": [
+      "long long max_sum = -1e18, cur = 0;",
+      "int best_l = 0, best_r = 0, start = 0;",
+      "for (int i = 0; i < n; i++) {",
+      "    cur += a[i];",
+      "    if (cur > max_sum) { max_sum = cur; best_l = start; best_r = i; }",
+      "    if (cur < 0) { cur = 0; start = i + 1; }",
+      "}"
+    ],
+    "description": "Kadane's maximum subarray sum with start and end indices in O(N)."
+  },
+
+  "Longest Common Subsequence (LCS)": {
+    "scope": "cpp",
+    "prefix": ["lcs", "longest_common"],
+    "body": [
+      "string get_lcs(const string &s, const string &t) {",
+      "    int n = s.size(), m = t.size();",
+      "    vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));",
+      "    for (int i = 1; i <= n; i++)",
+      "        for (int j = 1; j <= m; j++)",
+      "            dp[i][j] = (s[i-1] == t[j-1]) ? 1 + dp[i-1][j-1] : max(dp[i-1][j], dp[i][j-1]);",
+      "    string res = \"\"; int i = n, j = m;",
+      "    while (i > 0 && j > 0) {",
+      "        if (s[i-1] == t[j-1]) { res += s[i-1]; i--; j--; }",
+      "        else if (dp[i-1][j] > dp[i][j-1]) i--;",
+      "        else j--;",
+      "    }",
+      "    reverse(res.begin(), res.end()); return res;",
+      "}"
+    ],
+    "description": "LCS length and string reconstruction via backtracking in O(N * M)."
+  },
+
+  "Coin Change (Min Coins & Total Ways)": {
+    "scope": "cpp",
+    "prefix": ["coin_change", "coin_dp"],
+    "body": [
+      "// 1. Min coins to make target X:",
+      "vector<int> dp(X + 1, 1e9); dp[0] = 0;",
+      "for (int i = 1; i <= X; i++)",
+      "    for (int c : coins) if (i >= c) dp[i] = min(dp[i], dp[i - c] + 1);",
+      "int min_coins = (dp[X] >= 1e9 ? -1 : dp[X]);",
+      "",
+      "// 2. Number of ways (Combinations - coins outer loop):",
+      "vector<int> ways(X + 1, 0); ways[0] = 1;",
+      "for (int c : coins)",
+      "    for (int i = c; i <= X; i++) ways[i] = (ways[i] + ways[i - c]) % MOD;"
+    ],
+    "description": "Coin change min coins and combinations count modulo MOD."
+  },
+
+  "Edit Distance (Levenshtein)": {
+    "scope": "cpp",
+    "prefix": ["edit_distance", "levenshtein"],
+    "body": [
+      "int edit_distance(const string &s1, const string &s2) {",
+      "    int n = s1.size(), m = s2.size();",
+      "    vector<vector<int>> dp(n + 1, vector<int>(m + 1));",
+      "    for (int i = 0; i <= n; i++) dp[i][0] = i;",
+      "    for (int j = 0; j <= m; j++) dp[0][j] = j;",
+      "    for (int i = 1; i <= n; i++) {",
+      "        for (int j = 1; j <= m; j++) {",
+      "            if (s1[i-1] == s2[j-1]) dp[i][j] = dp[i-1][j-1];",
+      "            else dp[i][j] = 1 + min({dp[i-1][j], dp[i][j-1], dp[i-1][j-1]});",
+      "        }",
+      "    }",
+      "    return dp[n][m];",
+      "}"
+    ],
+    "description": "Minimum operations (insert, delete, replace) to transform s1 into s2 in O(N * M)."
+  },
+
+  "Kruskal's MST": {
+    "scope": "cpp",
+    "prefix": ["kruskal", "mst"],
+    "body": [
+      "struct Edge {",
+      "    int u, v, w;",
+      "    bool operator<(const Edge& o) const { return w < o.w; }",
+      "};",
+      "int kruskal(int n, vector<Edge>& edges) {",
+      "    sort(all(edges));",
+      "    DisjointSet dsu(n);",
+      "    int cost = 0, count = 0;",
+      "    for (auto& e : edges) {",
+      "        if (!dsu.connected(e.u, e.v)) {",
+      "            dsu.unionBySize(e.u, e.v); cost += e.w;",
+      "            if (++count == n - 1) return cost;",
+      "        }",
+      "    }",
+      "    return -1;",
+      "}"
+    ],
+    "description": "Kruskal's Minimum Spanning Tree using Disjoint Set Union in O(E log E)."
+  },
+
+  "Matrix Exponentiation": {
+    "scope": "cpp",
+    "prefix": ["matrix_expo", "matexpo"],
+    "body": [
+      "template<typename T = long long>",
+      "struct Matrix {",
+      "    int n; vector<vector<T>> a;",
+      "    Matrix(int n) : n(n), a(n, vector<T>(n, 0)) {}",
+      "    static Matrix eye(int n) {",
+      "        Matrix res(n); for (int i = 0; i < n; i++) res.a[i][i] = 1; return res;",
+      "    }",
+      "    Matrix operator*(const Matrix& o) const {",
+      "        Matrix res(n);",
+      "        for (int i = 0; i < n; i++)",
+      "            for (int k = 0; k < n; k++)",
+      "                for (int j = 0; j < n; j++)",
+      "                    res.a[i][j] = (res.a[i][j] + a[i][k] * o.a[k][j]) % 1000000007;",
+      "        return res;",
+      "    }",
+      "    static Matrix power(Matrix m, long long p) {",
+      "        Matrix res = Matrix::eye(m.n);",
+      "        while (p) {",
+      "            if (p & 1) res = res * m;",
+      "            m = m * m; p >>= 1;",
+      "        }",
+      "        return res;",
+      "    }",
+      "};"
+    ],
+    "description": "Matrix exponentiation for linear recurrences in O(K^3 log N)."
+  },
+
+  "Shoelace Formula (Polygon Area)": {
+    "scope": "cpp",
+    "prefix": ["shoelace", "polygon_area"],
+    "body": [
+      "struct Point { double x, y; };",
+      "double polygon_area(const vector<Point>& p) {",
+      "    double area = 0.0; int n = p.size();",
+      "    for (int i = 0; i < n; ++i) {",
+      "        int j = (i + 1) % n;",
+      "        area += p[i].x * p[j].y - p[j].x * p[i].y;",
+      "    }",
+      "    return fabs(area) / 2.0;",
+      "}"
+    ],
+    "description": "Shoelace formula to compute polygon area from vertices in O(N)."
+  },
+
+  "2D Point & Vectors Toolkit": {
+    "scope": "cpp",
+    "prefix": ["geom2d", "point2d"],
+    "body": [
+      "struct Pt {",
+      "    double x, y;",
+      "    Pt(double x=0, double y=0) : x(x), y(y) {}",
+      "    Pt operator+(Pt p) const { return {x + p.x, y + p.y}; }",
+      "    Pt operator-(Pt p) const { return {x - p.x, y - p.y}; }",
+      "    Pt operator*(double d) const { return {x * d, y * d}; }",
+      "    Pt operator/(double d) const { return {x / d, y / d}; }",
+      "    double dot(Pt p) const { return x * p.x + y * p.y; }",
+      "    double cross(Pt p) const { return x * p.y - y * p.x; }",
+      "    double dist2() const { return x * x + y * y; }",
+      "    double dist() const { return sqrt(dist2()); }",
+      "    double angle() const { return atan2(y, x); }",
+      "};",
+      "double ccw(Pt a, Pt b, Pt c) { return (b - a).cross(c - a); }"
+    ],
+    "description": "2D Point structure with vector addition, subtraction, scalar multiplication, dot, cross, distance, and CCW orientation."
+  },
+
+  "Lines & Triangles Equations": {
+    "scope": "cpp",
+    "prefix": ["line_tri", "heron"],
+    "body": [
+      "// 1. Distance from point P to line AB:",
+      "double dist_to_line(Pt p, Pt a, Pt b) {",
+      "    return fabs((b - a).cross(p - a)) / (b - a).dist();",
+      "}",
+      "// 2. Line Intersection (A1*x + B1*y = C1 and A2*x + B2*y = C2):",
+      "bool line_inter(double a1, double b1, double c1, double a2, double b2, double c2, Pt &out) {",
+      "    double d = a1 * b2 - a2 * b1;",
+      "    if (fabs(d) < 1e-9) return false;",
+      "    out.x = (c1 * b2 - c2 * b1) / d; out.y = (a1 * c2 - a2 * c1) / d;",
+      "    return true;",
+      "}",
+      "// 3. Triangle Heron's Area:",
+      "double heron(double a, double b, double c) {",
+      "    double s = (a + b + c) / 2.0;",
+      "    return sqrt(max(0.0, s * (s - a) * (s - b) * (s - c)));",
+      "}",
+      "double inradius(double a, double b, double c) { return heron(a, b, c) / ((a + b + c) / 2.0); }",
+      "double circumradius(double a, double b, double c) { return (a * b * c) / (4.0 * heron(a, b, c)); }"
+    ],
+    "description": "Point-line distance, line intersection via Cramer's rule, Heron's formula, inradius, and circumradius."
+  },
+
+  "Pick's Theorem & Polygon Centroid": {
+    "scope": "cpp",
+    "prefix": ["picks_theorem", "centroid", "geom_extra"],
+    "body": [
+      "// 1. Pick's Theorem: Area = I + B/2 - 1  =>  I = Area - B/2 + 1",
+      "// B = boundary lattice points = sum(gcd(|x2-x1|, |y2-y1|))",
+      "// I = strictly interior lattice points",
+      "",
+      "// 2. Polygon Centroid:",
+      "Pt polygon_centroid(const vector<Pt>& p) {",
+      "    Pt c(0, 0); double A = 0; int n = p.size();",
+      "    for (int i = 0; i < n; i++) {",
+      "        int j = (i + 1) % n; double cross = p[i].cross(p[j]);",
+      "        A += cross; c = c + (p[i] + p[j]) * cross;",
+      "    }",
+      "    return c / (3.0 * A);",
+      "}"
+    ],
+    "description": "Pick's Theorem lattice points and center of mass (centroid) of a polygon."
+  },
+
+  "Math Series & Algebra Cheatsheet": {
+    "scope": "cpp",
+    "prefix": ["math_series", "algebra_formulas"],
+    "body": [
+      "// 1. Sum of 1..N:           N * (N + 1) / 2",
+      "// 2. Sum of squares 1..N^2: N * (N + 1) * (2N + 1) / 6",
+      "// 3. Sum of cubes 1..N^3:   (N * (N + 1) / 2)^2",
+      "// 4. Geometric Progression: a * (pow(r, n) - 1) / (r - 1)",
+      "// 5. Digits in Base B:      floor(log(N) / log(B)) + 1"
+    ],
+    "description": "Closed-form series summations, geometric progression, and digit count formulas."
+  }
+}
