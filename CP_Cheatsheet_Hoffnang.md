@@ -67,6 +67,70 @@ signed main() {
 }
 ```
 
+### 1.2 Custom Sort & Comparators
+- **Trigger Prefix:** `custom_sort`
+- **Time Complexity:** $O(N \log N)$
+- **Includes:** Lambda comparator, free function, struct `operator<`, index sorting (argsort), and priority queue min-heap comparator.
+```cpp
+// 1. Lambda Comparator (Sort in-place without external function):
+sort(v.begin(), v.end(), [](const auto& a, const auto& b) {
+    if (a.first != b.first) return a.first < b.first; // Ascending by first
+    return a.second > b.second;                       // Descending by second
+});
+
+// 2. Free Function Comparator:
+bool comp(const pair<int, int>& a, const pair<int, int>& b) {
+    return a.first < b.first;
+}
+sort(v.begin(), v.end(), comp);
+
+// 3. Struct with Internal operator<:
+struct Item {
+    int val, id;
+    bool operator<(const Item& o) const {
+        if (val != o.val) return val < o.val;
+        return id < o.id;
+    }
+};
+
+// 4. Index Sorting (argsort - sort original indices by array values):
+vector<int> p(n); iota(p.begin(), p.end(), 0);
+sort(p.begin(), p.end(), [&](int i, int j) { return a[i] < a[j]; });
+
+// 5. Comparator Struct for Priority Queue (Min-Heap by first):
+struct ComparePQ {
+    bool operator()(const pair<int, int>& a, const pair<int, int>& b) {
+        return a.first > b.first; // Greater-than creates Min-Heap!
+    }
+};
+priority_queue<pair<int, int>, vector<pair<int, int>>, ComparePQ> pq;
+```
+
+### 1.3 GCC Optimization Pragmas
+- **When to use:** Hardware vectorization and loop unrolling for tight 1.0s time limits.
+```cpp
+#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
+```
+
+### 1.4 __int128 Fast I/O & Recursive Output
+- **Trigger Prefix:** `int128`
+- **Range:** $\approx [-3.4 \cdot 10^{38}, 3.4 \cdot 10^{38}]$
+- **When to use:** Large multiplication products that exceed 64-bit `long long` before modulo.
+```cpp
+__int128 read128() {
+    __int128 x = 0; int f = 1; char ch = getchar();
+    while (ch < '0' || ch > '9') { if (ch == '-') f = -1; ch = getchar(); }
+    while (ch >= '0' && ch <= '9') { x = x * 10 + ch - '0'; ch = getchar(); }
+    return x * f;
+}
+void print128(__int128 x) {
+    if (x < 0) { putchar('-'); x = -x; }
+    if (x > 9) print128(x / 10);
+    putchar(x % 10 + '0');
+}
+```
+
 ---
 
 # Section 2: C++ Basics & STL Essentials
@@ -267,6 +331,21 @@ prev_permutation(all(v));                // Previous order
 nth_element(v.begin(), v.begin() + k, v.end()); // v[k] is the k-th smallest!
 ```
 
+### 2.6 Coordinate Compression
+- **Trigger Prefix:** `compress`
+- **Time Complexity:** $O(N \log N)$
+- **When to use:** Mapping large arbitrary numbers (up to $10^9$) into compact 0-based ranks $[0, K-1]$ for BIT, SegTree, or frequency tables.
+```cpp
+// 1. In-place coordinate compression on vector 'a':
+vector<int> vals = a;
+sort(vals.begin(), vals.end());
+vals.erase(unique(vals.begin(), vals.end()), vals.end());
+for (int &x : a) {
+    x = lower_bound(vals.begin(), vals.end(), x) - vals.begin(); // 0-based rank
+}
+// 2. Query original value: vals[compressed_id]
+```
+
 ---
 
 # Section 3: Math, Number Theory & Bit Manipulation
@@ -317,6 +396,36 @@ void gprime(int n) {
     for (int i = 2; i <= n; i++) {
         if (is_prime[i]) primes.push_back(i);
     }
+}
+```
+
+### 3.4 Linear Sieve & Fast Prime Factorization (SPF)
+- **Trigger Prefix:** `spf`
+- **Time Complexity:** $O(N)$ precomputation, $O(\log X)$ per factorization query.
+- **When to use:** When you need to factorize multiple queries $Q \le 10^5$ with values up to $10^7$.
+```cpp
+const int MAXV = 1e7 + 5;
+vector<int> spf(MAXV), primes_list;
+
+void linear_sieve() {
+    for (int i = 2; i < MAXV; ++i) {
+        if (spf[i] == 0) { spf[i] = i; primes_list.push_back(i); }
+        for (int p : primes_list) {
+            if (p > spf[i] || i * p >= MAXV) break;
+            spf[i * p] = p;
+        }
+    }
+}
+
+// Factorize any number x in O(log x):
+vector<pair<int, int>> get_factors(int x) {
+    vector<pair<int, int>> factors;
+    while (x > 1) {
+        int p = spf[x], count = 0;
+        while (x % p == 0) { count++; x /= p; }
+        factors.push_back({p, count});
+    }
+    return factors;
 }
 ```
 
@@ -435,6 +544,36 @@ void solve_quadratic(ld a, ld b, ld c) {
     if (x1 > x2) swap(x1, x2);
 
     cout << x1 << '\n' << x2 << '\n';
+}
+```
+
+### 3.9 Basis Conversion (Arbitrary Base 2 to 16)
+- **Time Complexity:** $O(\log_b N)$
+- **Capability:** Bidirectional conversion between base-$b$ string and `unsigned long long` for any base $b \le 16$.
+```cpp
+#include <algorithm>
+#include <string>
+#include <vector>
+
+const std::string DIGITS = "0123456789ABCDEF";
+
+// Convert base-b string to unsigned long long
+unsigned long long int basis_string_to_number(std::string &s, int b) {
+    unsigned long long int result = 0ULL;
+    for (char d : s) {
+        result = b * result + (std::find(DIGITS.begin(), DIGITS.end(), d) - DIGITS.begin());
+    }
+    return result;
+}
+
+// Convert unsigned long long to base-b string
+std::string number_to_basis_string(unsigned long long int n, int b) {
+    std::vector<char> ds;
+    do {
+        ds.push_back(DIGITS[n % b]);
+        n = n / b;
+    } while (n != 0);
+    return std::string(ds.rbegin(), ds.rend());
 }
 ```
 
@@ -665,6 +804,29 @@ vector<int> topo_sort(int n, const vector<vector<int>> &adj) {
 }
 ```
 
+### 4.8 Bipartite Graph Check & 2-Coloring (BFS)
+- **Trigger Prefix:** `bipartite`
+- **Time Complexity:** $O(V + E)$
+- **When to use:** Check if graph has no odd-length cycles and can be partitioned into two independent sets.
+```cpp
+bool is_bipartite(int n, const vector<vector<int>> &adj, vector<int> &color) {
+    color.assign(n + 1, -1);
+    for (int start = 1; start <= n; ++start) {
+        if (color[start] != -1) continue;
+        queue<int> q; q.push(start); color[start] = 0;
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            for (int v : adj[u]) {
+                if (color[v] == -1) {
+                    color[v] = color[u] ^ 1; q.push(v);
+                } else if (color[v] == color[u]) return false; // Odd cycle!
+            }
+        }
+    }
+    return true;
+}
+```
+
 ---
 
 # Section 5: Shortest Paths & Negative Cycles
@@ -740,7 +902,31 @@ void dijkstra(int s, vector<int> & d, vector<int> & p) {
 }
 ```
 
-### 5.3 Bellman-Ford Algorithm
+### 5.3 0-1 BFS (Deque Shortest Path)
+- **Trigger Prefix:** `bfs01`
+- **Time Complexity:** $O(V + E)$
+- **When to use:** Shortest paths on graphs where edge weights are strictly $0$ or $1$. Much faster than Dijkstra ($O(V+E)$ vs $O(E \log V)$).
+```cpp
+vector<int> zero_one_bfs(int start, int n, const vector<vector<pair<int, int>>> &adj) {
+    vector<int> dist(n + 1, 1e9);
+    deque<int> dq;
+    dist[start] = 0;
+    dq.push_back(start);
+    while (!dq.empty()) {
+        int u = dq.front(); dq.pop_front();
+        for (auto &[v, w] : adj[u]) {
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                if (w == 0) dq.push_front(v); // Push 0-cost edge to front!
+                else dq.push_back(v);        // Push 1-cost edge to back!
+            }
+        }
+    }
+    return dist;
+}
+```
+
+### 5.4 Bellman-Ford Algorithm
 - **Trigger Prefix:** `bellman_ford`
 - **Time Complexity:** $O(V \cdot E)$
 - **Capability:** Supports negative edge weights; detects negative cycle reachable from $S$.

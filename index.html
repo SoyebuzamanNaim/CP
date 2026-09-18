@@ -452,6 +452,75 @@ signed main() {
 }</code></pre>
     </div>
 
+    <div class="item" data-search="custom sort comparator comp lambda sort operator struct argsort priority_queue">
+      <div class="item-head">
+        <span class="item-title">Custom Sort &amp; Comparators</span>
+        <span class="item-meta"><span class="prefix">custom_sort</span> | <span class="time">O(N log N)</span></span>
+      </div>
+      <div class="item-desc">Lambda, function, struct operator&lt;, index/argsort, and priority_queue comparator.</div>
+<pre><code>// 1. Lambda Comparator (Sort in-place without external function):
+sort(v.begin(), v.end(), [](const auto&amp; a, const auto&amp; b) {
+  if (a.first != b.first) return a.first &lt; b.first; // Ascending by first
+  return a.second &gt; b.second;                      // Descending by second
+});
+
+// 2. Free Function Comparator:
+bool comp(const pair&lt;int, int&gt;&amp; a, const pair&lt;int, int&gt;&amp; b) {
+  return a.first &lt; b.first;
+}
+sort(v.begin(), v.end(), comp);
+
+// 3. Struct with Internal operator&lt;:
+struct Item {
+  int val, id;
+  bool operator&lt;(const Item&amp; o) const {
+    if (val != o.val) return val &lt; o.val;
+    return id &lt; o.id;
+  }
+};
+
+// 4. Index Sorting (argsort - sort original indices by values):
+vector&lt;int&gt; p(n); iota(p.begin(), p.end(), 0);
+sort(p.begin(), p.end(), [&amp;](int i, int j) { return a[i] &lt; a[j]; });
+
+// 5. Comparator Struct for Priority Queue (Min-Heap by first):
+struct ComparePQ {
+  bool operator()(const pair&lt;int, int&gt;&amp; a, const pair&lt;int, int&gt;&amp; b) {
+    return a.first &gt; b.first; // Greater-than creates Min-Heap!
+  }
+};
+priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, ComparePQ&gt; pq;</code></pre>
+    </div>
+
+    <div class="item" data-search="pragma optimize vectorization fast math speedup">
+      <div class="item-head">
+        <span class="item-title">GCC Optimization Pragmas</span>
+        <span class="item-meta"><span class="prefix">pragma</span></span>
+      </div>
+      <div class="item-desc">Hardware vectorization and loop unrolling for tight time limits (1.0s).</div>
+<pre><code>#pragma GCC optimize("O3,unroll-loops")
+#pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")</code></pre>
+    </div>
+
+    <div class="item" data-search="int128 __int128 128bit big int large overflow io print read">
+      <div class="item-head">
+        <span class="item-title">__int128 Fast I/O &amp; Output</span>
+        <span class="item-meta"><span class="prefix">int128</span> | <span class="time">~3.4 &times; 10<sup>38</sup></span></span>
+      </div>
+      <div class="item-desc">Native 128-bit integer with custom stream parser and recursive print.</div>
+<pre><code>__int128 read128() {
+  __int128 x = 0; int f = 1; char ch = getchar();
+  while (ch &lt; '0' || ch &gt; '9') { if (ch == '-') f = -1; ch = getchar(); }
+  while (ch &gt;= '0' &amp;&amp; ch &lt;= '9') { x = x * 10 + ch - '0'; ch = getchar(); }
+  return x * f;
+}
+void print128(__int128 x) {
+  if (x &lt; 0) { putchar('-'); x = -x; }
+  if (x &gt; 9) print128(x / 10);
+  putchar(x % 10 + '0');
+}</code></pre>
+    </div>
+
     <!-- ================= CHAPTER 2 ================= -->
     <div class="chapter-title" id="ch-2">2. C++ Basics &amp; STL Essentials</div>
 
@@ -663,6 +732,22 @@ prev_permutation(all(v));                // Previous order
 nth_element(v.begin(), v.begin() + k, v.end()); // v[k] is the k-th smallest!</code></pre>
     </div>
 
+    <div class="item" data-search="coordinate compression discrete map unique lower_bound ranking">
+      <div class="item-head">
+        <span class="item-title">Coordinate Compression (O(N log N))</span>
+        <span class="item-meta"><span class="prefix">compress</span> | <span class="time">O(N log N)</span></span>
+      </div>
+      <div class="item-desc">Maps large arbitrary coordinates (up to 10<sup>9</sup>) to dense ranks [0, K-1].</div>
+<pre><code>// 1. In-place coordinate compression on vector 'a':
+vector&lt;int&gt; vals = a;
+sort(vals.begin(), vals.end());
+vals.erase(unique(vals.begin(), vals.end()), vals.end());
+for (int &amp;x : a) {
+  x = lower_bound(vals.begin(), vals.end(), x) - vals.begin(); // 0-based rank
+}
+// 2. Query original value from compressed index: vals[compressed_id]</code></pre>
+    </div>
+
     <!-- ================= CHAPTER 3 ================= -->
     <div class="chapter-title" id="ch-3">3. Math, Number Theory &amp; Bits</div>
 
@@ -702,6 +787,35 @@ void gprime(int n) {
       for (int j = i * i; j &lt;= n; j += i) is_prime[j] = false;
   primes.clear();
   for (int i = 2; i &lt;= n; i++) if (is_prime[i]) primes.push_back(i);
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="linear sieve spf smallest prime factor factorization prime queries">
+      <div class="item-head">
+        <span class="item-title">Linear Sieve &amp; Fast Factorization (SPF)</span>
+        <span class="item-meta"><span class="prefix">spf</span> | <span class="time">O(N) + O(log X)</span></span>
+      </div>
+      <div class="item-desc">Precomputes Smallest Prime Factor (SPF) in O(N). Factorizes Q queries in O(log X).</div>
+<pre><code>const int MAXV = 1e7 + 5;
+vector&lt;int&gt; spf(MAXV), primes_list;
+void linear_sieve() {
+  for (int i = 2; i &lt; MAXV; ++i) {
+    if (spf[i] == 0) { spf[i] = i; primes_list.push_back(i); }
+    for (int p : primes_list) {
+      if (p &gt; spf[i] || i * p &gt;= MAXV) break;
+      spf[i * p] = p;
+    }
+  }
+}
+// Factorize any number x in O(log x):
+vector&lt;pair&lt;int, int&gt;&gt; get_factors(int x) {
+  vector&lt;pair&lt;int, int&gt;&gt; factors;
+  while (x &gt; 1) {
+    int p = spf[x], count = 0;
+    while (x % p == 0) { count++; x /= p; }
+    factors.push_back({p, count});
+  }
+  return factors;
 }</code></pre>
     </div>
 
@@ -1029,6 +1143,30 @@ signed main() {
 }</code></pre>
     </div>
 
+    <div class="item" data-search="bipartite 2-coloring graph check odd cycle bfs">
+      <div class="item-head">
+        <span class="item-title">Bipartite Graph Check &amp; 2-Coloring (BFS)</span>
+        <span class="item-meta"><span class="prefix">bipartite</span> | <span class="time">O(V + E)</span></span>
+      </div>
+      <div class="item-desc">Returns false if an odd-length cycle exists. Stores colors {0, 1} in vector.</div>
+<pre><code>bool is_bipartite(int n, const vector&lt;vector&lt;int&gt;&gt; &amp;adj, vector&lt;int&gt; &amp;color) {
+  color.assign(n + 1, -1);
+  for (int start = 1; start &lt;= n; ++start) {
+    if (color[start] != -1) continue;
+    queue&lt;int&gt; q; q.push(start); color[start] = 0;
+    while (!q.empty()) {
+      int u = q.front(); q.pop();
+      for (int v : adj[u]) {
+        if (color[v] == -1) {
+          color[v] = color[u] ^ 1; q.push(v);
+        } else if (color[v] == color[u]) return false; // Odd cycle detected
+      }
+    }
+  }
+  return true;
+}</code></pre>
+    </div>
+
     <!-- ================= CHAPTER 5 ================= -->
     <div class="chapter-title" id="ch-5">5. Shortest Paths &amp; Cycles</div>
 
@@ -1088,6 +1226,29 @@ void dijkstra(int s, vector&lt;int&gt; &amp; d, vector&lt;int&gt; &amp; p) {
       }
     }
   }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="0-1 bfs deque shortest path weights 0 1">
+      <div class="item-head">
+        <span class="item-title">0-1 BFS (Deque Shortest Path)</span>
+        <span class="item-meta"><span class="prefix">bfs01</span> | <span class="time">O(V + E)</span></span>
+      </div>
+      <div class="item-desc">Fast shortest path on graphs where edge weights are only 0 or 1.</div>
+<pre><code>vector&lt;int&gt; zero_one_bfs(int start, int n, const vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; &amp;adj) {
+  vector&lt;int&gt; dist(n + 1, 1e9); deque&lt;int&gt; dq;
+  dist[start] = 0; dq.push_back(start);
+  while (!dq.empty()) {
+    int u = dq.front(); dq.pop_front();
+    for (auto &amp;[v, w] : adj[u]) {
+      if (dist[u] + w &lt; dist[v]) {
+        dist[v] = dist[u] + w;
+        if (w == 0) dq.push_front(v); // Push 0-weight to front!
+        else dq.push_back(v);        // Push 1-weight to back!
+      }
+    }
+  }
+  return dist;
 }</code></pre>
     </div>
 
@@ -1194,6 +1355,38 @@ signed main() {
   int far1 = bfs_farthest(1, adj, n).first;
   int diameter = bfs_farthest(far1, adj, n).second;
   cout &lt;&lt; diameter &lt;&lt; '\n';
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="lca lowest common ancestor binary lifting tree distance kth ancestor">
+      <div class="item-head">
+        <span class="item-title">Lowest Common Ancestor (Binary Lifting)</span>
+        <span class="item-meta"><span class="prefix">lca</span> | <span class="time">O(N log N) + O(log N)</span></span>
+      </div>
+      <div class="item-desc">Tree binary lifting for LCA, k-th ancestor, and node distance queries.</div>
+<pre><code>const int MAXN = 2e5 + 5, LOGN = 20;
+vector&lt;int&gt; tree_adj[MAXN];
+int up[MAXN][LOGN], depth[MAXN];
+
+void dfs_lca(int u, int p, int d) {
+  depth[u] = d; up[u][0] = p;
+  for (int i = 1; i &lt; LOGN; ++i)
+    up[u][i] = (up[u][i - 1] != -1) ? up[up[u][i - 1]][i - 1] : -1;
+  for (int v : tree_adj[u]) if (v != p) dfs_lca(v, u, d + 1);
+}
+int get_lca(int u, int v) {
+  if (depth[u] &lt; depth[v]) swap(u, v);
+  int diff = depth[u] - depth[v];
+  for (int i = 0; i &lt; LOGN; ++i)
+    if ((diff &gt;&gt; i) &amp; 1) u = up[u][i];
+  if (u == v) return u;
+  for (int i = LOGN - 1; i &gt;= 0; --i) {
+    if (up[u][i] != up[v][i]) { u = up[u][i]; v = up[v][i]; }
+  }
+  return up[u][0];
+}
+int tree_dist(int u, int v) {
+  return depth[u] + depth[v] - 2 * depth[get_lca(u, v)];
 }</code></pre>
     </div>
 
@@ -1389,8 +1582,33 @@ struct Node {
 };</code></pre>
     </div>
 
+    <div class="item" data-search="sparse table rmq range minimum query gcd static range queries">
+      <div class="item-head">
+        <span class="item-title">Sparse Table (O(1) Static RMQ / GCD)</span>
+        <span class="item-meta"><span class="prefix">sparsetable</span> | <span class="time">O(N log N) + O(1)</span></span>
+      </div>
+      <div class="item-desc">Idempotent range queries (min, max, gcd) in O(1) time without tree overhead.</div>
+<pre><code>template&lt;typename T&gt;
+struct SparseTable {
+  int n, K;
+  vector&lt;vector&lt;T&gt;&gt; st;
+  SparseTable(const vector&lt;T&gt;&amp; a) {
+    n = a.size(); K = __lg(n) + 1;
+    st.assign(K, vector&lt;T&gt;(n));
+    st[0] = a;
+    for (int j = 1; j &lt; K; ++j)
+      for (int i = 0; i + (1 &lt;&lt; j) &lt;= n; ++i)
+        st[j][i] = min(st[j - 1][i], st[j - 1][i + (1 &lt;&lt; (j - 1))]);
+  }
+  T query(int L, int R) { // 0-based inclusive range [L, R]
+    int j = __lg(R - L + 1);
+    return min(st[j][L], st[j][R - (1 &lt;&lt; j) + 1]);
+  }
+};</code></pre>
+    </div>
+
     <!-- ================= CHAPTER 8 ================= -->
-    <div class="chapter-title" id="ch-8">8. String Algorithms (KMP)</div>
+    <div class="chapter-title" id="ch-8">8. String Algorithms (KMP &amp; Trie)</div>
 
     <div class="item" data-search="kmp knuth morris pratt string matching">
       <div class="item-head">
@@ -1423,6 +1641,50 @@ vector&lt;int&gt; KMPsearch(const string &amp;text, const string &amp;pat) {
     }
   }
   return positions;
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="trie prefix tree binary trie max xor pair bits">
+      <div class="item-head">
+        <span class="item-title">Trie (Prefix Tree) &amp; Binary Trie (Max XOR)</span>
+        <span class="item-meta"><span class="prefix">trie</span> | <span class="time">O(|S|) / O(30&times;N)</span></span>
+      </div>
+      <div class="item-desc">Prefix word dictionary and 32-bit binary trie to find maximum XOR pair.</div>
+<pre><code>// 1. Character Trie (Prefix search &amp; string frequency)
+struct TrieNode { int next[26] = {}, pass = 0, end = 0; };
+vector&lt;TrieNode&gt; trie(1);
+void insert_str(const string &amp;s) {
+  int cur = 0;
+  for (char ch : s) {
+    int c = ch - 'a';
+    if (!trie[cur].next[c]) {
+      trie[cur].next[c] = trie.size();
+      trie.emplace_back();
+    }
+    cur = trie[cur].next[c]; trie[cur].pass++;
+  }
+  trie[cur].end++;
+}
+
+// 2. Binary Trie (Maximum XOR of two numbers in array)
+struct BitTrie { int nxt[2] = {}; };
+vector&lt;BitTrie&gt; bt(1);
+void insert_num(int x) {
+  int cur = 0;
+  for (int i = 30; i &gt;= 0; --i) {
+    int b = (x &gt;&gt; i) &amp; 1;
+    if (!bt[cur].nxt[b]) { bt[cur].nxt[b] = bt.size(); bt.emplace_back(); }
+    cur = bt[cur].nxt[b];
+  }
+}
+int query_max_xor(int x) {
+  int cur = 0, max_xor = 0;
+  for (int i = 30; i &gt;= 0; --i) {
+    int b = (x &gt;&gt; i) &amp; 1, opp = b ^ 1;
+    if (bt[cur].nxt[opp]) { max_xor |= (1 &lt;&lt; i); cur = bt[cur].nxt[opp]; }
+    else cur = bt[cur].nxt[b];
+  }
+  return max_xor;
 }</code></pre>
     </div>
 
@@ -1477,6 +1739,29 @@ vector&lt;int&gt; c; int i = 0, j = 0;
 while (i &lt; n || j &lt; m) {
   while (i &lt; n &amp;&amp; (j &gt;= m || a[i] &lt;= b[j])) { c.push_back(a[i]); i++; }
   while (j &lt; m &amp;&amp; (i &gt;= n || b[j] &lt;= a[i])) { c.push_back(b[j]); j++; }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="binary search on answer predicate monotonic check mid bsearch float">
+      <div class="item-head">
+        <span class="item-title">Binary Search on Answer (Integer &amp; Real)</span>
+        <span class="item-meta"><span class="prefix">bs_ans</span> | <span class="time">O(log(Range) &times; Check)</span></span>
+      </div>
+      <div class="item-desc">Find optimal threshold mid via monotonic boolean condition check(mid).</div>
+<pre><code>// 1. Integer Range: Find minimum valid mid satisfying check(mid)
+long long lo = 1, hi = 1e18, best = -1;
+while (lo &lt;= hi) {
+  long long mid = lo + (hi - lo) / 2;
+  if (check(mid)) { best = mid; hi = mid - 1; } // Try to find smaller valid
+  else lo = mid + 1;                            // Must go larger
+}
+
+// 2. Real Number / Float Range (100 iterations gives ~10^-30 precision)
+double l = 0.0, r = 1e9;
+for (int iter = 0; iter &lt; 100; ++iter) {
+  double mid = (l + r) / 2.0;
+  if (check_double(mid)) r = mid; // or l = mid depending on monotonicity
+  else l = mid;
 }</code></pre>
     </div>
 
