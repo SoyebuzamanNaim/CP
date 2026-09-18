@@ -25,7 +25,7 @@
 5. [Section 5: Shortest Paths & Negative Cycles](#section-5-shortest-paths--negative-cycles)
 6. [Section 6: Tree Algorithms](#section-6-tree-algorithms)
 7. [Section 7: Data Structures (DSU, Fenwick & Segment Tree)](#section-7-data-structures-dsu-fenwick--segment-tree)
-8. [Section 8: String Algorithms (KMP)](#section-8-string-algorithms-kmp)
+8. [Section 8: String Algorithms (KMP & Trie)](#section-8-string-algorithms-kmp--trie)
 9. [Section 9: Search Paradigms & Dynamic Programming](#section-9-search-paradigms--dynamic-programming)
 10. [Section 10: Advanced Tools (Kruskal, Matrix Power & Geometry)](#section-10-advanced-tools-kruskal-matrix-power--geometry)
 
@@ -954,7 +954,7 @@ vector<int> bellman_ford(int n, vector<vector<int>>& edges, int S) {
 }
 ```
 
-### 5.4 Negative Cycle Detection & Path Reconstruction
+### 5.5 Negative Cycle Detection & Path Reconstruction
 - **Trigger Prefix:** `negcyclef`
 - **Time Complexity:** $O(V \cdot E)$
 - **Key Detail:** Steps back $N$ times (`x = p[x]`) to guarantee the pointer enters the cycle before printing.
@@ -996,7 +996,7 @@ for (int node : path) cout << node << " ";
 cout << endl;
 ```
 
-### 5.5 Floyd-Warshall (All-Pairs Shortest Path)
+### 5.6 Floyd-Warshall (All-Pairs Shortest Path)
 - **Time Complexity:** $O(V^3)$ (Suitable for $N \le 500$)
 ```cpp
 for (int k = 0; k < n; ++k)
@@ -1047,6 +1047,39 @@ signed main() {
     int far1 = bfs_farthest(1, adj, n).first;
     int diameter = bfs_farthest(far1, adj, n).second;
     cout << diameter << '\n';
+}
+```
+
+### 6.2 Lowest Common Ancestor (Binary Lifting)
+- **Trigger Prefix:** `lca`
+- **Time Complexity:** $O(N \log N)$ precomputation, $O(\log N)$ query.
+- **Includes:** LCA, k-th ancestor, and $O(\log N)$ exact tree path distance.
+```cpp
+const int MAXN = 2e5 + 5, LOGN = 20;
+vector<int> tree_adj[MAXN];
+int up[MAXN][LOGN], depth[MAXN];
+
+void dfs_lca(int u, int p, int d) {
+    depth[u] = d; up[u][0] = p;
+    for (int i = 1; i < LOGN; ++i)
+        up[u][i] = (up[u][i - 1] != -1) ? up[up[u][i - 1]][i - 1] : -1;
+    for (int v : tree_adj[u]) if (v != p) dfs_lca(v, u, d + 1);
+}
+
+int get_lca(int u, int v) {
+    if (depth[u] < depth[v]) swap(u, v);
+    int diff = depth[u] - depth[v];
+    for (int i = 0; i < LOGN; ++i)
+        if ((diff >> i) & 1) u = up[u][i];
+    if (u == v) return u;
+    for (int i = LOGN - 1; i >= 0; --i) {
+        if (up[u][i] != up[v][i]) { u = up[u][i]; v = up[v][i]; }
+    }
+    return up[u][0];
+}
+
+int tree_dist(int u, int v) {
+    return depth[u] + depth[v] - 2 * depth[get_lca(u, v)];
 }
 ```
 
@@ -1174,37 +1207,8 @@ struct SegTree {
           if (r & 1) res = max(res, t[--r]);
       }
       return res;
+  }
   ```
-
-### Basis conversion (Arbitrary Base 2 to 16)
-- **Time Complexity:** $O(\log_b N)$
-- **Capability:** Bidirectional conversion between base-$b$ string and `unsigned long long` for any base $b \le 16$.
-```cpp
-#include <algorithm>
-#include <string>
-#include <vector>
-
-const std::string DIGITS = "0123456789ABCDEF";
-
-// Convert base-b string to unsigned long long
-unsigned long long int basis_string_to_number(std::string &s, int b) {
-    unsigned long long int result = 0ULL;
-    for (char d : s) {
-        result = b * result + (std::find(DIGITS.begin(), DIGITS.end(), d) - DIGITS.begin());
-    }
-    return result;
-}
-
-// Convert unsigned long long to base-b string
-std::string number_to_basis_string(unsigned long long int n, int b) {
-    std::vector<char> ds;
-    do {
-        ds.push_back(DIGITS[n % b]);
-        n = n / b;
-    } while (n != 0);
-    return std::string(ds.rbegin(), ds.rend());
-}
-```
 
 ### 7.5 KACTL Iterative Segment Tree (Associative f, [b, e))
 - **Time Complexity:** $O(\log N)$
@@ -1284,9 +1288,33 @@ struct Node {
 };
 ```
 
+### 7.7 Sparse Table (O(1) Static RMQ / GCD)
+- **Trigger Prefix:** `sparsetable`
+- **Time Complexity:** $O(N \log N)$ build, $O(1)$ query.
+- **When to use:** Static arrays with no updates where idempotent queries (minimum, maximum, GCD) are performed in $O(1)$.
+```cpp
+template<typename T>
+struct SparseTable {
+    int n, K;
+    vector<vector<T>> st;
+    SparseTable(const vector<T>& a) {
+        n = a.size(); K = __lg(n) + 1;
+        st.assign(K, vector<T>(n));
+        st[0] = a;
+        for (int j = 1; j < K; ++j)
+            for (int i = 0; i + (1 << j) <= n; ++i)
+                st[j][i] = min(st[j - 1][i], st[j - 1][i + (1 << (j - 1))]);
+    }
+    T query(int L, int R) { // 0-based inclusive range [L, R]
+        int j = __lg(R - L + 1);
+        return min(st[j][L], st[j][R - (1 << j) + 1]);
+    }
+};
+```
+
 ---
 
-# Section 8: String Algorithms (KMP)
+# Section 8: String Algorithms (KMP & Trie)
 
 ### 8.1 Knuth-Morris-Pratt (KMP) Pattern Search
 - **Trigger Prefix:** `kmp`
@@ -1326,6 +1354,53 @@ vector<int> KMPsearch(const string &text, const string &pat) {
         }
     }
     return positions;
+}
+```
+
+### 8.2 Trie (Prefix Tree) & Binary Trie (Max XOR Pair)
+- **Trigger Prefix:** `trie`
+- **Time Complexity:** $O(|S|)$ for string insertions/queries, $O(30 \cdot N)$ for max XOR pair.
+- **Includes:** Character trie for words/prefixes and 32-bit binary trie for XOR optimization.
+```cpp
+// 1. Character Trie (Prefix search & frequency)
+struct TrieNode { int next[26] = {}, pass = 0, end = 0; };
+vector<TrieNode> trie(1);
+
+void insert_str(const string &s) {
+    int cur = 0;
+    for (char ch : s) {
+        int c = ch - 'a';
+        if (!trie[cur].next[c]) {
+            trie[cur].next[c] = trie.size();
+            trie.emplace_back();
+        }
+        cur = trie[cur].next[c];
+        trie[cur].pass++;
+    }
+    trie[cur].end++;
+}
+
+// 2. Binary Trie (Maximum XOR of two numbers in array)
+struct BitTrie { int nxt[2] = {}; };
+vector<BitTrie> bt(1);
+
+void insert_num(int x) {
+    int cur = 0;
+    for (int i = 30; i >= 0; --i) {
+        int b = (x >> i) & 1;
+        if (!bt[cur].nxt[b]) { bt[cur].nxt[b] = bt.size(); bt.emplace_back(); }
+        cur = bt[cur].nxt[b];
+    }
+}
+
+int query_max_xor(int x) {
+    int cur = 0, max_xor = 0;
+    for (int i = 30; i >= 0; --i) {
+        int b = (x >> i) & 1, opp = b ^ 1;
+        if (bt[cur].nxt[opp]) { max_xor |= (1 << i); cur = bt[cur].nxt[opp]; }
+        else cur = bt[cur].nxt[b];
+    }
+    return max_xor;
 }
 ```
 
@@ -1384,7 +1459,33 @@ while (i < n || j < m) {
 }
 ```
 
-### 9.3 0-1 Knapsack & Unbounded Knapsack
+### 9.3 Binary Search on Answer (Integer & Real Monotonic Predicates)
+- **Trigger Prefix:** `bs_ans`
+- **Time Complexity:** $O(\log(\text{Range}) \times \text{Check})$
+- **When to use:** When the answer is monotonic: `check(mid)` is true for all $x \le \text{ans}$ (or $x \ge \text{ans}$).
+```cpp
+// 1. Integer Range: Find minimum valid mid satisfying check(mid)
+long long lo = 1, hi = 1e18, best = -1;
+while (lo <= hi) {
+    long long mid = lo + (hi - lo) / 2;
+    if (check(mid)) {
+        best = mid;
+        hi = mid - 1; // Try to find smaller valid threshold
+    } else {
+        lo = mid + 1; // Must go larger
+    }
+}
+
+// 2. Real Number / Float Range (100 iterations gives ~10^-30 precision)
+double l = 0.0, r = 1e9;
+for (int iter = 0; iter < 100; ++iter) {
+    double mid = (l + r) / 2.0;
+    if (check_double(mid)) r = mid; // or l = mid depending on monotonicity
+    else l = mid;
+}
+```
+
+### 9.4 0-1 Knapsack & Unbounded Knapsack
 - **Time Complexity:** $O(N \cdot W)$ with $O(W)$ space.
 ```cpp
 // 0-1 Knapsack (each item at most once)
@@ -1399,7 +1500,7 @@ int knapsack_01(int W, const vector<int>& wt, const vector<int>& val, int n) {
 // Unbounded Knapsack: change inner loop to: for (int w = wt[i]; w <= W; w++)
 ```
 
-### 9.4 Longest Increasing Subsequence ($O(N \log N)$)
+### 9.5 Longest Increasing Subsequence ($O(N \log N)$)
 ```cpp
 int lis(const vector<int>& a) {
     vector<int> tails;
@@ -1412,7 +1513,7 @@ int lis(const vector<int>& a) {
 }
 ```
 
-### 9.5 Kadane's Algorithm (Max Subarray Sum with Range Indices)
+### 9.6 Kadane's Algorithm (Max Subarray Sum with Range Indices)
 - **Time Complexity:** $O(N)$
 ```cpp
 long long max_sum = -1e18, cur = 0;
@@ -1424,7 +1525,7 @@ for (int i = 0; i < n; i++) {
 } // Max contiguous subarray sum is on range [best_l, best_r]
 ```
 
-### 9.6 Longest Common Subsequence (LCS with Path Reconstruction)
+### 9.7 Longest Common Subsequence (LCS with Path Reconstruction)
 - **Time Complexity:** $O(N \cdot M)$
 ```cpp
 string get_lcs(const string &s, const string &t) {
@@ -1444,7 +1545,7 @@ string get_lcs(const string &s, const string &t) {
 }
 ```
 
-### 9.7 Coin Change (Min Coins & Total Combinations)
+### 9.8 Coin Change (Min Coins & Total Combinations)
 - **Time Complexity:** $O(N \cdot X)$
 ```cpp
 // 1. Min coins to make target amount X:
@@ -1459,7 +1560,7 @@ for (int c : coins)
     for (int i = c; i <= X; i++) ways[i] = (ways[i] + ways[i - c]) % MOD;
 ```
 
-### 9.8 Edit Distance (Levenshtein Distance)
+### 9.9 Edit Distance (Levenshtein Distance)
 - **Time Complexity:** $O(N \cdot M)$
 ```cpp
 int edit_distance(const string &s1, const string &s2) {
