@@ -603,10 +603,26 @@ vector&lt;string&gt; grid(n);
 for (int i = 0; i &lt; n; i++) cin &gt;&gt; grid[i];
 
 // 3. Direction Arrays for Grid Navigation
-int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right
-int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions (with diagonals)
+int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right (Rook / 4-step)
+int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions (Queen / King / diagonals)
 int dy8[] = {-1, 0, 1,-1, 1,-1, 0, 1};
-bool valid(int x, int y, int n, int m) { return x &gt;= 0 &amp;&amp; x &lt; n &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m; }</code></pre>
+// Knight moves (8 L-shaped jumps):
+int knight_dx[] = {2, 2, 1, -1, 1, -1, -2, -2};
+int knight_dy[] = {1, -1, 2, 2, -2, -2, -1, 1};
+bool valid(int x, int y, int n, int m) { return x &gt;= 0 &amp;&amp; x &lt; n &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; m; }
+
+// 4. Queen / Rook Ray-Casting Move (sliding until obstacle '#')
+for (int i = 0; i &lt; 4; i++) { // i &lt; 4 for Rook, i &lt; 8 for Queen (with dx8, dy8)
+  int nx = x + dx[i], ny = y + dy[i];
+  while (nx &gt;= 0 &amp;&amp; ny &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &lt; m) {
+    if (grid[nx][ny] == '#') break;
+    if (dis[nx][ny] == -1) {
+      dis[nx][ny] = dis[x][y] + 1;
+      q.push({nx, ny});
+    }
+    nx += dx[i]; ny += dy[i];
+  }
+}</code></pre>
     </div>
 
     <div class="item" data-search="convert converter stoi to_string stoll stod stringstream char int base binary hex">
@@ -1121,6 +1137,122 @@ signed main() {
       if (!visited[neighbor]) { visited[neighbor] = true; q.push(neighbor); }
     }
   }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="2d grid bfs maze shortest path queen rook knight bfs_grid grid_bfs">
+      <div class="item-head">
+        <span class="item-title">2D Grid BFS (Maze Shortest Path &amp; Queen/Knight Moves)</span>
+        <span class="item-meta"><span class="prefix">bfs_grid</span> | <span class="time">O(N &times; M)</span></span>
+      </div>
+      <div class="item-desc">Shortest path in a character grid from 'S' to 'E' with obstacles '#', supporting 4-step, Knight, and Queen/Rook sliding moves.</div>
+<pre><code>int main() {
+  int n, m; cin &gt;&gt; n &gt;&gt; m;
+  vector&lt;string&gt; grid(n);
+  for (int i = 0; i &lt; n; i++) cin &gt;&gt; grid[i];
+
+  vector&lt;vector&lt;int&gt;&gt; dis(n, vector&lt;int&gt;(m, -1));
+  queue&lt;pair&lt;int,int&gt;&gt; q;
+  int sx, sy, ex, ey;
+
+  for (int i = 0; i &lt; n; i++) {
+    for (int j = 0; j &lt; m; j++) {
+      if (grid[i][j] == 'S') { sx = i; sy = j; }
+      if (grid[i][j] == 'E') { ex = i; ey = j; }
+    }
+  }
+
+  q.push({sx, sy}); dis[sx][sy] = 0;
+  int dx[] = {-1, 1, 0, 0}, dy[] = {0, 0, -1, 1}; // 4-directional step
+
+  while (!q.empty()) {
+    auto [x, y] = q.front(); q.pop();
+    if (x == ex &amp;&amp; y == ey) {
+      cout &lt;&lt; "Shortest distance = " &lt;&lt; dis[x][y] &lt;&lt; '\n';
+      return 0;
+    }
+
+    // 1. Single-Step Move (4 directions):
+    for (int i = 0; i &lt; 4; i++) {
+      int nx = x + dx[i], ny = y + dy[i];
+      if (nx &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; m &amp;&amp;
+          grid[nx][ny] != '#' &amp;&amp; dis[nx][ny] == -1) {
+        q.push({nx, ny}); dis[nx][ny] = dis[x][y] + 1;
+      }
+    }
+
+    // 2. Queen / Rook Move (Ray-casting / sliding until '#'):
+    /*
+    for (int i = 0; i &lt; 4; i++) { // i &lt; 4 for Rook, i &lt; 8 for Queen
+      int nx = x + dx[i], ny = y + dy[i];
+      while (nx &gt;= 0 &amp;&amp; ny &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &lt; m) {
+        if (grid[nx][ny] == '#') break;
+        if (dis[nx][ny] == -1) {
+          dis[nx][ny] = dis[x][y] + 1;
+          q.push({nx, ny});
+        }
+        nx += dx[i]; ny += dy[i];
+      }
+    }
+    */
+  }
+  cout &lt;&lt; "Destination not reachable\n";
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="queen move rook move raycast sliding grid bfs queen_move">
+      <div class="item-head">
+        <span class="item-title">Queen / Rook Move (Grid Ray-Casting BFS)</span>
+        <span class="item-meta"><span class="prefix">queen_move</span> | <span class="time">O(N &times; M)</span></span>
+      </div>
+      <div class="item-desc">Sliding piece move across empty cells in 4 directions (Rook) or 8 directions (Queen) until hitting obstacle '#' or grid boundary.</div>
+<pre><code>// Queen / Rook ray-casting move (i &lt; 4 for Rook, i &lt; 8 for Queen):
+for (int i = 0; i &lt; 4; i++) {
+  int nx = x + dx[i];
+  int ny = y + dy[i];
+  while (nx &gt;= 0 &amp;&amp; ny &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &lt; m) {
+    if (grid[nx][ny] == '#') break;
+    if (dis[nx][ny] == -1) {
+      dis[nx][ny] = dis[x][y] + 1;
+      q.push({nx, ny});
+    }
+    nx += dx[i];
+    ny += dy[i];
+  }
+}</code></pre>
+    </div>
+
+    <div class="item" data-search="bfs path print predecessor distance 3 color bfs_path">
+      <div class="item-head">
+        <span class="item-title">BFS Traversal with Path Printing (Predecessors)</span>
+        <span class="item-meta"><span class="prefix">bfs_path</span> | <span class="time">O(V + E)</span></span>
+      </div>
+      <div class="item-desc">BFS traversal using 3-color state (white/grey/black), distance array, predecessor tracking, and path reconstruction.</div>
+<pre><code>void bfs(vector&lt;vector&lt;int&gt;&gt;&amp; adj_list, int src, int n, int destination) {
+  vector&lt;string&gt; color(n, "white");
+  vector&lt;int&gt; dis(n, INT_MAX), pred(n, -1);
+  queue&lt;int&gt; q;
+  q.push(src); color[src] = "grey"; dis[src] = 0;
+
+  while (!q.empty()) {
+    int par = q.front(); q.pop(); color[par] = "black";
+    for (auto child : adj_list[par]) {
+      if (color[child] == "white") {
+        q.push(child); color[child] = "grey";
+        dis[child] = dis[par] + 1; pred[child] = par;
+      }
+    }
+  }
+
+  int node = destination;
+  vector&lt;int&gt; path;
+  while (node != -1) { path.push_back(node); node = pred[node]; }
+  reverse(path.begin(), path.end());
+  for (int v : path) cout &lt;&lt; v &lt;&lt; " ";
+  cout &lt;&lt; '\n';
+
+  if (dis[destination] == INT_MAX) cout &lt;&lt; "disconnected\n";
+  else cout &lt;&lt; "distance-&gt; " &lt;&lt; dis[destination] &lt;&lt; '\n';
 }</code></pre>
     </div>
 
@@ -1875,26 +2007,69 @@ for (int c : coins)
     <!-- ================= CHAPTER 10 ================= -->
     <div class="chapter-title" id="ch-10">10. Advanced Tools (MST, Matrix &amp; Geometry)</div>
 
-    <div class="item" data-search="kruskal minimum spanning tree mst">
+    <div class="item" data-search="kruskal minimum spanning tree mst dsu disjoint set unionBySize">
       <div class="item-head">
         <span class="item-title">Kruskal's Minimum Spanning Tree (MST)</span>
-        <span class="item-meta"><span class="time">O(E log E)</span></span>
+        <span class="item-meta"><span class="prefix">kruskal</span> | <span class="time">O(E log E)</span></span>
       </div>
-<pre><code>struct Edge {
+      <div class="item-desc">Self-contained Kruskal's MST algorithm with internal DisjointSet (Union by Size &amp; Path Compression), Edge struct, and main().</div>
+<pre><code>#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+class DisjointSet {
+  vector&lt;int&gt; parent, size;
+public:
+  DisjointSet(int n) {
+    parent.resize(n + 1);
+    size.resize(n + 1, 1);
+    for (int i = 0; i &lt;= n; i++) parent[i] = i;
+  }
+  int findUPar(int node) {
+    if (node == parent[node]) return node;
+    return parent[node] = findUPar(parent[node]);
+  }
+  void unionBySize(int u, int v) {
+    int ulpU = findUPar(u), ulpV = findUPar(v);
+    if (ulpU == ulpV) return;
+    if (size[ulpU] &lt; size[ulpV]) {
+      parent[ulpU] = ulpV; size[ulpV] += size[ulpU];
+    } else {
+      parent[ulpV] = ulpU; size[ulpU] += size[ulpV];
+    }
+  }
+  bool connected(int u, int v) { return findUPar(u) == findUPar(v); }
+};
+
+struct Edge {
   int u, v, w;
   bool operator&lt;(const Edge&amp; o) const { return w &lt; o.w; }
 };
+
 int kruskal(int n, vector&lt;Edge&gt;&amp; edges) {
-  sort(all(edges));
+  sort(edges.begin(), edges.end());
   DisjointSet dsu(n);
   int cost = 0, count = 0;
   for (auto&amp; e : edges) {
     if (!dsu.connected(e.u, e.v)) {
-      dsu.unionBySize(e.u, e.v); cost += e.w;
-      if (++count == n - 1) return cost;
+      dsu.unionBySize(e.u, e.v);
+      cost += e.w;
+      count++;
+      if (count == n - 1) return cost;
     }
   }
   return -1;
+}
+
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  int n, m; cin &gt;&gt; n &gt;&gt; m;
+  vector&lt;Edge&gt; edges(m);
+  for (int i = 0; i &lt; m; i++) cin &gt;&gt; edges[i].u &gt;&gt; edges[i].v &gt;&gt; edges[i].w;
+  int ans = kruskal(n, edges);
+  if (ans == -1) cout &lt;&lt; "MST does not exist\n";
+  else cout &lt;&lt; "Minimum cost = " &lt;&lt; ans &lt;&lt; '\n';
+  return 0;
 }</code></pre>
     </div>
 

@@ -214,10 +214,34 @@ vector<string> grid(n);
 for (int i = 0; i < n; i++) cin >> grid[i];
 
 // 3. Direction Arrays for Grid Navigation
-int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right
-int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions (with diagonals)
+int dx4[] = {-1, 1, 0, 0}, dy4[] = {0, 0, -1, 1}; // Up, Down, Left, Right (Rook / 4-step)
+int dx8[] = {-1,-1,-1, 0, 0, 1, 1, 1};             // 8 directions (Queen / King / diagonals)
 int dy8[] = {-1, 0, 1,-1, 1,-1, 0, 1};
+// Knight moves (8 L-shaped jumps):
+int knight_dx[] = {2, 2, 1, -1, 1, -1, -2, -2};
+int knight_dy[] = {1, -1, 2, 2, -2, -2, -1, 1};
 bool valid(int x, int y, int n, int m) { return x >= 0 && x < n && y >= 0 && y < m; }
+
+// 4. Queen / Rook Move (Ray-casting / sliding across empty cells until '#'):
+for (int i = 0; i < 4; i++) // use i < 4 for Rook, i < 8 for Queen (with dx8, dy8)
+{
+    int nx = x + dx[i];
+    int ny = y + dy[i];
+    while (nx >= 0 && ny >= 0 && nx < n && ny < m)
+    {
+        if (grid[nx][ny] == '#')
+        {
+            break;
+        }
+        if (dis[nx][ny] == -1)
+        {
+            dis[nx][ny] = dis[x][y] + 1;
+            q.push({nx, ny});
+        }
+        nx += dx[i];
+        ny += dy[i];
+    }
+}
 ```
 
 ### 2.3 All Type Converters & String Parsers
@@ -784,7 +808,111 @@ void bfs(int start, const vector<int> adj[], vector<bool>& visited) {
 }
 ```
 
-### 4.7 Topological Sort (Kahn's In-Degree BFS)
+### 4.7 2D Grid BFS (Maze Shortest Path & Queen/Knight Moves)
+- **Trigger Prefix:** `bfs_grid`
+- **Time Complexity:** $O(N \times M)$
+```cpp
+int main() {
+    int n, m; cin >> n >> m;
+    vector<string> grid(n);
+    for (int i = 0; i < n; i++) cin >> grid[i];
+
+    vector<vector<int>> dis(n, vector<int>(m, -1));
+    queue<pair<int, int>> q;
+    int sx, sy, ex, ey;
+
+    // Find Source (S) and Destination (E)
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 'S') { sx = i; sy = j; }
+            if (grid[i][j] == 'E') { ex = i; ey = j; }
+        }
+    }
+
+    q.push({sx, sy});
+    dis[sx][sy] = 0;
+    int dx[] = {-1, 1, 0, 0}, dy[] = {0, 0, -1, 1}; // 4 directions
+    // int dx[] = {2, 2, 1, -1, 1, -1, -2, -2}, dy[] = {1, -1, 2, 2, -2, -2, -1, 1}; // Knight
+
+    while (!q.empty()) {
+        auto [x, y] = q.front(); q.pop();
+        if (x == ex && y == ey) {
+            cout << "Shortest distance = " << dis[x][y] << '\n';
+            return 0;
+        }
+
+        // 1. Single-Step Move (4 directions):
+        for (int i = 0; i < 4; i++) {
+            int nx = x + dx[i], ny = y + dy[i];
+            if (nx >= 0 && nx < n && ny >= 0 && ny < m &&
+                grid[nx][ny] != '#' && dis[nx][ny] == -1) {
+                q.push({nx, ny});
+                dis[nx][ny] = dis[x][y] + 1;
+            }
+        }
+
+        // 2. Queen / Rook Ray-Casting Move (sliding until obstacle '#'):
+        /*
+        for (int i = 0; i < 4; i++) { // i < 4 for Rook, i < 8 for Queen
+            int nx = x + dx[i], ny = y + dy[i];
+            while (nx >= 0 && ny >= 0 && nx < n && ny < m) {
+                if (grid[nx][ny] == '#') break;
+                if (dis[nx][ny] == -1) {
+                    dis[nx][ny] = dis[x][y] + 1;
+                    q.push({nx, ny});
+                }
+                nx += dx[i]; ny += dy[i];
+            }
+        }
+        */
+    }
+    cout << "Destination not reachable\n";
+}
+```
+
+### 4.8 BFS Traversal with Path Printing & Predecessors
+- **Trigger Prefix:** `bfs_path`
+- **Time Complexity:** $O(V + E)$
+```cpp
+void bfs(vector<vector<int>>& adj_list, int src, int n, int destination) {
+    vector<string> color(n, "white");
+    vector<int> dis(n, INT_MAX);
+    vector<int> pred(n, -1);
+
+    queue<int> q;
+    q.push(src);
+    color[src] = "grey";
+    dis[src] = 0;
+
+    while (!q.empty()) {
+        int par = q.front(); q.pop();
+        color[par] = "black";
+        for (auto child : adj_list[par]) {
+            if (color[child] == "white") {
+                q.push(child);
+                color[child] = "grey";
+                dis[child] = dis[par] + 1;
+                pred[child] = par;
+            }
+        }
+    }
+
+    int node = destination;
+    vector<int> path;
+    while (node != -1) {
+        path.push_back(node);
+        node = pred[node];
+    }
+    reverse(path.begin(), path.end());
+    for (int i = 0; i < path.size(); i++) cout << path[i] << " ";
+    cout << '\n';
+
+    if (dis[destination] == INT_MAX) cout << "disconnected\n";
+    else cout << "distance-> " << dis[destination] << '\n';
+}
+```
+
+### 4.9 Topological Sort (Kahn's In-Degree BFS)
 - **Time Complexity:** $O(V + E)$
 - **Condition:** Graph must be a Directed Acyclic Graph (DAG).
 ```cpp
@@ -804,7 +932,7 @@ vector<int> topo_sort(int n, const vector<vector<int>> &adj) {
 }
 ```
 
-### 4.8 Bipartite Graph Check & 2-Coloring (BFS)
+### 4.10 Bipartite Graph Check & 2-Coloring (BFS)
 - **Trigger Prefix:** `bipartite`
 - **Time Complexity:** $O(V + E)$
 - **When to use:** Check if graph has no odd-length cycles and can be partitioned into two independent sets.
@@ -1583,25 +1711,130 @@ int edit_distance(const string &s1, const string &s2) {
 # Section 10: Advanced Tools (Kruskal, Matrix Power & Geometry)
 
 ### 10.1 Kruskal's Minimum Spanning Tree (MST)
+- **Trigger Prefix:** `kruskal`, `mst`
 - **Time Complexity:** $O(E \log E)$
 ```cpp
-struct Edge {
-    int u, v, w;
-    bool operator<(const Edge& o) const { return w < o.w; }
-};
+#include <bits/stdc++.h>
+using namespace std;
 
-int kruskal(int n, vector<Edge>& edges) {
-    sort(all(edges));
-    DisjointSet dsu(n);
-    int total_cost = 0, count = 0;
-    for (auto& e : edges) {
-        if (!dsu.connected(e.u, e.v)) {
-            dsu.unionBySize(e.u, e.v);
-            total_cost += e.w;
-            if (++count == n - 1) return total_cost;
+class DisjointSet
+{
+    vector<int> parent, size;
+
+public:
+    DisjointSet(int n)
+    {
+        parent.resize(n + 1);
+        size.resize(n + 1, 1);
+
+        for(int i = 0; i <= n; i++)
+        {
+            parent[i] = i;
         }
     }
+
+    int findUPar(int node)
+    {
+        if(node == parent[node])
+        {
+            return node;
+        }
+
+        return parent[node] = findUPar(parent[node]);
+    }
+
+    void unionBySize(int u, int v)
+    {
+        int ulpU = findUPar(u);
+        int ulpV = findUPar(v);
+
+        if(ulpU == ulpV)
+        {
+            return;
+        }
+
+        if(size[ulpU] < size[ulpV])
+        {
+            parent[ulpU] = ulpV;
+            size[ulpV] += size[ulpU];
+        }
+        else
+        {
+            parent[ulpV] = ulpU;
+            size[ulpU] += size[ulpV];
+        }
+    }
+
+    bool connected(int u, int v)
+    {
+        return findUPar(u) == findUPar(v);
+    }
+};
+
+struct Edge
+{
+    int u, v, w;
+
+    bool operator<(const Edge& o) const
+    {
+        return w < o.w;
+    }
+};
+
+int kruskal(int n, vector<Edge>& edges)
+{
+    sort(edges.begin(), edges.end());
+
+    DisjointSet dsu(n);
+
+    int cost = 0;
+    int count = 0;
+
+    for(auto& e : edges)
+    {
+        if(!dsu.connected(e.u, e.v))
+        {
+            dsu.unionBySize(e.u, e.v);
+            cost += e.w;
+            count++;
+
+            if(count == n - 1)
+            {
+                return cost;
+            }
+        }
+    }
+
     return -1;
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n, m;
+    cin >> n >> m;
+
+    vector<Edge> edges(m);
+
+    for(int i = 0; i < m; i++)
+    {
+        cin >> edges[i].u >> edges[i].v >> edges[i].w;
+    }
+
+    int ans = kruskal(n, edges);
+
+    if(ans == -1)
+    {
+        cout << "MST does not exist" << '\n';
+    }
+    else
+    {
+        cout << "Minimum cost = " << ans << '\n';
+    }
+
+    return 0;
 }
 ```
 
