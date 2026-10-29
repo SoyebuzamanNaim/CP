@@ -120,6 +120,10 @@ def printable_code(body: str) -> str:
     # The older base template defines `int` as a macro. Keep these tested index types intact.
     return '#ifdef int\n#pragma push_macro("int")\n#undef int\n#define CPREF_POP_INT\n#endif\n' + body + '\n#ifdef CPREF_POP_INT\n#pragma pop_macro("int")\n#undef CPREF_POP_INT\n#endif'
 
+def markdown_cell(value: str) -> str:
+    # A bare | inside a formula would split the GitHub Markdown table cell.
+    return value.replace('|', r'\|').replace('\n', ' ')
+
 def replace_generated(path: Path, start: str, end: str, body: str, anchor: str) -> None:
     text = path.read_text()
     block = start + "\n" + body.rstrip() + "\n" + end
@@ -171,12 +175,12 @@ def markdown_content(code: dict[str, str]) -> str:
         out += [f"### {heading}", ""]
         if slug != "coordinates": out += [f"![Labeled {heading.lower()}](assets/geometry-{slug}.svg)", ""]
         out += ["| Shape / rule | Meaning | Formulas |", "|---|---|---|"]
-        for title,vars_,formula in rows: out.append(f"| {title} | {vars_} | {formula} |")
+        for title,vars_,formula in rows: out.append(f"| {markdown_cell(title)} | {markdown_cell(vars_)} | {markdown_cell(formula)} |")
         out.append("")
     out += ["## Section 17: Math and contest formulas", ""]
     for heading,rows in OTHER_FORMULAS:
         out += [f"### {heading}", "", "| Topic | Conditions | Formula |", "|---|---|---|"]
-        for title,vars_,formula in rows: out.append(f"| {title} | {vars_} | {formula} |")
+        for title,vars_,formula in rows: out.append(f"| {markdown_cell(title)} | {markdown_cell(vars_)} | {markdown_cell(formula)} |")
         out.append("")
     out += ["### Source and use notes", "", "- Basic Mo loop adapted from [Mohammadreza-mz's Mo Algorithm.cpp](https://github.com/Mohammadreza-mz/icpc-cheatsheet/blob/main/Data%20Structure/Mo%20Algorithm.cpp) and the supplied Shahid Beheshti notebook; its original add/remove/get placeholders are implemented as callbacks here.", "- Graph, string, number theory, and geometry topics were selected from the supplied BRACU Crows KACT PDF, then rewritten as self-contained, tested C++17 snippets.", "- The Hungarian assignment was adapted from the supplied Shahid Beheshti notebook and returns a row-to-column map.", ""]
     return "\n".join(out)

@@ -569,7 +569,7 @@ priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, Comp
         <span class="item-title">GCC Optimization Pragmas</span>
         <span class="item-meta"><span class="prefix">pragma</span></span>
       </div>
-      <div class="item-desc">Hardware vectorization and loop unrolling for tight time limits (1.0s).</div>
+      <div class="item-desc">Use AVX2 only if the judge CPU supports it; otherwise the program may fail at runtime.</div>
 <pre><code>#pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")</code></pre>
     </div>
@@ -866,15 +866,25 @@ for (int &amp;x : a) {
         <span class="item-title">Sieve of Eratosthenes</span>
         <span class="item-meta"><span class="prefix">gprime</span> | <span class="time">O(N log log N)</span></span>
       </div>
-<pre><code>vector&lt;int&gt; primes; vector&lt;bool&gt; is_prime;
+<pre><code>// ---------- SIEVE OF ERATOSTHENES ----------
+vector&lt;int&gt; primes;
+vector&lt;bool&gt; is_prime;
+
 void gprime(int n) {
-  is_prime.assign(n + 1, true);
-  is_prime[0] = is_prime[1] = false;
-  for (int i = 2; i * i &lt;= n; i++)
-    if (is_prime[i])
-      for (int j = i * i; j &lt;= n; j += i) is_prime[j] = false;
-  primes.clear();
-  for (int i = 2; i &lt;= n; i++) if (is_prime[i]) primes.push_back(i);
+    assert(n &gt;= 0);
+    is_prime.assign(n + 1, true);
+    is_prime[0] = false;
+    if (n &gt;= 1) is_prime[1] = false;
+    for (int i = 2; i * i &lt;= n; i++) {
+        if (is_prime[i]) {
+            for (int j = i * i; j &lt;= n; j += i)
+                is_prime[j] = false;
+        }
+    }
+    primes.clear();
+    for (int i = 2; i &lt;= n; i++) {
+        if (is_prime[i]) primes.push_back(i);
+    }
 }</code></pre>
     </div>
 
@@ -913,12 +923,16 @@ vector&lt;pair&lt;int, int&gt;&gt; get_factors(int x) {
         <span class="item-meta"><span class="prefix">binExpoMod</span> | <span class="time">O(log b)</span></span>
       </div>
 <pre><code>long long binpow(long long a, long long b, long long m) {
-  a %= m; long long res = 1;
-  while (b &gt; 0) {
-    if (b &amp; 1) res = res * a % m;
-    a = a * a % m; b &gt;&gt;= 1;
-  }
-  return res;
+    assert(m &gt; 0 &amp;&amp; b &gt;= 0);
+    a %= m; if (a &lt; 0) a += m;
+    long long res = 1 % m;
+    while (b &gt; 0) {
+        if (b &amp; 1)
+            res = (__int128)res * a % m;
+        a = (__int128)a * a % m;
+        b &gt;&gt;= 1;
+    }
+    return res;
 }</code></pre>
     </div>
 
@@ -1090,32 +1104,35 @@ long long mul(long long a, long long b) { return norm(a) * norm(b) % MOD; }
 
 // 2. Fast Exponentiation: (base^exp) % MOD
 long long power(long long base, long long exp) {
-  long long res = 1; base = norm(base);
-  while (exp &gt; 0) {
-    if (exp % 2 == 1) res = (res * base) % MOD;
-    base = (base * base) % MOD;
-    exp /= 2;
-  }
-  return res;
+    long long res = 1; base = norm(base);
+    while (exp &gt; 0) {
+        if (exp % 2 == 1) res = (res * base) % MOD;
+        base = (base * base) % MOD;
+        exp /= 2;
+    }
+    return res;
 }
 
-// 3. Modular Inverse via Fermat (MOD must be prime) &amp; Division
+// 3. Modular Inverse via Fermat&#x27;s Little Theorem (MOD must be prime) &amp; Division
 long long modInverse(long long n) { assert(norm(n) != 0); return power(n, MOD - 2); }
 long long divi(long long a, long long b) { return mul(a, modInverse(b)); }
 
 // 4. O(N) Precomputation for O(1) nCr Modulo P (N up to 10^6):
 const int MAXN = 1000005;
 long long fact[MAXN], invFact[MAXN];
+int prepared_n = -1;
 void precompute_nCr(int n = MAXN - 1) {
-  assert(0 &lt;= n &amp;&amp; n &lt; MOD);
-  fact[0] = invFact[0] = 1;
-  for (int i = 1; i &lt;= n; i++) fact[i] = mul(fact[i - 1], i);
-  invFact[n] = modInverse(fact[n]);
-  for (int i = n - 1; i &gt;= 1; i--) invFact[i] = mul(invFact[i + 1], i + 1);
+    assert(0 &lt;= n &amp;&amp; n &lt; MOD &amp;&amp; n &lt; MAXN);
+    fact[0] = invFact[0] = 1;
+    for (int i = 1; i &lt;= n; i++) fact[i] = mul(fact[i - 1], i);
+    invFact[n] = modInverse(fact[n]);
+    for (int i = n - 1; i &gt;= 1; i--) invFact[i] = mul(invFact[i + 1], i + 1);
+    prepared_n = n;
 }
 long long nCr_mod(int n, int r) {
-  if (r &lt; 0 || r &gt; n) return 0;
-  return mul(fact[n], mul(invFact[r], invFact[n - r]));
+    if (r &lt; 0 || r &gt; n) return 0;
+    assert(0 &lt;= n &amp;&amp; n &lt;= prepared_n);
+    return mul(fact[n], mul(invFact[r], invFact[n - r]));
 }</code></pre>
     </div>
 
@@ -1390,33 +1407,39 @@ for (int i = 0; i &lt; 4; i++) {
         <span class="item-meta"><span class="prefix">dijkstra</span> | <span class="time">O((V+E)log V)</span></span>
       </div>
 <pre><code>int n, m; cin &gt;&gt; n &gt;&gt; m;
-vector&lt;vector&lt;pair&lt;int, int&gt;&gt;&gt; adj(n + 1);
+vector&lt;vector&lt;pair&lt;int, long long&gt;&gt;&gt; adj(n + 1);
 for (int i = 0; i &lt; m; i++) {
-  int u, v, w; cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;
-  adj[u].emplace_back(v, w); adj[v].emplace_back(u, w);
+    int u, v; long long w; cin &gt;&gt; u &gt;&gt; v &gt;&gt; w;
+    adj[u].emplace_back(v, w);
+    adj[v].emplace_back(u, w);
 }
-int s = 1, inf = LLONG_MAX / 2;
-vector&lt;int&gt; dis(n + 1, inf), parent(n + 1, -1);
+int s = 1; const long long inf = LLONG_MAX / 4;
+vector&lt;long long&gt; dis(n + 1, inf);
+vector&lt;int&gt; parent(n + 1, -1);
 dis[s] = 0;
-priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, greater&lt;pair&lt;int, int&gt;&gt;&gt; pq;
+priority_queue&lt;pair&lt;long long, int&gt;, vector&lt;pair&lt;long long, int&gt;&gt;, greater&lt;pair&lt;long long, int&gt;&gt;&gt; pq;
 pq.emplace(0, s);
 while (!pq.empty()) {
-  auto [dv, v] = pq.top(); pq.pop();
-  if (dv &gt; dis[v]) continue;
-  for (auto &amp;edge : adj[v]) {
-    int to = edge.first, d = edge.second;
-    if (dis[v] + d &lt; dis[to]) {
-      dis[to] = dis[v] + d; parent[to] = v; pq.emplace(dis[to], to);
+    auto [dv, v] = pq.top(); pq.pop();
+    if (dv &gt; dis[v]) continue;
+    for (auto &amp;edge : adj[v]) {
+        int to = edge.first; long long d = edge.second;
+        assert(d &gt;= 0);
+        if (d &lt;= inf - dis[v] &amp;&amp; dis[v] + d &lt; dis[to]) {
+            dis[to] = dis[v] + d;
+            parent[to] = v;
+            pq.emplace(dis[to], to);
+        }
     }
-  }
 }
-if (dis[n] == inf) cout &lt;&lt; -1 &lt;&lt; endl;
-else {
-  vector&lt;int&gt; path;
-  for (int i = n; i != -1; i = parent[i]) path.push_back(i);
-  reverse(path.begin(), path.end());
-  for (int node : path) cout &lt;&lt; node &lt;&lt; " ";
-  cout &lt;&lt; endl;
+if (dis[n] == inf) {
+    cout &lt;&lt; -1 &lt;&lt; endl;
+} else {
+    vector&lt;int&gt; path;
+    for (int i = n; i != -1; i = parent[i]) path.push_back(i);
+    reverse(path.begin(), path.end());
+    for (int node : path) cout &lt;&lt; node &lt;&lt; &quot; &quot;;
+    cout &lt;&lt; endl;
 }</code></pre>
     </div>
 
@@ -1441,7 +1464,7 @@ void dijkstra(int s, vector&lt;long long&gt;&amp; d, vector&lt;int&gt;&amp; p) {
 
         for (auto [to, len] : adj[v]) {
             assert(len &gt;= 0);
-            if (d[v] + len &lt; d[to]) {
+            if (len &lt;= INF - d[v] &amp;&amp; d[v] + len &lt; d[to]) {
                 q.erase({d[to], to});
                 d[to] = d[v] + len;
                 p[to] = v;
@@ -1556,29 +1579,37 @@ cout &lt;&lt; endl;</code></pre>
         <span class="item-meta"><span class="prefix">treeDiameter</span> | <span class="time">O(V + E)</span></span>
       </div>
 <pre><code>pair&lt;int, int&gt; bfs_farthest(int start, const vector&lt;vector&lt;int&gt;&gt;&amp; adj, int n) {
-  vector&lt;int&gt; dist(n + 1, -1);
-  queue&lt;int&gt; q; q.push(start); dist[start] = 0;
-  int farthest_node = start;
-  while (!q.empty()) {
-    int node = q.front(); q.pop();
-    for (int neighbor : adj[node]) {
-      if (dist[neighbor] == -1) {
-        dist[neighbor] = dist[node] + 1; q.push(neighbor);
-        if (dist[neighbor] &gt; dist[farthest_node]) farthest_node = neighbor;
-      }
+    vector&lt;int&gt; dist(n + 1, -1);
+    queue&lt;int&gt; q;
+    q.push(start);
+    dist[start] = 0;
+    int farthest_node = start;
+
+    while (!q.empty()) {
+        int node = q.front(); q.pop();
+        for (int neighbor : adj[node]) {
+            if (dist[neighbor] == -1) {
+                dist[neighbor] = dist[node] + 1;
+                q.push(neighbor);
+                if (dist[neighbor] &gt; dist[farthest_node])
+                    farthest_node = neighbor;
+            }
+        }
     }
-  }
-  return {farthest_node, dist[farthest_node]};
+    return {farthest_node, dist[farthest_node]};
 }
+
 signed main() {
-  fastIO(); int n; cin &gt;&gt; n;
-  vector&lt;vector&lt;int&gt;&gt; adj(n + 1);
-  for (int i = 0; i &lt; n - 1; ++i) {
-    int u, v; cin &gt;&gt; u &gt;&gt; v; adj[u].push_back(v); adj[v].push_back(u);
-  }
-  int far1 = bfs_farthest(1, adj, n).first;
-  int diameter = bfs_farthest(far1, adj, n).second;
-  cout &lt;&lt; diameter &lt;&lt; '\n';
+    ios::sync_with_stdio(false); cin.tie(nullptr);
+    int n; cin &gt;&gt; n;
+    vector&lt;vector&lt;int&gt;&gt; adj(n + 1);
+    for (int i = 0; i &lt; n - 1; ++i) {
+        int u, v; cin &gt;&gt; u &gt;&gt; v;
+        adj[u].push_back(v); adj[v].push_back(u);
+    }
+    int far1 = bfs_farthest(1, adj, n).first;
+    int diameter = bfs_farthest(far1, adj, n).second;
+    cout &lt;&lt; diameter &lt;&lt; &#x27;\n&#x27;;
 }</code></pre>
     </div>
 
@@ -1664,20 +1695,30 @@ public:
       </div>
       <div class="item-desc">Point update, range sum, integer &amp; decimal range average (<code>avg = sum / count</code>).</div>
 <pre><code>struct Fenwick {
-  int n; vector&lt;int&gt; bit;
-  Fenwick(int n) : n(n), bit(n + 1, 0) {}
-  void add(int idx, int val) {
-    for (; idx &lt;= n; idx += idx &amp; -idx) bit[idx] += val;
-  }
-  int query(int idx) {
-    int sum = 0;
-    for (; idx &gt; 0; idx -= idx &amp; -idx) sum += bit[idx];
-    return sum;
-  }
-  int range_query(int l, int r) { return query(r) - query(l - 1); }
-  // Average = sum / number_of_elements (count = r - l + 1)
-  int avg(int l, int r) { return range_query(l, r) / (r - l + 1); } // integer
-  double avg_d(int l, int r) { return (double)range_query(l, r) / (r - l + 1); } // decimal
+    int n; vector&lt;long long&gt; bit;
+    Fenwick(int n) : n(n), bit(n + 1, 0) {}
+
+    void add(int idx, long long val) { // 1-based; idx=0 would never advance
+        assert(1 &lt;= idx &amp;&amp; idx &lt;= n);
+        for (; idx &lt;= n; idx += idx &amp; -idx) bit[idx] += val;
+    }
+
+    long long query(int idx) { // prefix sum [1, idx]; query(0)=0
+        assert(0 &lt;= idx &amp;&amp; idx &lt;= n);
+        long long sum = 0;
+        for (; idx &gt; 0; idx -= idx &amp; -idx) sum += bit[idx];
+        return sum;
+    }
+
+    long long range_query(int l, int r) { assert(1 &lt;= l &amp;&amp; l &lt;= r &amp;&amp; r &lt;= n); return query(r) - query(l - 1); }
+
+    // Range Average (Integer &amp; Decimal): average = sum / number_of_elements
+    long long avg(int l, int r) { // Integer average
+        return range_query(l, r) / (r - l + 1);
+    }
+    double avg_d(int l, int r) { // Decimal average
+        return (double)range_query(l, r) / (r - l + 1);
+    }
 };</code></pre>
     </div>
 
@@ -1848,32 +1889,40 @@ struct SparseTable {
         <span class="item-title">Knuth-Morris-Pratt (KMP) Algorithm</span>
         <span class="item-meta"><span class="prefix">kmp</span> | <span class="time">O(N + M)</span></span>
       </div>
-<pre><code>vector&lt;int&gt; buildLPS(const string &amp;pat) {
-  int m = pat.size(), len = 0;
-  vector&lt;int&gt; lps(m, 0);
-  for (int i = 1; i &lt; m;) {
-    if (pat[i] == pat[len]) { len++; lps[i] = len; i++; }
-    else {
-      if (len != 0) len = lps[len - 1];
-      else { lps[i] = 0; i++; }
+<pre><code>// Preprocess pattern to build LPS array
+vector&lt;int&gt; buildLPS(const string &amp;pat) {
+    int m = pat.size(), len = 0;
+    vector&lt;int&gt; lps(m, 0);
+    for (int i = 1; i &lt; m;) {
+        if (pat[i] == pat[len]) {
+            len++; lps[i] = len; i++;
+        } else {
+            if (len != 0) len = lps[len - 1];
+            else { lps[i] = 0; i++; }
+        }
     }
-  }
-  return lps;
+    return lps;
 }
+
+// KMP search: find occurrences of pattern in text
 vector&lt;int&gt; KMPsearch(const string &amp;text, const string &amp;pat) {
-  int n = text.size(), m = pat.size();
-  vector&lt;int&gt; lps = buildLPS(pat), positions;
-  int i = 0, j = 0;
-  while (i &lt; n) {
-    if (text[i] == pat[j]) {
-      i++; j++;
-      if (j == m) { positions.push_back(i - j); j = lps[j - 1]; }
-    } else {
-      if (j != 0) j = lps[j - 1];
-      else i++;
+    int n = text.size(), m = pat.size();
+    if (m == 0) { vector&lt;int&gt; all(n + 1); iota(all.begin(), all.end(), 0); return all; }
+    vector&lt;int&gt; lps = buildLPS(pat), positions;
+    int i = 0, j = 0;
+    while (i &lt; n) {
+        if (text[i] == pat[j]) {
+            i++; j++;
+            if (j == m) {
+                positions.push_back(i - j); // match at i - m
+                j = lps[j - 1];
+            }
+        } else {
+            if (j != 0) j = lps[j - 1];
+            else i++;
+        }
     }
-  }
-  return positions;
+    return positions;
 }</code></pre>
     </div>
 

@@ -48,10 +48,17 @@ def main() -> None:
     json_snippets=json.loads((ROOT/'cpp.json').read_text())
     md=(ROOT/'CP_Cheatsheet_Hoffnang.md').read_text()
     corrected={
-        '5.2': ('dijkstra set dijkstraset', 'Dijkstra Algorithm'),
+        '3.3': ('sieve gprime prime generation eratosthenes', 'Sieve of Eratosthenes'),
+        '3.4 Binary Exponentiation': ('binary exponentiation binexpomod modular power', 'Binary Exponentiation with Modulo'),
+        '3.11': ('modulo arithmetic sheet mod inverse fermat ncr combinations factorials add sub mul power divi 1e9+7 998244353', 'Complete Modulo Sheet & O(1) nCr'),
+        '5.1': ('dijkstra shortest path priority queue dijkstra', 'Dijkstra Algorithm'),
+        '5.2': ('dijkstra set dijkstraset', 'Dijkstra Algorithm (Set-Based)'),
         '5.4': ('bellman ford bellman_ford negative cycle', 'Bellman-Ford Algorithm'),
+        '6.1': ('tree diameter bfs treediameter', None),
         '6.2': ('lca lowest common ancestor binary lifting tree distance kth ancestor', 'Lowest Common Ancestor (Binary Lifting)'),
+        '7.2': ('fenwick tree bit binary indexed tree average range query sum', 'Fenwick Tree (BIT: Sum & Range Average)'),
         '7.6': ('lazy segment tree range add set update range max kactl', 'Lazy Segment Tree (Range Add, Set & Max)'),
+        '8.1': ('kmp knuth morris pratt string matching', 'Knuth-Morris-Pratt (KMP) Algorithm'),
         '9.2': ('two pointers sliding window opposite direction merge sorted subsegments', 'Two Pointers & Sliding Window'),
         '9.3': ('binary search on answer predicate monotonic check mid bsearch float', 'Binary Search on Answer'),
     }
@@ -59,7 +66,8 @@ def main() -> None:
         block=re.search(r'^### '+re.escape(section)+r'[^\n]*\n.*?```cpp\n(.*?)\n```',md,re.M|re.S)
         item=re.search(r'<div class="item" data-search="'+re.escape(search)+r'">.*?<pre><code>(.*?)</code></pre>',page,re.S)
         assert block and item and html.unescape(item.group(1))==block.group(1),section
-        assert json_snippets[title]['body']==block.group(1).splitlines(),title
+        if title is not None:
+            assert json_snippets[title]['body']==block.group(1).splitlines(),title
     for _,_,entries in SECTIONS:
         for key,title,_,_ in entries:
             expected=('namespace cpref {\n'+printable_code(code[key])+'\n} // namespace cpref').splitlines()
@@ -83,6 +91,10 @@ def main() -> None:
         assert 'Team Hoffnang' in p and f'Page {i}' in p,(i,p[:200])
         assert len(p.strip())>200,(i,'nearly blank')
     assert 'Illustrated geometry formulas' in page and 'Math and contest formulas' in page
+    formula_md=md.split('## Section 16: Illustrated geometry formulas',1)[1]
+    for line in formula_md.splitlines():
+        if line.startswith('| '):
+            assert len(re.split(r'(?<!\\)\|',line))==5,line
     print(f'PASS site structure, generated snippets, JS, SVG, and {count}-page PDF')
 
 if __name__=='__main__':main()

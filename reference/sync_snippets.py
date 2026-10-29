@@ -30,11 +30,15 @@ def replace_body(title: str, code: str) -> None:
 replace_body('Count Total Set Bits 0..N',markdown_cpp('3.6'))
 replace_body('Extended GCD & Modular Inverse',markdown_cpp('3.7'))
 replace_body('Complete Modulo Sheet & O(1) nCr',markdown_cpp('3.11'))
+replace_body('Sieve of Eratosthenes',markdown_cpp('3.3'))
+replace_body('Binary Exponentiation with Modulo',markdown_cpp('3.4 Binary Exponentiation'))
+replace_body('Knuth-Morris-Pratt (KMP) Algorithm',markdown_cpp('8.1'))
+replace_body('Fenwick Tree (BIT: Sum & Range Average)',markdown_cpp('7.2'))
 replace_body("Kruskal's MST",markdown_cpp('10.1'))
 replace_body('KACTL Segment Tree (Associative f, [b, e))',markdown_cpp('7.5'))
 replace_body('Math Series & Algebra Cheatsheet',markdown_cpp('10.7'))
 for title, section in [
-    ('Dijkstra Algorithm', '5.2'),
+    ('Dijkstra Algorithm', '5.1'),
     ('Bellman-Ford Algorithm', '5.4'),
     ('Lowest Common Ancestor (Binary Lifting)', '6.2'),
     ('Lazy Segment Tree (Range Add, Set & Max)', '7.6'),
@@ -42,6 +46,19 @@ for title, section in [
     ('Binary Search on Answer', '9.3'),
 ]:
     replace_body(title, markdown_cpp(section))
+
+if '"Dijkstra Algorithm (Set-Based)"' not in TEXT:
+    entry={
+        'prefix':['dijkstraSet'],
+        'body':markdown_cpp('5.2').splitlines(),
+        'description':'Set-based Dijkstra with nonnegative weights and 64-bit distances.',
+    }
+    block='  "Dijkstra Algorithm (Set-Based)": '+json.dumps(entry,ensure_ascii=False,indent=2).replace('\n','\n  ')
+    i=TEXT.rfind('\n}')
+    assert i!=-1
+    TEXT=TEXT[:i].rstrip()+',\n\n'+block+TEXT[i:]
+else:
+    replace_body('Dijkstra Algorithm (Set-Based)',markdown_cpp('5.2'))
 
 code=snippets()
 new=[]

@@ -115,6 +115,7 @@ priority_queue<pair<int, int>, vector<pair<int, int>>, ComparePQ> pq;
 
 ### 1.3 GCC Optimization Pragmas
 - **When to use:** Hardware vectorization and loop unrolling for tight 1.0s time limits.
+- **Check first:** The judge CPU must support AVX2; otherwise the program may fail at runtime.
 ```cpp
 #pragma GCC optimize("O3,unroll-loops")
 #pragma GCC target("avx2,bmi,bmi2,lzcnt,popcnt")
@@ -415,8 +416,10 @@ vector<int> primes;
 vector<bool> is_prime;
 
 void gprime(int n) {
+    assert(n >= 0);
     is_prime.assign(n + 1, true);
-    is_prime[0] = is_prime[1] = false;
+    is_prime[0] = false;
+    if (n >= 1) is_prime[1] = false;
     for (int i = 2; i * i <= n; i++) {
         if (is_prime[i]) {
             for (int j = i * i; j <= n; j += i)
@@ -465,12 +468,13 @@ vector<pair<int, int>> get_factors(int x) {
 - **Time Complexity:** $O(\log b)$
 ```cpp
 long long binpow(long long a, long long b, long long m) {
-    a %= m;
-    long long res = 1;
+    assert(m > 0 && b >= 0);
+    a %= m; if (a < 0) a += m;
+    long long res = 1 % m;
     while (b > 0) {
         if (b & 1)
-            res = res * a % m;
-        a = a * a % m;
+            res = (__int128)res * a % m;
+        a = (__int128)a * a % m;
         b >>= 1;
     }
     return res;
@@ -664,15 +668,18 @@ long long divi(long long a, long long b) { return mul(a, modInverse(b)); }
 // 4. O(N) Precomputation for O(1) nCr Modulo P (N up to 10^6):
 const int MAXN = 1000005;
 long long fact[MAXN], invFact[MAXN];
+int prepared_n = -1;
 void precompute_nCr(int n = MAXN - 1) {
-    assert(0 <= n && n < MOD);
+    assert(0 <= n && n < MOD && n < MAXN);
     fact[0] = invFact[0] = 1;
     for (int i = 1; i <= n; i++) fact[i] = mul(fact[i - 1], i);
     invFact[n] = modInverse(fact[n]);
     for (int i = n - 1; i >= 1; i--) invFact[i] = mul(invFact[i + 1], i + 1);
+    prepared_n = n;
 }
 long long nCr_mod(int n, int r) {
     if (r < 0 || r > n) return 0;
+    assert(0 <= n && n <= prepared_n);
     return mul(fact[n], mul(invFact[r], invFact[n - r]));
 }
 ```
@@ -971,25 +978,28 @@ bool is_bipartite(int n, const vector<vector<int>> &adj, vector<int> &color) {
 - **Trigger Prefix:** `dijkstra`
 - **Time Complexity:** $O((V + E) \log V)$
 - **Constraint:** All edge weights must be non-negative ($w \ge 0$).
+- **Graph:** This example adds both directions. Remove the reverse edge for a directed graph. Shortest paths must stay below `inf`.
 ```cpp
 int n, m; cin >> n >> m;
-vector<vector<pair<int, int>>> adj(n + 1);
+vector<vector<pair<int, long long>>> adj(n + 1);
 for (int i = 0; i < m; i++) {
-    int u, v, w; cin >> u >> v >> w;
+    int u, v; long long w; cin >> u >> v >> w;
     adj[u].emplace_back(v, w);
     adj[v].emplace_back(u, w);
 }
-int s = 1, inf = LLONG_MAX / 2;
-vector<int> dis(n + 1, inf), parent(n + 1, -1);
+int s = 1; const long long inf = LLONG_MAX / 4;
+vector<long long> dis(n + 1, inf);
+vector<int> parent(n + 1, -1);
 dis[s] = 0;
-priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
 pq.emplace(0, s);
 while (!pq.empty()) {
     auto [dv, v] = pq.top(); pq.pop();
     if (dv > dis[v]) continue;
     for (auto &edge : adj[v]) {
-        int to = edge.first, d = edge.second;
-        if (dis[v] + d < dis[to]) {
+        int to = edge.first; long long d = edge.second;
+        assert(d >= 0);
+        if (d <= inf - dis[v] && dis[v] + d < dis[to]) {
             dis[to] = dis[v] + d;
             parent[to] = v;
             pq.emplace(dis[to], to);
@@ -1028,7 +1038,7 @@ void dijkstra(int s, vector<long long>& d, vector<int>& p) {
 
         for (auto [to, len] : adj[v]) {
             assert(len >= 0);
-            if (d[v] + len < d[to]) {
+            if (len <= INF - d[v] && d[v] + len < d[to]) {
                 q.erase({d[to], to});
                 d[to] = d[v] + len;
                 p[to] = v;
@@ -1150,6 +1160,7 @@ for (int k = 0; k < n; ++k)
 - **Trigger Prefix:** `treeDiameter`
 - **Time Complexity:** $O(V + E)$
 - **Theorem:** An arbitrary BFS from node 1 finds node $u$ (one endpoint of diameter). A second BFS from $u$ finds node $v$ and the exact diameter length.
+- **Indexing:** The complete example expects a connected tree with vertices numbered 1 through `n`.
 ```cpp
 pair<int, int> bfs_farthest(int start, const vector<vector<int>>& adj, int n) {
     vector<int> dist(n + 1, -1);
@@ -1173,7 +1184,7 @@ pair<int, int> bfs_farthest(int start, const vector<vector<int>>& adj, int n) {
 }
 
 signed main() {
-    fastIO();
+    ios::sync_with_stdio(false); cin.tie(nullptr);
     int n; cin >> n;
     vector<vector<int>> adj(n + 1);
     for (int i = 0; i < n - 1; ++i) {
@@ -1276,23 +1287,25 @@ public:
 - **Average Property:** Average is easily computed as `sum / (r - l + 1)`.
 ```cpp
 struct Fenwick {
-    int n; vector<int> bit;
+    int n; vector<long long> bit;
     Fenwick(int n) : n(n), bit(n + 1, 0) {}
 
-    void add(int idx, int val) { // add val at index idx (1-based)
+    void add(int idx, long long val) { // 1-based; idx=0 would never advance
+        assert(1 <= idx && idx <= n);
         for (; idx <= n; idx += idx & -idx) bit[idx] += val;
     }
 
-    int query(int idx) { // prefix sum [1, idx]
-        int sum = 0;
+    long long query(int idx) { // prefix sum [1, idx]; query(0)=0
+        assert(0 <= idx && idx <= n);
+        long long sum = 0;
         for (; idx > 0; idx -= idx & -idx) sum += bit[idx];
         return sum;
     }
 
-    int range_query(int l, int r) { return query(r) - query(l - 1); }
+    long long range_query(int l, int r) { assert(1 <= l && l <= r && r <= n); return query(r) - query(l - 1); }
 
     // Range Average (Integer & Decimal): average = sum / number_of_elements
-    int avg(int l, int r) { // Integer average
+    long long avg(int l, int r) { // Integer average
         return range_query(l, r) / (r - l + 1);
     }
     double avg_d(int l, int r) { // Decimal average
@@ -1482,6 +1495,7 @@ vector<int> buildLPS(const string &pat) {
 // KMP search: find occurrences of pattern in text
 vector<int> KMPsearch(const string &text, const string &pat) {
     int n = text.size(), m = pat.size();
+    if (m == 0) { vector<int> all(n + 1); iota(all.begin(), all.end(), 0); return all; }
     vector<int> lps = buildLPS(pat), positions;
     int i = 0, j = 0;
     while (i < n) {
@@ -3063,10 +3077,10 @@ All angles are in radians unless degrees are stated.
 | Shape / rule | Meaning | Formulas |
 |---|---|---|
 | Two points | P(x₁,y₁), Q(x₂,y₂) | distance=√((x₂−x₁)²+(y₂−y₁)²); midpoint=((x₁+x₂)/2,(y₁+y₂)/2). |
-| Dot and cross | vectors u,v; angle θ | u·v=|u||v|cosθ; cross(u,v)=uₓvᵧ−uᵧvₓ=|u||v|sinθ; sign of cross gives orientation. |
-| Point to line | point P; line through A,B | distance=|cross(B−A,P−A)|/|B−A|; projection=A+(B−A)·dot(P−A,B−A)/|B−A|². |
-| Polygon | vertices in boundary order | signed 2A=Σ cross(Pᵢ,Pᵢ₊₁); perimeter=Σ|Pᵢ₊₁−Pᵢ|; centroid=Σ(Pᵢ+Pᵢ₊₁)cross(Pᵢ,Pᵢ₊₁)/(3·signed 2A). |
-| Lattice polygon | integer vertices; B boundary lattice points | Pick: A=I+B/2−1; B=Σ gcd(|Δx|,|Δy|) over edges. |
+| Dot and cross | vectors u,v; angle θ | u·v=\|u\|\|v\|cosθ; cross(u,v)=uₓvᵧ−uᵧvₓ=\|u\|\|v\|sinθ; sign of cross gives orientation. |
+| Point to line | point P; line through A,B | distance=\|cross(B−A,P−A)\|/\|B−A\|; projection=A+(B−A)·dot(P−A,B−A)/\|B−A\|². |
+| Polygon | vertices in boundary order | signed 2A=Σ cross(Pᵢ,Pᵢ₊₁); perimeter=Σ\|Pᵢ₊₁−Pᵢ\|; centroid=Σ(Pᵢ+Pᵢ₊₁)cross(Pᵢ,Pᵢ₊₁)/(3·signed 2A). |
+| Lattice polygon | integer vertices; B boundary lattice points | Pick: A=I+B/2−1; B=Σ gcd(\|Δx\|,\|Δy\|) over edges. |
 | Triangle laws | opposite sides a,b,c and angles A,B,C | a²=b²+c²−2bc cos A; a/sin A=b/sin B=c/sin C=2R. |
 | Rotation | point (x,y), angle θ counterclockwise | (x′,y′)=(x cosθ−y sinθ, x sinθ+y cosθ). |
 | Circle equations | center (h,k), radius r | (x−h)²+(y−k)²=r²; tangent at point T is perpendicular to radius OT. |
@@ -3078,22 +3092,22 @@ All angles are in radians unless degrees are stated.
 | Topic | Conditions | Formula |
 |---|---|---|
 | Prime factors | n=∏pᵢ^eᵢ | divisor count τ(n)=∏(eᵢ+1); divisor sum σ(n)=∏(pᵢ^(eᵢ+1)−1)/(pᵢ−1); φ(n)=n∏(1−1/pᵢ). |
-| Factorials | prime p | Exponent of p in n!: Σₖ≥1⌊n/pᵏ⌋. Trailing zeros in base b: min over pᵉ|b of ⌊vₚ(n!)/e⌋. |
+| Factorials | prime p | Exponent of p in n!: Σₖ≥1⌊n/pᵏ⌋. Trailing zeros in base b: min over pᵉ\|b of ⌊vₚ(n!)/e⌋. |
 | Binomial | 0≤k≤n | C(n,k)=n!/(k!(n−k)!)=C(n−1,k−1)+C(n−1,k); if p is prime, factorial/inverse method needs n<p. |
 | Stars and bars | n identical items; k groups | Allow empty groups: C(n+k−1,k−1). Require positive groups: C(n−1,k−1), n≥k. |
-| Inclusion–exclusion | finite sets A₁…Aₙ | |∪Aᵢ|=Σ|Aᵢ|−Σ|Aᵢ∩Aⱼ|+Σ|Aᵢ∩Aⱼ∩Aₖ|−⋯. |
+| Inclusion–exclusion | finite sets A₁…Aₙ | \|∪Aᵢ\|=Σ\|Aᵢ\|−Σ\|Aᵢ∩Aⱼ\|+Σ\|Aᵢ∩Aⱼ∩Aₖ\|−⋯. |
 | Catalan | n≥0 | Cat(n)=C(2n,n)/(n+1); Cat(0)=1; Cat(n+1)=Σᵢ₌₀ⁿ Cat(i)Cat(n−i). |
 | Repeated permutations | n items, counts c₁…cₖ | Number of distinct permutations=n!/(c₁!⋯cₖ!). Derangements: Dₙ=(n−1)(Dₙ₋₁+Dₙ₋₂). |
-| Burnside | finite symmetry group G acting on X | Orbits=(1/|G|)Σ_{g∈G}|Fix(g)|. Rotational necklaces: (1/n)Σ_{d|n}φ(d)·colors^(n/d). |
+| Burnside | finite symmetry group G acting on X | Orbits=(1/\|G\|)Σ_{g∈G}\|Fix(g)\|. Rotational necklaces: (1/n)Σ_{d\|n}φ(d)·colors^(n/d). |
 | Lucas | prime modulus p; base-p digits nᵢ,kᵢ | C(n,k) mod p = ∏ᵢ C(nᵢ,kᵢ) mod p. |
-| GCD and CRT | positive moduli m,n | ax+by=c solvable iff gcd(a,b)|c. x≡a (mod m), x≡b (mod n) compatible iff gcd(m,n)|(b−a). |
+| GCD and CRT | positive moduli m,n | ax+by=c solvable iff gcd(a,b)\|c. x≡a (mod m), x≡b (mod n) compatible iff gcd(m,n)\|(b−a). |
 | Signed division | b>0; mathematical floor/ceil | C++ integer / truncates toward zero. Normalize remainder to [0,b); floor(a/b)=(a−r)/b, ceil(a/b)=floor(a/b)+(r≠0). |
 
 ### Probability, graphs and games
 
 | Topic | Conditions | Formula |
 |---|---|---|
-| Probability | events A,B; P(B)>0 | P(A|B)=P(A∩B)/P(B); P(A∪B)=P(A)+P(B)−P(A∩B); independent ⇒ P(A∩B)=P(A)P(B). |
+| Probability | events A,B; P(B)>0 | P(A\|B)=P(A∩B)/P(B); P(A∪B)=P(A)+P(B)−P(A∩B); independent ⇒ P(A∩B)=P(A)P(B). |
 | Expectation | random variables X,Y | E[X]=Σx·P(X=x); E[X+Y]=E[X]+E[Y] even without independence; E[1_A]=P(A). |
 | Variance | random variable X | Var(X)=E[X²]−E[X]²; independent X,Y ⇒ Var(X+Y)=Var(X)+Var(Y). |
 | Binomial distribution | X~Bin(n,p) | P(X=k)=C(n,k)pᵏ(1−p)^(n−k); E[X]=np; Var(X)=np(1−p). |

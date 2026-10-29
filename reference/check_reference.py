@@ -41,11 +41,15 @@ def main() -> None:
         '3.6': ('assert(numofone(10)==17); assert(numofone(ULLONG_MAX)==((__uint128_t)64<<63));', ''),
         '3.7': ('assert(mod_inverse(3,11)==4); assert(mod_inverse(-3,11)==7);', ''),
         '3.11': ('assert(add(-1,2)==1); assert(sub(1,3)==MOD-2); assert(mul(-2,3)==MOD-6); precompute_nCr(5); assert(nCr_mod(5,2)==10);', ''),
+        '3.3': ('gprime(0); assert(primes.empty() && is_prime.size()==1); gprime(10); assert((primes==vector<int>{2,3,5,7}));', ''),
+        '3.4 Binary Exponentiation': ('assert(binpow(123,0,1)==0); assert(binpow(-2,3,5)==2); assert(binpow(LLONG_MAX-2,2,LLONG_MAX)==4);', ''),
         '7.5': ('Tree t(1); t.update(0,-3000000000LL); assert(t.query(0,1)==-3000000000LL);', '#define int long long\n'),
         '5.2': ('adj={{{1,1000000001LL}},{{2,3}}, {}}; vector<long long>d; vector<int>p; dijkstra(0,d,p); assert(d[2]==1000000004LL && p[2]==1);', ''),
         '5.4': ('vector<tuple<int,int,long long>> e={{0,1,1000000001LL},{1,2,-3}}; auto [neg,d]=bellman_ford(3,e,0); assert(!neg && d[2]==999999998LL); e.push_back({2,1,-1}); assert(bellman_ford(3,e,0).first);', ''),
         '6.2': ('for(int i=1;i<200000;++i){tree_adj[i-1].push_back(i);tree_adj[i].push_back(i-1);} build_lca(0); assert(get_lca(123456,199999)==123456); assert(tree_dist(0,199999)==199999);', ''),
+        '7.2': ('Fenwick f(3); f.add(1,1000000000LL); f.add(2,1000000000LL); f.add(3,1000000000LL); assert(f.query(0)==0 && f.query(3)==3000000000LL && f.range_query(2,3)==2000000000LL);', ''),
         '7.6': ('LazySegTree t(vector<long long>{0,0,0,0}); t.set(0,4,1000000000LL); assert(t.query(1,2)==1000000000LL); t.add(1,3,-5); assert(t.query(0,4)==1000000000LL && t.query(1,3)==999999995LL); t.set(0,2,LLONG_MIN); assert(t.query(0,1)==LLONG_MIN);', ''),
+        '8.1': ('assert((KMPsearch("abc","")==vector<int>{0,1,2,3})); assert((KMPsearch("ababa","aba")==vector<int>{0,2}));', ''),
     }
     for section,(checks,macro) in cases.items():
         match=re.search(r'^### '+re.escape(section)+r'[^\n]*\n.*?```cpp\n(.*?)\n```',md,re.M|re.S)
@@ -66,5 +70,23 @@ def main() -> None:
         got=subprocess.run([str(binary)],input=input_,capture_output=True,text=True,check=True).stdout.strip()
         assert got==expected,(input_,got,expected)
     print('PASS audited fundamental 10.1')
+
+    # These two examples include a full main() or a copy-into-main fragment.
+    def section_code(section: str) -> str:
+        m=re.search(r'^### '+re.escape(section)+r'[^\n]*\n.*?```cpp\n(.*?)\n```',md,re.M|re.S)
+        assert m,section
+        return m.group(1)
+    full='#include <bits/stdc++.h>\nusing namespace std;\n'+section_code('6.1')+'\n'
+    fragment='#include <bits/stdc++.h>\nusing namespace std;\nsigned main(){\n'+section_code('5.1')+'\n}\n'
+    for section,source,input_,expected in [
+        ('6.1',full,'4\n1 2\n2 3\n3 4\n','3'),
+        ('5.1',fragment,'3 3\n1 2 1000000001\n2 3 1\n1 3 2000000000\n','1 2 3'),
+    ]:
+        with tempfile.NamedTemporaryFile(mode='w',suffix='.cpp') as f:
+            f.write(source);f.flush()
+            subprocess.run(['g++','-std=c++17','-O2','-Wall','-Wextra','-Werror',f.name,'-o',str(binary)],check=True)
+            got=subprocess.run([str(binary)],input=input_,capture_output=True,text=True,check=True).stdout.strip()
+            assert got==expected,(section,got,expected)
+        print('PASS audited fundamental',section)
 
 if __name__=='__main__': main()

@@ -21,4 +21,6 @@ pdfinfo Hoffnang_ICPC_Reference.pdf | rg Pages
 
 The tested C++17 implementations live in `reference/algorithms.hpp`. The check script compiles each new snippet by itself, repeats the compile with the existing `#define int long long` template, and runs behavior checks against brute force for the algorithms. It also compiles and checks the older snippets corrected during this update.
 
+The `treeDiameter` editor snippet inserts the reusable BFS helper; the Markdown and web reference show the full input and output example.
+
 The Mo loop follows [Mohammadreza-mz's Mo Algorithm.cpp](https://github.com/Mohammadreza-mz/icpc-cheatsheet/blob/main/Data%20Structure/Mo%20Algorithm.cpp), with the placeholders replaced by callbacks. Hungarian assignment comes from the supplied Shahid Beheshti notebook. Graph, string, number theory, and geometry topics were selected from the supplied BRACU Crows KACT PDF and rewritten as stand-alone, checked C++17 code. The geometry diagrams are local SVG files in `assets/`.
