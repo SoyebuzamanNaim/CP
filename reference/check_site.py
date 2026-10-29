@@ -83,7 +83,7 @@ def main() -> None:
     pdf=ROOT/'Hoffnang_ICPC_Reference.pdf'
     info=subprocess.run(['pdfinfo',str(pdf)],capture_output=True,text=True,check=True).stdout
     count=int(re.search(r'^Pages:\s*(\d+)',info,re.M).group(1))
-    assert 1<=count<=18,count
+    assert 1<=count<=25,count
     size=re.search(r'^Page size:\s*([\d.]+) x ([\d.]+) pts',info,re.M)
     assert size and float(size.group(1))>float(size.group(2)), 'expected landscape PDF'
     assert 830<float(size.group(1))<850 and 585<float(size.group(2))<605, 'expected A4 landscape'

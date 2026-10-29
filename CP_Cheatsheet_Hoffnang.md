@@ -46,6 +46,7 @@
 - **Why:** `cin.tie(nullptr)` and `sync_with_stdio(false)` speed up I/O by ~10x. `#define int long long` eliminates 32-bit overflow errors on variable declarations.
 ```cpp
 #include <bits/stdc++.h>
+#include <cassert>
 using namespace std;
 
 #define int long long
@@ -2013,7 +2014,7 @@ All code below is C++17 and 0-indexed. The tested source is `reference/algorithm
 ## Section 11: Graph algorithms
 
 ### 11.1 Strongly connected components
-- **When/contract:** O(V+E); IDs are source-first. Use for condensation DAGs.
+- **How to use:** Build the directed graph with zero-indexed vertices, then call the SCC routine once. It assigns a component ID to every vertex; vertices share an ID exactly when each can reach the other. Contracting components produces a DAG for later processing, in O(V+E) time.
 - **Source:** KACT graph pp. 12–13
 ```cpp
 #ifdef int
@@ -2076,7 +2077,7 @@ struct SCC {
 ```
 
 ### 11.2 2-SAT
-- **When/contract:** O(V+E). Add each clause (x=value OR y=value); depends on SCC.
+- **How to use:** Create a Boolean variable for each choice and add every clause as (x=value OR y=value). The solver builds implications and uses SCC; it returns an assignment when satisfiable, otherwise reports failure. Call the SCC-based routine from this section with the required namespace or copy its dependency.
 - **Source:** KACT graph p. 13
 ```cpp
 #ifdef int
@@ -2115,7 +2116,7 @@ struct TwoSAT {
 ```
 
 ### 11.3 Bridges in an undirected multigraph
-- **When/contract:** O(V+E). Give every edge a unique ID; recursive DFS has a stack-depth limit.
+- **How to use:** Give each undirected edge one unique ID and add both adjacency directions with that ID. The DFS low-link test returns edges whose removal increases the component count. Parallel edges are handled by IDs; recursion can exhaust the stack on a very deep graph.
 - **Source:** KACT graph p. 12
 ```cpp
 #ifdef int
@@ -2168,7 +2169,7 @@ struct Bridges {
 ```
 
 ### 11.4 Dinic maximum flow
-- **When/contract:** Directed capacities, 0-indexed vertices; add both directions explicitly if needed.
+- **How to use:** Construct the flow network with a vertex count, then add directed edges with nonnegative capacities. Call maxflow(source,sink) to get the maximum total flow. Add both directed edges explicitly for an undirected-capacity model; the reverse residual edge is an internal bookkeeping edge.
 - **Source:** KACT graph p. 10
 ```cpp
 #ifdef int
@@ -2241,7 +2242,7 @@ struct Dinic {
 ```
 
 ### 11.5 Hopcroft–Karp matching
-- **When/contract:** O(E√V). Left and right vertices are numbered separately from zero.
+- **How to use:** Number left and right partitions separately from zero, add each allowed left-to-right edge, then run the matching routine. It returns the maximum number of disjoint pairs and exposes the matched partner arrays. Complexity is O(E sqrt(V)) for a bipartite graph.
 - **Source:** KACT graph p. 11
 ```cpp
 #ifdef int
@@ -2311,7 +2312,7 @@ struct HopcroftKarp {
 ```
 
 ### 11.6 Undirected Euler walk
-- **When/contract:** O(V+E). Supports parallel edges and loops; returns no path if degree/connectivity conditions fail.
+- **How to use:** Add each undirected edge once with a unique ID, including parallel edges or loops, then request the walk. A valid result uses every edge exactly once; no path is returned when degree or connectivity conditions fail. Choose the start vertex according to the number of odd-degree vertices.
 - **Source:** KACT graph p. 13
 ```cpp
 #ifdef int
@@ -2373,7 +2374,7 @@ struct EulerWalk {
 ## Section 12: Offline queries and assignment
 
 ### 12.1 Mo's algorithm
-- **When/contract:** Offline inclusive [l,r] queries. Supply inverse add/remove callbacks and a current-answer callback.
+- **How to use:** Store offline inclusive [l,r] queries with their original indices, then pass matching add, remove, and current-answer callbacks. The loop reorders queries so a moving window changes incrementally. The callbacks must exactly reverse each other; this is useful when updates are absent and range answers are cheap to maintain.
 - **Source:** Notebook p. 2; linked GitHub Mo skeleton
 ```cpp
 #ifdef int
@@ -2421,7 +2422,7 @@ std::vector<Ans> mo_process(int n, std::vector<MoQuery> qs, Add add,
 ```
 
 ### 12.2 Hungarian minimum-cost assignment
-- **When/contract:** O(n²m), n≤m; negative costs work. Returns total cost and a 0-indexed column for every row.
+- **How to use:** Pass a rectangular cost matrix with no more rows than columns. The result contains the minimum total cost and the zero-indexed chosen column for each row; negative costs are allowed. Every row receives a distinct column, and the algorithm takes O(n^2 m) time.
 - **Source:** Notebook pp. 14–15
 ```cpp
 #ifdef int
@@ -2494,7 +2495,7 @@ hungarian(const std::vector<std::vector<long long>> &a) {
 ## Section 13: String algorithms
 
 ### 13.1 Z function
-- **When/contract:** O(N). z[i] is the longest prefix matching the substring beginning at i; z[0]=0.
+- **How to use:** Call z_function(s) to get, for every index i, the length of the longest prefix matching s[i..]. z[0] is set to zero here. Use it for pattern matching by joining pattern, a separator absent from the input, and text; the scan takes O(n).
 - **Source:** KACT strings p. 22
 ```cpp
 #ifdef int
@@ -2522,7 +2523,7 @@ inline std::vector<int> z_function(const std::string &s) {
 ```
 
 ### 13.2 Manacher palindrome radii
-- **When/contract:** O(N). Separate odd and even radii; formulas for actual lengths are in the code.
+- **How to use:** Call the routine on a string to obtain odd- and even-centered palindrome radii in O(n). Convert a radius to its actual substring length using the formulas in the code. This avoids testing all centers with quadratic expansion.
 - **Source:** KACT strings p. 22
 ```cpp
 #ifdef int
@@ -2563,7 +2564,7 @@ inline PalRadii manacher(const std::string &s) {
 ```
 
 ### 13.3 Aho–Corasick multiple-pattern matching
-- **When/contract:** Lowercase a–z patterns; count overlaps and duplicates. Build after all insertions.
+- **How to use:** Insert all lowercase a-z patterns, build failure links once, then scan the text. The automaton counts overlapping matches and duplicate patterns as specified by its counters. Rebuild if patterns change, and normalize or reject characters outside a-z.
 - **Source:** KACT strings p. 23, generalized
 ```cpp
 #ifdef int
@@ -2635,7 +2636,7 @@ struct AhoCorasick {
 ```
 
 ### 13.4 Suffix array and LCP
-- **When/contract:** O(N log²N). Uses sorting for clarity; use a radix version only after benchmarking.
+- **How to use:** Build the suffix array to list starting positions in lexicographic suffix order; LCP gives common-prefix lengths of adjacent suffixes. Use these arrays for substring order, repeated substrings, or distinct-substring counting. The sorting-based construction is O(n log^2 n) and uses extra memory.
 - **Source:** KACT strings p. 22, simplified
 ```cpp
 #ifdef int
@@ -2691,7 +2692,7 @@ struct SuffixArray {
 ```
 
 ### 13.5 Static double rolling hash
-- **When/contract:** O(N) build and O(1) substring hash. Uses half-open [l,r) ranges; collisions remain possible.
+- **How to use:** Build hashes and powers for a fixed string, then query a half-open substring [l,r) in O(1). Two moduli reduce accidental collisions but do not prove equality; compare actual text when correctness requires certainty. Rebuild after edits to the string.
 - **Source:** KACT strings p. 23, range convention standardized
 ```cpp
 #ifdef int
@@ -2735,7 +2736,7 @@ struct DoubleHash {
 ## Section 14: Number theory
 
 ### 14.1 Extended GCD and general CRT
-- **When/contract:** Handles non-coprime moduli; returns no solution on incompatibility or 64-bit lcm overflow.
+- **How to use:** Combine congruences even when their moduli are not coprime. The routine returns no solution if residues conflict or the combined modulus overflows 64 bits; otherwise it returns a normalized residue and modulus. Supply positive moduli and use the included extended-GCD helper.
 - **Source:** KACT number theory p. 9, checked variant
 ```cpp
 #ifdef int
@@ -2786,7 +2787,7 @@ crt(long long a, long long m, long long b, long long n) {
 ```
 
 ### 14.2 Linear Euler totient sieve
-- **When/contract:** O(N) precomputation; phi[1]=1. Useful for coprime counting.
+- **How to use:** Precompute phi[x] for all x up to the chosen bound in O(n). phi[x] counts integers in [1,x] coprime to x, with phi[1]=1. Call the build routine before queries and size the arrays for the largest x.
 - **Source:** KACT number theory p. 9
 ```cpp
 #ifdef int
@@ -2823,7 +2824,7 @@ inline std::vector<int> phi_sieve(int n) { // phi[1]=1, phi[0]=0
 ```
 
 ### 14.3 64-bit Miller–Rabin
-- **When/contract:** Deterministic uint64 primality with __int128 modular multiplication; GNU C++17.
+- **How to use:** Call the deterministic uint64 primality test for a nonnegative 64-bit integer. The fixed bases make the result exact over this range, while __int128 handles modular products. This implementation needs GNU C++17; do not pass a negative signed value through an unintended conversion.
 - **Source:** KACT number theory p. 9, checked variant
 ```cpp
 #ifdef int
@@ -2882,7 +2883,7 @@ inline bool is_prime(u64 n) { // deterministic for every uint64_t
 ## Section 15: Geometry algorithms
 
 ### 15.1 Exact integer geometry
-- **When/contract:** __int128 orientation; segment intersection, convex hull, twice signed area, point in polygon.
+- **How to use:** Use integer points for exact orientation, segment intersection, convex hull, signed twice-area, and point-in-polygon tests. The cross product widens to __int128 to protect ordinary 64-bit coordinate products. Check each function's boundary convention, especially whether collinear or edge points count as inside.
 - **Source:** KACT geometry pp. 15–17, unified
 ```cpp
 #ifdef int
@@ -2978,7 +2979,7 @@ inline int point_in_polygon(const std::vector<IPoint> &p, IPoint q) {
 ```
 
 ### 15.2 Circle–line intersection
-- **When/contract:** Infinite line AB; returns 0, 1, or 2 points. Rejects degenerate lines.
+- **How to use:** Pass circle center and radius plus two distinct points A and B defining an infinite line. The function returns zero, one, or two intersection points; a degenerate line returns none. Results use long double and a relative tolerance, so compare near-tangent cases carefully.
 - **Source:** KACT geometry p. 16
 ```cpp
 #ifdef int

@@ -18,7 +18,7 @@ def main() -> None:
     for name,body in code.items():
         parts=[code[d] for d in DEPENDENCIES.get(name,[])]+[body]
         for legacy_macro in (False,True):
-            prelude='#include <bits/stdc++.h>\n'
+            prelude='#include <bits/stdc++.h>\n#include <cassert>\n'
             if legacy_macro: prelude+='#define int long long\n'
             source=prelude+'namespace cpref {\n'+ '\n'.join(printable_code(p) for p in parts) + '\n}\nsigned main() { return 0; }\n'
             with tempfile.NamedTemporaryFile(mode='w',suffix='.cpp') as f:
@@ -54,7 +54,7 @@ def main() -> None:
     for section,(checks,macro) in cases.items():
         match=re.search(r'^### '+re.escape(section)+r'[^\n]*\n.*?```cpp\n(.*?)\n```',md,re.M|re.S)
         assert match,section
-        source='#include <bits/stdc++.h>\nusing namespace std;\n'+macro+match.group(1)+'\nsigned main(){'+checks+'}\n'
+        source='#include <bits/stdc++.h>\n#include <cassert>\nusing namespace std;\n'+macro+match.group(1)+'\nsigned main(){'+checks+'}\n'
         with tempfile.NamedTemporaryFile(mode='w',suffix='.cpp') as f:
             f.write(source);f.flush()
             subprocess.run(['g++','-std=c++17','-O2','-Wall','-Wextra','-Werror','-Wno-array-bounds',f.name,'-o',str(binary)],check=True)
@@ -76,8 +76,8 @@ def main() -> None:
         m=re.search(r'^### '+re.escape(section)+r'[^\n]*\n.*?```cpp\n(.*?)\n```',md,re.M|re.S)
         assert m,section
         return m.group(1)
-    full='#include <bits/stdc++.h>\nusing namespace std;\n'+section_code('6.1')+'\n'
-    fragment='#include <bits/stdc++.h>\nusing namespace std;\nsigned main(){\n'+section_code('5.1')+'\n}\n'
+    full='#include <bits/stdc++.h>\n#include <cassert>\nusing namespace std;\n'+section_code('6.1')+'\n'
+    fragment='#include <bits/stdc++.h>\n#include <cassert>\nusing namespace std;\nsigned main(){\n'+section_code('5.1')+'\n}\n'
     for section,source,input_,expected in [
         ('6.1',full,'4\n1 2\n2 3\n3 4\n','3'),
         ('5.1',fragment,'3 3\n1 2 1000000001\n2 3 1\n1 3 2000000000\n','1 2 3'),

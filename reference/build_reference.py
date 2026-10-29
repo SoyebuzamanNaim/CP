@@ -5,6 +5,7 @@ from __future__ import annotations
 import html
 import re
 from pathlib import Path
+from code_guides import GUIDES
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = (ROOT / "reference/algorithms.hpp").read_text()
@@ -141,7 +142,7 @@ def html_content(code: dict[str, str]) -> str:
         for key,title,desc,source in entries:
             parts.append(f'''<article class="item" data-search="{html.escape(key + ' ' + title + ' ' + heading, quote=True)}">
   <div class="item-head"><span class="item-title">{html.escape(title)}</span><span class="item-meta">{html.escape(source)}</span></div>
-  <p class="item-desc">{html.escape(desc)}</p>
+  <p class="item-desc">{html.escape(GUIDES[title])}</p>
   <pre><code>{html.escape(printable_code(code[key]))}</code></pre>
 </article>''')
     parts.append('<div class="chapter-title" id="ch-16">16. Illustrated geometry formulas</div>')
@@ -171,7 +172,7 @@ def markdown_content(code: dict[str, str]) -> str:
     for section,heading,entries in SECTIONS:
         out += [f"## Section {section}: {heading}", ""]
         for key,title,desc,source in entries:
-            out += [f"### {section}.{entries.index((key,title,desc,source))+1} {title}", f"- **When/contract:** {desc}", f"- **Source:** {source}", "```cpp", printable_code(code[key]), "```", ""]
+            out += [f"### {section}.{entries.index((key,title,desc,source))+1} {title}", f"- **How to use:** {GUIDES[title]}", f"- **Source:** {source}", "```cpp", printable_code(code[key]), "```", ""]
     out += ["## Section 16: Illustrated geometry formulas", "", "All angles are in radians unless degrees are stated.", ""]
     for heading,rows in FORMULAS:
         slug={"2D shapes":"2d","3D solids":"3d","Coordinate and contest geometry":"coordinates"}[heading]

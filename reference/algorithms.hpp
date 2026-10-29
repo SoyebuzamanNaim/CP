@@ -1,5 +1,6 @@
 #pragma once
 #include <bits/stdc++.h>
+#include <cassert>
 
 // Tested C++17 reference implementations. All vertices and arrays are
 // 0-indexed. Copy a complete snippet plus its stated dependencies into
