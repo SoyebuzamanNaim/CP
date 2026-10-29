@@ -50,3 +50,5 @@ def render(title: str, items: list[tuple[str,str]], cols: int) -> str:
 
 (ASSETS/'geometry-2d.svg').write_text(render('Common plane shapes',TWO_D,4))
 (ASSETS/'geometry-3d.svg').write_text(render('Common three-dimensional solids',THREE_D,3))
+(ASSETS/'geometry-2d-landscape.svg').write_text(render('Common plane shapes',TWO_D,7))
+(ASSETS/'geometry-3d-landscape.svg').write_text(render('Common three-dimensional solids',THREE_D,6))

@@ -4,7 +4,7 @@ Open [`index.html`](index.html) in a browser for the searchable reference, theme
 
 The older DOCX is archived at [`legacy/CP_Cheatsheet_Hoffnang_legacy.docx`](legacy/CP_Cheatsheet_Hoffnang_legacy.docx). Use the PDF or browser print for the current version.
 
-The printed PDF has **25 single-sided A4 pages**. The published [2025 ICPC Asia Dhaka Regional rules](https://www.icpc.bubt.edu.bd/rules.php) allowed at most 25 pages and required page numbers plus the team's university and name on every page. Check the rules for the contest you will attend. To change the header, edit the three fields in the web page and use **Print PDF**; the downloadable PDF always has the default header.
+The printed PDF has **16 single-sided A4 landscape pages**. The published [2025 ICPC Asia Dhaka Regional rules](https://www.icpc.bubt.edu.bd/rules.php) allowed at most 25 pages and required page numbers plus the team's university and name on every page. Check the rules for the contest you will attend. To change the header, edit the three fields in the web page and use **Print PDF**; the downloadable PDF always has the default header.
 
 ## Rebuild and check
 

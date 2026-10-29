@@ -148,16 +148,19 @@ def html_content(code: dict[str, str]) -> str:
     parts.append('<p class="formula-intro item">Symbols in each figure match the formula table. All angles are in radians unless degrees are stated.</p>')
     for heading,rows in FORMULAS:
         slug={"2D shapes":"2d","3D solids":"3d","Coordinate and contest geometry":"coordinates"}[heading]
-        parts.append(f'<div class="item formula-group{" illustrated" if slug != "coordinates" else ""}"><h3>{html.escape(heading)}</h3>')
+        parts.append(f'<div class="item formula-group{" illustrated" if slug != "coordinates" else ""}" id="formula-{slug}"><h3>{html.escape(heading)}</h3>')
         if slug != "coordinates":
-            parts.append(f'<img class="shape-figure" src="assets/geometry-{slug}.svg" alt="Labeled diagrams of common {html.escape(heading.lower())}">')
+            alt=f'Labeled diagrams of common {html.escape(heading.lower())}'
+            parts.append(f'<img class="shape-figure screen-figure" src="assets/geometry-{slug}.svg" alt="{alt}">')
+            parts.append(f'<img class="shape-figure print-figure" src="assets/geometry-{slug}-landscape.svg" alt="{alt}">')
         parts.append('<div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Shape / rule</th><th>Meaning</th><th>Formulas</th></tr></thead><tbody>')
         for title,vars_,formula in rows:
             parts.append('<tr><th scope="row">'+html.escape(title)+'</th><td>'+html.escape(vars_)+'</td><td>'+html.escape(formula)+'</td></tr>')
         parts.append('</tbody></table></div></div>')
     parts.append('<div class="chapter-title" id="ch-17">17. Math and contest formulas</div>')
     for heading,rows in OTHER_FORMULAS:
-        parts.append(f'<div class="item formula-group"><h3>{html.escape(heading)}</h3><div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Topic</th><th>Conditions</th><th>Formula</th></tr></thead><tbody>')
+        group_id=' id="formula-number-theory"' if heading=="Number theory and counting" else ''
+        parts.append(f'<div class="item formula-group"{group_id}><h3>{html.escape(heading)}</h3><div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Topic</th><th>Conditions</th><th>Formula</th></tr></thead><tbody>')
         for title,vars_,formula in rows:
             parts.append('<tr><th scope="row">'+html.escape(title)+'</th><td>'+html.escape(vars_)+'</td><td>'+html.escape(formula)+'</td></tr>')
         parts.append('</tbody></table></div></div>')

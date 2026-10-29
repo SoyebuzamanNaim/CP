@@ -308,6 +308,7 @@
   .formula-group h3 { margin: 1px 0 4px; font-size: 0.82rem; }
   .formula-group, .formula-intro { grid-column: 1 / -1; }
   .shape-figure { display: block; width: 100%; height: auto; max-width: 850px; margin: 2px auto 5px; background: #fff; }
+  .shape-figure.print-figure { display: none; }
   .formula-table { table-layout: fixed; line-height: 1.25; }
   .formula-table th:first-child { width: 18%; }
   .formula-table th:nth-child(2) { width: 27%; }
@@ -322,7 +323,7 @@
   /* - Native @page margin boxes (NO fixed overlap!)           */
   /* ========================================================= */
   @page {
-    size: A4 portrait;
+    size: A4 landscape;
     margin-top: 13mm !important;
     margin-bottom: 6mm !important;
     margin-left: 6mm !important;
@@ -376,8 +377,8 @@
 
     .kactl-columns {
       display: block !important;
-      column-count: 2 !important;
-      column-gap: 6pt !important;
+      column-count: 4 !important;
+      column-gap: 5pt !important;
       margin-top: 2pt !important;
     }
 
@@ -389,7 +390,12 @@
       font-size: 8.6pt !important;
       padding: 1.5pt 3pt !important;
       margin: 3pt 0 2pt 0 !important;
+      break-after: avoid !important;
+      page-break-after: avoid !important;
     }
+    #ch-16, #ch-17, .formula-intro { display: none !important; }
+    #formula-2d h3::before { content: "16. Illustrated geometry formulas — "; }
+    #formula-number-theory h3::before { content: "17. Math and contest formulas — "; }
 
     .item {
       background: #fff !important;
@@ -398,12 +404,13 @@
       padding: 1.5pt 3pt !important;
       margin-bottom: 2.5pt !important;
       break-inside: avoid-column !important;
-      page-break-inside: avoid !important;
+      page-break-inside: auto !important;
     }
     .item-head {
       border-bottom: 0.3pt solid #cbd5e1 !important;
       padding-bottom: 0.5pt !important;
       margin-bottom: 1pt !important;
+      break-after: avoid !important;
     }
     .item-title { font-size: 8.2pt !important; color: #000 !important; font-weight: bold !important; }
     .item-meta { font-size: 6.8pt !important; color: #334155 !important; }
@@ -415,9 +422,9 @@
       background: #fafafa !important;
       color: #000 !important;
       border: 0.3pt solid #cbd5e1 !important;
-      font-size: 7.8pt !important;
-      line-height: 1.16 !important;
-      padding: 1.5pt 2.5pt !important;
+      font-size: 7.5pt !important;
+      line-height: 1.12 !important;
+      padding: 1pt 2pt !important;
       margin: 1pt 0 0 0 !important;
       white-space: pre-wrap !important;
       word-break: break-all !important;
@@ -425,10 +432,13 @@
     table.comp-table { font-size: 8pt !important; margin: 1pt 0 !important; }
     table.comp-table th, table.comp-table td { border: 0.3pt solid #94a3b8 !important; padding: 0.8pt 2.5pt !important; }
     table.comp-table th { background: #f1f5f9 !important; color: #000 !important; }
-    .formula-group { break-inside: auto !important; page-break-inside: auto !important; }
+    .formula-group { column-span: all !important; break-inside: auto !important; page-break-inside: auto !important; }
+    #formula-number-theory { break-inside: avoid !important; page-break-inside: avoid !important; }
     .formula-group.illustrated { column-span: all !important; break-inside: avoid !important; page-break-inside: avoid !important; }
     .formula-table tr { break-inside: avoid; }
     .shape-figure { max-width: 100%; break-inside: avoid; }
+    .shape-figure.screen-figure { display: none; }
+    .shape-figure.print-figure { display: block; max-width: none; }
   }
 </style>
 </head>
@@ -460,7 +470,7 @@
       <input type="search" id="filterInput" class="search-input" placeholder="Search code and formulas" aria-label="Search reference" oninput="filterItems()">
       <button class="btn-theme" id="themeButton" type="button" onclick="toggleTheme()" aria-label="Switch to light theme" aria-pressed="true">☀ Light</button>
       <button class="btn-print" onclick="window.print()">🖨️ Print PDF</button>
-      <a class="btn-pdf" href="Hoffnang_ICPC_Reference.pdf" download>Download 25-page PDF</a>
+      <a class="btn-pdf" href="Hoffnang_ICPC_Reference.pdf" download>Download 16-page PDF</a>
     </div>
   </div>
 
@@ -3358,8 +3368,9 @@ inline std::vector&lt;FPoint&gt; circle_line(FPoint o, long double r,
 </article>
 <div class="chapter-title" id="ch-16">16. Illustrated geometry formulas</div>
 <p class="formula-intro item">Symbols in each figure match the formula table. All angles are in radians unless degrees are stated.</p>
-<div class="item formula-group illustrated"><h3>2D shapes</h3>
-<img class="shape-figure" src="assets/geometry-2d.svg" alt="Labeled diagrams of common 2d shapes">
+<div class="item formula-group illustrated" id="formula-2d"><h3>2D shapes</h3>
+<img class="shape-figure screen-figure" src="assets/geometry-2d.svg" alt="Labeled diagrams of common 2d shapes">
+<img class="shape-figure print-figure" src="assets/geometry-2d-landscape.svg" alt="Labeled diagrams of common 2d shapes">
 <div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Shape / rule</th><th>Meaning</th><th>Formulas</th></tr></thead><tbody>
 <tr><th scope="row">Triangle</th><td>sides a,b,c; base b, height h</td><td>A=bh/2=√(s(s−a)(s−b)(s−c)), s=(a+b+c)/2; P=a+b+c; r=A/s; R=abc/(4A).</td></tr>
 <tr><th scope="row">Right triangle</th><td>legs a,b; hypotenuse c</td><td>c²=a²+b²; A=ab/2; R=c/2; r=(a+b−c)/2.</td></tr>
@@ -3376,8 +3387,9 @@ inline std::vector&lt;FPoint&gt; circle_line(FPoint o, long double r,
 <tr><th scope="row">Ellipse</th><td>semiaxes a≥b</td><td>A=πab; focal distance c=√(a²−b²); perimeter ≈ π[3(a+b)−√((3a+b)(a+3b))].</td></tr>
 <tr><th scope="row">Semicircle</th><td>radius r</td><td>A=πr²/2; perimeter including diameter=πr+2r.</td></tr>
 </tbody></table></div></div>
-<div class="item formula-group illustrated"><h3>3D solids</h3>
-<img class="shape-figure" src="assets/geometry-3d.svg" alt="Labeled diagrams of common 3d solids">
+<div class="item formula-group illustrated" id="formula-3d"><h3>3D solids</h3>
+<img class="shape-figure screen-figure" src="assets/geometry-3d.svg" alt="Labeled diagrams of common 3d solids">
+<img class="shape-figure print-figure" src="assets/geometry-3d-landscape.svg" alt="Labeled diagrams of common 3d solids">
 <div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Shape / rule</th><th>Meaning</th><th>Formulas</th></tr></thead><tbody>
 <tr><th scope="row">Cube</th><td>edge a</td><td>V=a³; surface S=6a²; space diagonal=a√3.</td></tr>
 <tr><th scope="row">Cuboid</th><td>edges a,b,c</td><td>V=abc; S=2(ab+bc+ca); space diagonal=√(a²+b²+c²).</td></tr>
@@ -3391,7 +3403,7 @@ inline std::vector&lt;FPoint&gt; circle_line(FPoint o, long double r,
 <tr><th scope="row">Regular tetrahedron</th><td>edge a</td><td>V=a³/(6√2); S=√3·a²; height=a√(2/3).</td></tr>
 <tr><th scope="row">Torus</th><td>major radius R from center to tube center; tube radius r&lt;R</td><td>V=2π²Rr²; S=4π²Rr.</td></tr>
 </tbody></table></div></div>
-<div class="item formula-group"><h3>Coordinate and contest geometry</h3>
+<div class="item formula-group" id="formula-coordinates"><h3>Coordinate and contest geometry</h3>
 <div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Shape / rule</th><th>Meaning</th><th>Formulas</th></tr></thead><tbody>
 <tr><th scope="row">Two points</th><td>P(x₁,y₁), Q(x₂,y₂)</td><td>distance=√((x₂−x₁)²+(y₂−y₁)²); midpoint=((x₁+x₂)/2,(y₁+y₂)/2).</td></tr>
 <tr><th scope="row">Dot and cross</th><td>vectors u,v; angle θ</td><td>u·v=|u||v|cosθ; cross(u,v)=uₓvᵧ−uᵧvₓ=|u||v|sinθ; sign of cross gives orientation.</td></tr>
@@ -3403,7 +3415,7 @@ inline std::vector&lt;FPoint&gt; circle_line(FPoint o, long double r,
 <tr><th scope="row">Circle equations</th><td>center (h,k), radius r</td><td>(x−h)²+(y−k)²=r²; tangent at point T is perpendicular to radius OT.</td></tr>
 </tbody></table></div></div>
 <div class="chapter-title" id="ch-17">17. Math and contest formulas</div>
-<div class="item formula-group"><h3>Number theory and counting</h3><div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Topic</th><th>Conditions</th><th>Formula</th></tr></thead><tbody>
+<div class="item formula-group" id="formula-number-theory"><h3>Number theory and counting</h3><div class="formula-scroll"><table class="comp-table formula-table"><thead><tr><th>Topic</th><th>Conditions</th><th>Formula</th></tr></thead><tbody>
 <tr><th scope="row">Prime factors</th><td>n=∏pᵢ^eᵢ</td><td>divisor count τ(n)=∏(eᵢ+1); divisor sum σ(n)=∏(pᵢ^(eᵢ+1)−1)/(pᵢ−1); φ(n)=n∏(1−1/pᵢ).</td></tr>
 <tr><th scope="row">Factorials</th><td>prime p</td><td>Exponent of p in n!: Σₖ≥1⌊n/pᵏ⌋. Trailing zeros in base b: min over pᵉ|b of ⌊vₚ(n!)/e⌋.</td></tr>
 <tr><th scope="row">Binomial</th><td>0≤k≤n</td><td>C(n,k)=n!/(k!(n−k)!)=C(n−1,k−1)+C(n−1,k); if p is prime, factorial/inverse method needs n&lt;p.</td></tr>

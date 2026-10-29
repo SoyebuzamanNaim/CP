@@ -83,13 +83,20 @@ def main() -> None:
     pdf=ROOT/'Hoffnang_ICPC_Reference.pdf'
     info=subprocess.run(['pdfinfo',str(pdf)],capture_output=True,text=True,check=True).stdout
     count=int(re.search(r'^Pages:\s*(\d+)',info,re.M).group(1))
-    assert 1<=count<=25,count
+    assert 1<=count<=18,count
+    size=re.search(r'^Page size:\s*([\d.]+) x ([\d.]+) pts',info,re.M)
+    assert size and float(size.group(1))>float(size.group(2)), 'expected landscape PDF'
+    assert 830<float(size.group(1))<850 and 585<float(size.group(2))<605, 'expected A4 landscape'
+    assert f'Download {count}-page PDF' in page
+    assert f'**{count} single-sided A4 landscape pages**' in (ROOT/'README.md').read_text()
     pages=subprocess.run(['pdftotext','-layout',str(pdf),'-'],capture_output=True,text=True,check=True).stdout.split('\f')
     pages=[p for p in pages if p.strip()]
     assert len(pages)==count,(len(pages),count)
     for i,p in enumerate(pages,1):
         assert 'Team Hoffnang' in p and f'Page {i}' in p,(i,p[:200])
         assert len(p.strip())>200,(i,'nearly blank')
+    assert any('16. Illustrated geometry formulas' in p and '2D shapes' in p for p in pages)
+    assert any('17. Math and contest formulas' in p and 'Prime factors' in p for p in pages)
     assert 'Illustrated geometry formulas' in page and 'Math and contest formulas' in page
     formula_md=md.split('## Section 16: Illustrated geometry formulas',1)[1]
     for line in formula_md.splitlines():
