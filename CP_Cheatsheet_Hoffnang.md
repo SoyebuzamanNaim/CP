@@ -28,6 +28,13 @@
 8. [Section 8: String Algorithms (KMP & Trie)](#section-8-string-algorithms-kmp--trie)
 9. [Section 9: Search Paradigms & Dynamic Programming](#section-9-search-paradigms--dynamic-programming)
 10. [Section 10: Advanced Tools (Kruskal, Matrix Power & Geometry)](#section-10-advanced-tools-kruskal-matrix-power--geometry)
+11. [Section 11: Graph algorithms](#section-11-graph-algorithms)
+12. [Section 12: Offline queries and assignment](#section-12-offline-queries-and-assignment)
+13. [Section 13: String algorithms](#section-13-string-algorithms)
+14. [Section 14: Number theory](#section-14-number-theory)
+15. [Section 15: Geometry algorithms](#section-15-geometry-algorithms)
+16. [Section 16: Illustrated geometry formulas](#section-16-illustrated-geometry-formulas)
+17. [Section 17: Math and contest formulas](#section-17-math-and-contest-formulas)
 
 ---
 
@@ -489,40 +496,38 @@ long long binpow(long long a, long long b) {
 ### 3.6 Count Total Set Bits (1s) from 0 to N
 - **Trigger Prefix:** `numofonef`
 - **Time Complexity:** $O(\log N)$
-- **Purpose:** Counts the total number of set bits ('1's) across all integers in $[0, n]$.
+- **Purpose:** Counts the total number of set bits ('1's) across all integers in $[0, n]$. The answer needs 128 bits for large 64-bit `n`; use `print128` from Section 1.4 to display it.
 ```cpp
-int numofone(int n)
-{
-    int ans = 0;
-    for (int i = 0; (1ULL << i) <= n; i++)
-    {
-        int vag = 1ULL << (i + 1);
-        int arektavag = (n + 1) / vag;
-        ans += (arektavag * (vag >> 1ULL));
-        int obos = (n + 1) % vag;
-        if (obos > (vag >> 1ULL))
-        {
-            ans += ((obos) - (vag >> 1ULL));
-        }
-        if (arektavag == 0)
-            break;
+__uint128_t numofone(unsigned long long n) {
+    __uint128_t total = 0, count = (__uint128_t)n + 1;
+    for (int bit = 0; bit < 64; ++bit) {
+        __uint128_t half = (__uint128_t)1 << bit;
+        __uint128_t period = half << 1;
+        __uint128_t rem = count % period;
+        total += (count / period) * half;
+        if (rem > half) total += rem - half;
     }
-    return ans;
+    return total;
 }
 ```
 
 ### 3.7 Extended GCD & Modular Inverse
 - **Time Complexity:** $O(\log(\min(a, b)))$
 ```cpp
-pair<int, int> ext_gcd(int a, int b) {
-    if (b == 0) return {1, 0};
-    auto [x1, y1] = ext_gcd(b, a % b);
-    return {y1, x1 - y1 * (a / b)};
+// Requires m > 1. An inverse exists only if gcd(a,m) = 1.
+int ext_gcd(int a, int b, int &x, int &y) {
+    if (b == 0) { x = 1; y = 0; return a; }
+    int x1, y1, g = ext_gcd(b, a % b, x1, y1);
+    x = y1; y = x1 - (a / b) * y1;
+    return g;
 }
-
 int mod_inverse(int a, int m) {
-    auto [x, y] = ext_gcd(a, m);
-    return (x % m + m) % m;
+    assert(m > 1);
+    a %= m; if (a < 0) a += m;
+    int x, y, g = ext_gcd(a, m, x, y);
+    assert(g == 1);
+    x %= m; if (x < 0) x += m;
+    return x;
 }
 ```
 
@@ -631,17 +636,19 @@ for (int mask = 0; mask < (1 << n); ++mask) { /* O(2^N) */ }
 
 ### 3.11 Complete Modulo Sheet & $O(1)$ nCr Combinatorics
 - **Primes:** Standard CP moduli are $10^9 + 7$ or $998244353$ (NTT friendly).
+- **Conditions:** Fermat inverse needs a prime modulus and a nonzero residue; factorial-based `nCr` needs `n < MOD`.
 ```cpp
 const int MOD = 1e9 + 7; // or 998244353
 
 // 1. Safe Operations (handles negatives & prevents overflow)
-long long add(long long a, long long b) { return (a + b) % MOD; }
-long long sub(long long a, long long b) { return (a - b + MOD) % MOD; }
-long long mul(long long a, long long b) { return (1LL * a * b) % MOD; }
+long long norm(long long x) { x %= MOD; return x < 0 ? x + MOD : x; }
+long long add(long long a, long long b) { return (norm(a) + norm(b)) % MOD; }
+long long sub(long long a, long long b) { return (norm(a) - norm(b) + MOD) % MOD; }
+long long mul(long long a, long long b) { return norm(a) * norm(b) % MOD; }
 
 // 2. Fast Exponentiation: (base^exp) % MOD
 long long power(long long base, long long exp) {
-    long long res = 1; base %= MOD;
+    long long res = 1; base = norm(base);
     while (exp > 0) {
         if (exp % 2 == 1) res = (res * base) % MOD;
         base = (base * base) % MOD;
@@ -651,13 +658,14 @@ long long power(long long base, long long exp) {
 }
 
 // 3. Modular Inverse via Fermat's Little Theorem (MOD must be prime) & Division
-long long modInverse(long long n) { return power(n, MOD - 2); }
+long long modInverse(long long n) { assert(norm(n) != 0); return power(n, MOD - 2); }
 long long divi(long long a, long long b) { return mul(a, modInverse(b)); }
 
 // 4. O(N) Precomputation for O(1) nCr Modulo P (N up to 10^6):
 const int MAXN = 1000005;
 long long fact[MAXN], invFact[MAXN];
 void precompute_nCr(int n = MAXN - 1) {
+    assert(0 <= n && n < MOD);
     fact[0] = invFact[0] = 1;
     for (int i = 1; i <= n; i++) fact[i] = mul(fact[i - 1], i);
     invFact[n] = modInverse(fact[n]);
@@ -1002,23 +1010,24 @@ if (dis[n] == inf) {
 ### 5.2 Dijkstra's Algorithm (Set-Based)
 - **Trigger Prefix:** `dijkstraSet`
 - **Time Complexity:** $O((V + E) \log V)$
+- **Requires:** Nonnegative edge weights. Unreachable vertices keep `INF`; path sums must stay below `INF`.
 ```cpp
-const int INF = 1000000000;
-vector<vector<pair<int, int>>> adj;
+const long long INF = LLONG_MAX / 4;
+vector<vector<pair<int, long long>>> adj;
 
-void dijkstra(int s, vector<int> & d, vector<int> & p) {
+void dijkstra(int s, vector<long long>& d, vector<int>& p) {
     int n = adj.size();
     d.assign(n, INF);
     p.assign(n, -1);
     d[s] = 0;
-    set<pair<int, int>> q;
+    set<pair<long long, int>> q;
     q.insert({0, s});
     while (!q.empty()) {
         int v = q.begin()->second;
         q.erase(q.begin());
 
-        for (auto edge : adj[v]) {
-            int to = edge.first, len = edge.second;
+        for (auto [to, len] : adj[v]) {
+            assert(len >= 0);
             if (d[v] + len < d[to]) {
                 q.erase({d[to], to});
                 d[to] = d[v] + len;
@@ -1058,27 +1067,26 @@ vector<int> zero_one_bfs(int start, int n, const vector<vector<pair<int, int>>> 
 - **Trigger Prefix:** `bellman_ford`
 - **Time Complexity:** $O(V \cdot E)$
 - **Capability:** Supports negative edge weights; detects negative cycle reachable from $S$.
+- **Returns:** `{has_reachable_negative_cycle, distances}`; unreachable vertices keep `INF`. Path sums must fit in the chosen distance range.
 ```cpp
-vector<int> bellman_ford(int n, vector<vector<int>>& edges, int S) {
-    vector<int> dis(n, 1e9);
+const long long BF_INF = LLONG_MAX / 4;
+pair<bool, vector<long long>> bellman_ford(
+    int n, const vector<tuple<int,int,long long>>& edges, int S) {
+    vector<long long> dis(n, BF_INF);
     dis[S] = 0;
     for (int i = 0; i < n - 1; i++) {
         bool updated = false;
-        for (auto &e : edges) {
-            int u = e[0], v = e[1], w = e[2];
-            if (dis[u] != 1e9 && dis[u] + w < dis[v]) {
+        for (auto [u,v,w] : edges) {
+            if (dis[u] != BF_INF && dis[u] + w < dis[v]) {
                 dis[v] = dis[u] + w;
                 updated = true;
             }
         }
         if (!updated) break;
     }
-    // Check for negative cycle
-    for (auto &e : edges) {
-        int u = e[0], v = e[1], w = e[2];
-        if (dis[u] != 1e9 && dis[u] + w < dis[v]) return {-1};
-    }
-    return dis;
+    for (auto [u,v,w] : edges)
+        if (dis[u] != BF_INF && dis[u] + w < dis[v]) return {true, dis};
+    return {false, dis};
 }
 ```
 
@@ -1187,11 +1195,20 @@ const int MAXN = 2e5 + 5, LOGN = 20;
 vector<int> tree_adj[MAXN];
 int up[MAXN][LOGN], depth[MAXN];
 
-void dfs_lca(int u, int p, int d) {
-    depth[u] = d; up[u][0] = p;
-    for (int i = 1; i < LOGN; ++i)
-        up[u][i] = (up[u][i - 1] != -1) ? up[up[u][i - 1]][i - 1] : -1;
-    for (int v : tree_adj[u]) if (v != p) dfs_lca(v, u, d + 1);
+void build_lca(int root) { // iterative: safe for a long chain
+    vector<int> q = {root};
+    for (int i = 0; i < LOGN; ++i) up[root][i] = -1;
+    depth[root] = 0;
+    for (size_t head = 0; head < q.size(); ++head) {
+        int u = q[head];
+        for (int v : tree_adj[u]) if (v != up[u][0]) {
+            depth[v] = depth[u] + 1;
+            up[v][0] = u;
+            for (int i = 1; i < LOGN; ++i)
+                up[v][i] = up[v][i-1] == -1 ? -1 : up[up[v][i-1]][i-1];
+            q.push_back(v);
+        }
+    }
 }
 
 int get_lca(int u, int v) {
@@ -1310,12 +1327,12 @@ struct SegTree {
 
 ### 7.4 Segment Tree for MIN & MAX (Minimal Adaptations)
 - **Segment Tree for MIN:**
-  1. Initialize with infinity: `SegTree(int n) : n(n), t(2 * n, INT_MAX) {}`
+  1. Initialize with infinity: `SegTree(int n) : n(n), t(2 * n, numeric_limits<int>::max()) {}`
   2. Update change: `t[p >> 1] = min(t[p], t[p ^ 1]);`
   3. Query:
   ```cpp
   int query(int l, int r) {
-      int res = INT_MAX;
+      int res = numeric_limits<int>::max();
       for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1) {
           if (l & 1) res = min(res, t[l++]);
           if (r & 1) res = min(res, t[--r]);
@@ -1324,12 +1341,12 @@ struct SegTree {
   }
   ```
 - **Segment Tree for MAX:**
-  1. Initialize: `SegTree(int n) : n(n), t(2 * n, INT_MIN) {}`
+  1. Initialize: `SegTree(int n) : n(n), t(2 * n, numeric_limits<int>::lowest()) {}`
   2. Update change: `t[p >> 1] = max(t[p], t[p ^ 1]);`
   3. Query:
   ```cpp
   int query(int l, int r) {
-      int res = INT_MIN;
+      int res = numeric_limits<int>::lowest();
       for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1) {
           if (l & 1) res = max(res, t[l++]);
           if (r & 1) res = max(res, t[--r]);
@@ -1344,7 +1361,7 @@ struct SegTree {
 ```cpp
 struct Tree {
     typedef int T;
-    static constexpr T unit = INT_MIN;
+    static constexpr T unit = numeric_limits<T>::lowest();
     T f(T a, T b) { return max(a, b); } // any associative fn
     vector<T> s; int n;
     Tree(int n = 0, T def = unit) : s(2 * n, def), n(n) {}
@@ -1364,55 +1381,53 @@ struct Tree {
 ```
 
 ### 7.6 Lazy Segment Tree (Range Add, Set & Max)
-- **Time Complexity:** $O(\log N)$ per operation
+- **Time Complexity:** $O(\log N)$ per operation; $O(N)$ memory. Build from the initial array. All ranges are $[L,R)$.
 ```cpp
-const int inf = 1e9;
-struct Node {
-    Node *l = 0, *r = 0;
-    int lo, hi, mset = inf, madd = 0, val = -inf;
-    Node(int lo, int hi) : lo(lo), hi(hi) {}
-    Node(vector<int>& v, int lo, int hi) : lo(lo), hi(hi) {
-        if (lo + 1 < hi) {
-            int mid = lo + (hi - lo) / 2;
-            l = new Node(v, lo, mid); r = new Node(v, mid, hi);
-            val = max(l->val, r->val);
-        } else val = v[lo];
+struct LazySegTree {
+    struct Node { long long mx=0, add=0, set=0; bool has_set=false; };
+    int n; vector<Node> t;
+    explicit LazySegTree(const vector<long long>& a) : n(a.size()), t(4 * max(1, n)) {
+        if (n) build(1, 0, n, a);
     }
-    int query(int L, int R) {
-        if (R <= lo || hi <= L) return -inf;
-        if (L <= lo && hi <= R) return val;
-        push();
-        return max(l->query(L, R), r->query(L, R));
+    void build(int p, int l, int r, const vector<long long>& a) {
+        if (r-l==1) { t[p].mx=a[l]; return; }
+        int m=(l+r)/2; build(2*p,l,m,a); build(2*p+1,m,r,a);
+        t[p].mx=max(t[2*p].mx,t[2*p+1].mx);
     }
-    void set(int L, int R, int x) {
-        if (R <= lo || hi <= L) return;
-        if (L <= lo && hi <= R) mset = val = x, madd = 0;
-        else {
-            push(), l->set(L, R, x), r->set(L, R, x);
-            val = max(l->val, r->val);
+    void apply_set(int p, long long x) {
+        t[p].mx=x; t[p].set=x; t[p].add=0; t[p].has_set=true;
+    }
+    void apply_add(int p, long long x) {
+        t[p].mx+=x;
+        if (t[p].has_set) t[p].set+=x;
+        else t[p].add+=x;
+    }
+    void push(int p) {
+        if (t[p].has_set) {
+            apply_set(2*p,t[p].set); apply_set(2*p+1,t[p].set);
+            t[p].has_set=false;
+        }
+        if (t[p].add) {
+            apply_add(2*p,t[p].add); apply_add(2*p+1,t[p].add);
+            t[p].add=0;
         }
     }
-    void add(int L, int R, int x) {
-        if (R <= lo || hi <= L) return;
-        if (L <= lo && hi <= R) {
-            if (mset != inf) mset += x;
-            else madd += x;
-            val += x;
-        } else {
-            push(), l->add(L, R, x), r->add(L, R, x);
-            val = max(l->val, r->val);
-        }
+    void update(int p,int l,int r,int L,int R,long long x,bool assign) {
+        if (R<=l || r<=L) return;
+        if (L<=l && r<=R) { if (assign) apply_set(p,x); else apply_add(p,x); return; }
+        push(p); int m=(l+r)/2;
+        update(2*p,l,m,L,R,x,assign); update(2*p+1,m,r,L,R,x,assign);
+        t[p].mx=max(t[2*p].mx,t[2*p+1].mx);
     }
-    void push() {
-        if (!l) {
-            int mid = lo + (hi - lo) / 2;
-            l = new Node(lo, mid); r = new Node(mid, hi);
-        }
-        if (mset != inf)
-            l->set(lo, hi, mset), r->set(lo, hi, mset), mset = inf;
-        else if (madd)
-            l->add(lo, hi, madd), r->add(lo, hi, madd), madd = 0;
+    long long get(int p,int l,int r,int L,int R) {
+        if (R<=l || r<=L) return LLONG_MIN;
+        if (L<=l && r<=R) return t[p].mx;
+        push(p); int m=(l+r)/2;
+        return max(get(2*p,l,m,L,R),get(2*p+1,m,r,L,R));
     }
+    void set(int L,int R,long long x) { assert(0<=L && L<=R && R<=n); if(L<R) update(1,0,n,L,R,x,true); }
+    void add(int L,int R,long long x) { assert(0<=L && L<=R && R<=n); if(L<R) update(1,0,n,L,R,x,false); }
+    long long query(int L,int R) { assert(0<=L && L<R && R<=n); return get(1,0,n,L,R); }
 };
 ```
 
@@ -1558,6 +1573,7 @@ cout << ans << endl;
 
 ### 9.2 Two Pointers & Sliding Window Patterns
 - **Time Complexity:** $O(N)$
+- **Precondition:** The sliding-window sum pattern requires nonnegative array values and `K >= 0`; use `long long` for sums.
 ```cpp
 // 1. OPPOSITE DIRECTION (Target Sum on Sorted Array: O(N))
 int l = 0, r = n - 1;
@@ -1568,8 +1584,9 @@ while (l < r) {
     else r--;
 }
 
-// 2. SAME DIRECTION (Sliding Window: Longest subarray with sum <= K: O(N))
-int left = 0, cur_sum = 0, max_len = 0;
+// 2. SAME DIRECTION (sum <= K, a[i] >= 0 and K >= 0)
+int left = 0, max_len = 0;
+long long cur_sum = 0;
 for (int right = 0; right < n; ++right) {
     cur_sum += a[right];
     while (cur_sum > K && left <= right) cur_sum -= a[left++];
@@ -1604,10 +1621,11 @@ while (lo <= hi) {
     }
 }
 
-// 2. Real Number / Float Range (100 iterations gives ~10^-30 precision)
+// 2. Real range: double stops at machine precision, not 10^-30.
 double l = 0.0, r = 1e9;
 for (int iter = 0; iter < 100; ++iter) {
     double mid = (l + r) / 2.0;
+    if (mid == l || mid == r) break;
     if (check_double(mid)) r = mid; // or l = mid depending on monotonicity
     else l = mid;
 }
@@ -1781,14 +1799,16 @@ struct Edge
     }
 };
 
-int kruskal(int n, vector<Edge>& edges)
+optional<long long> kruskal(int n, vector<Edge>& edges)
 {
     sort(edges.begin(), edges.end());
 
     DisjointSet dsu(n);
 
-    int cost = 0;
+    long long cost = 0;
     int count = 0;
+
+    if(n <= 1) return 0;
 
     for(auto& e : edges)
     {
@@ -1805,7 +1825,7 @@ int kruskal(int n, vector<Edge>& edges)
         }
     }
 
-    return -1;
+    return nullopt; // disconnected; a valid MST may have cost -1
 }
 
 int main()
@@ -1823,15 +1843,15 @@ int main()
         cin >> edges[i].u >> edges[i].v >> edges[i].w;
     }
 
-    int ans = kruskal(n, edges);
+    auto ans = kruskal(n, edges);
 
-    if(ans == -1)
+    if(!ans)
     {
         cout << "MST does not exist" << '\n';
     }
     else
     {
-        cout << "Minimum cost = " << ans << '\n';
+        cout << "Minimum cost = " << *ans << '\n';
     }
 
     return 0;
@@ -1956,8 +1976,8 @@ Pt polygon_centroid(const vector<Pt>& p) {
 ```cpp
 // 1. Summation Formulas:
 // Sum of 1..N:           N * (N + 1) / 2
-// Sum of squares 1..N^2: N * (N + 1) * (2N + 1) / 6
-// Sum of cubes 1..N^3:   (N * (N + 1) / 2)^2
+// Sum of i^2 for i=1..N: N * (N + 1) * (2N + 1) / 6
+// Sum of i^3 for i=1..N: (N * (N + 1) / 2)^2
 // Geometric Progression: a + a*r + ... + a*r^(n-1) = a * (r^n - 1) / (r - 1)
 
 // 2. Logarithm & Exponent Rules:
@@ -1967,3 +1987,1124 @@ Pt polygon_centroid(const vector<Pt>& p) {
 // 3. Number of Digits of N in Base B: floor(log_B(N)) + 1
 // 4. Stirling's Approximation: n! ≈ sqrt(2 * π * n) * (n / e)^n
 ```
+
+<!-- EXTENDED_REFERENCE_START -->
+
+---
+
+# Extended contest reference
+
+All code below is C++17 and 0-indexed. The tested source is `reference/algorithms.hpp`; each block belongs inside `namespace cpref` or can have `cpref::` removed. Dependencies are stated above the blocks.
+
+## Section 11: Graph algorithms
+
+### 11.1 Strongly connected components
+- **When/contract:** O(V+E); IDs are source-first. Use for condensation DAGs.
+- **Source:** KACT graph pp. 12–13
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct SCC {
+  int n;
+  std::vector<std::vector<int>> g, rg;
+  explicit SCC(int n) : n(n), g(n), rg(n) {}
+  void add_edge(int u, int v) {
+    g[u].push_back(v);
+    rg[v].push_back(u);
+  }
+
+  // Kosaraju: component IDs are in topological order (source first).
+  std::vector<int> components() const {
+    std::vector<char> seen(n);
+    std::vector<int> order, comp(n, -1);
+    for (int root = 0; root < n; ++root)
+      if (!seen[root]) {
+        std::vector<std::pair<int, int>> st{{root, 0}};
+        seen[root] = 1;
+        while (!st.empty()) {
+          auto &[u, i] = st.back();
+          if (i == (int)g[u].size()) {
+            order.push_back(u);
+            st.pop_back();
+          } else {
+            int v = g[u][i++];
+            if (!seen[v])
+              seen[v] = 1, st.push_back({v, 0});
+          }
+        }
+      }
+    int id = 0;
+    for (int i = n - 1; i >= 0; --i) {
+      int root = order[i];
+      if (comp[root] != -1)
+        continue;
+      std::vector<int> st{root};
+      comp[root] = id;
+      while (!st.empty()) {
+        int u = st.back();
+        st.pop_back();
+        for (int v : rg[u])
+          if (comp[v] == -1)
+            comp[v] = id, st.push_back(v);
+      }
+      ++id;
+    }
+    return comp;
+  }
+};
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 11.2 2-SAT
+- **When/contract:** O(V+E). Add each clause (x=value OR y=value); depends on SCC.
+- **Source:** KACT graph p. 13
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+// Depends on SCC above. Literal (variable x, truth value val) is 2*x +
+// val.
+struct TwoSAT {
+  int n;
+  SCC scc;
+  explicit TwoSAT(int n) : n(n), scc(2 * n) {}
+  int lit(int x, bool val) const { return 2 * x + int(val); }
+  void implication(int a, int b) { scc.add_edge(a, b); }
+  void add_or(int x, bool xv, int y, bool yv) {
+    int a = lit(x, xv), b = lit(y, yv);
+    implication(a ^ 1, b);
+    implication(b ^ 1, a);
+  }
+  std::optional<std::vector<bool>> solve() const {
+    auto c = scc.components();
+    std::vector<bool> ans(n);
+    for (int x = 0; x < n; ++x) {
+      if (c[2 * x] == c[2 * x + 1])
+        return std::nullopt;
+      ans[x] = c[2 * x + 1] > c[2 * x];
+    }
+    return ans;
+  }
+};
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 11.3 Bridges in an undirected multigraph
+- **When/contract:** O(V+E). Give every edge a unique ID; recursive DFS has a stack-depth limit.
+- **Source:** KACT graph p. 12
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+// Undirected multigraph: edge IDs prevent a parallel edge becoming a
+// false bridge.
+struct Bridges {
+  int n, timer = 0;
+  std::vector<std::vector<std::pair<int, int>>> g;
+  std::vector<int> tin, low, bridge_ids;
+  explicit Bridges(int n) : n(n), g(n), tin(n, -1), low(n) {}
+  void add_edge(int u, int v, int id) {
+    g[u].push_back({v, id});
+    g[v].push_back({u, id});
+  }
+  void dfs(int u, int parent_edge = -1) {
+    tin[u] = low[u] = timer++;
+    for (auto [v, id] : g[u]) {
+      if (id == parent_edge)
+        continue;
+      if (tin[v] != -1)
+        low[u] = std::min(low[u], tin[v]);
+      else {
+        dfs(v, id);
+        low[u] = std::min(low[u], low[v]);
+        if (low[v] > tin[u])
+          bridge_ids.push_back(id);
+      }
+    }
+  }
+  std::vector<int> find() {
+    timer = 0;
+    std::fill(tin.begin(), tin.end(), -1);
+    std::fill(low.begin(), low.end(), 0);
+    bridge_ids.clear();
+    for (int u = 0; u < n; ++u)
+      if (tin[u] == -1)
+        dfs(u);
+    return bridge_ids;
+  }
+}; // Recursive DFS: use an iterative version if depth may exceed stack
+   // capacity.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 11.4 Dinic maximum flow
+- **When/contract:** Directed capacities, 0-indexed vertices; add both directions explicitly if needed.
+- **Source:** KACT graph p. 10
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct Dinic {
+  struct Edge {
+    int to, rev;
+    long long cap;
+  };
+  int n;
+  std::vector<std::vector<Edge>> g;
+  std::vector<int> level, ptr;
+  explicit Dinic(int n) : n(n), g(n), level(n), ptr(n) {}
+  void add_edge(int u, int v, long long cap) { // directed, cap >= 0
+    if (u == v)
+      return;
+    int a = (int)g[u].size(), b = (int)g[v].size();
+    g[u].push_back({v, b, cap});
+    g[v].push_back({u, a, 0});
+  }
+  bool bfs(int s, int t) {
+    std::fill(level.begin(), level.end(), -1);
+    std::queue<int> q;
+    level[s] = 0;
+    q.push(s);
+    while (!q.empty()) {
+      int u = q.front();
+      q.pop();
+      for (auto &e : g[u])
+        if (e.cap > 0 && level[e.to] < 0)
+          level[e.to] = level[u] + 1, q.push(e.to);
+    }
+    return level[t] >= 0;
+  }
+  long long dfs(int u, int t, long long f) {
+    if (u == t || f == 0)
+      return f;
+    for (int &i = ptr[u]; i < (int)g[u].size(); ++i) {
+      Edge &e = g[u][i];
+      if (e.cap == 0 || level[e.to] != level[u] + 1)
+        continue;
+      long long sent = dfs(e.to, t, std::min(f, e.cap));
+      if (sent) {
+        e.cap -= sent;
+        g[e.to][e.rev].cap += sent;
+        return sent;
+      }
+    }
+    return 0;
+  }
+  long long max_flow(int s, int t) {
+    if (s == t)
+      return 0;
+    long long ans = 0;
+    while (bfs(s, t)) {
+      std::fill(ptr.begin(), ptr.end(), 0);
+      while (long long f = dfs(s, t, LLONG_MAX))
+        ans += f;
+    }
+    return ans;
+  }
+}; // O(V^2 E) general bound. DFS is recursive.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 11.5 Hopcroft–Karp matching
+- **When/contract:** O(E√V). Left and right vertices are numbered separately from zero.
+- **Source:** KACT graph p. 11
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct HopcroftKarp {
+  int nl, nr;
+  std::vector<std::vector<int>> g;
+  std::vector<int> left, right, dist;
+  int shortest;
+  HopcroftKarp(int nl, int nr)
+      : nl(nl), nr(nr), g(nl), left(nl, -1), right(nr, -1), dist(nl) {}
+  void add_edge(int u, int v) {
+    g[u].push_back(v);
+  } // u in left, v in right
+  bool bfs() {
+    std::queue<int> q;
+    shortest = INT_MAX;
+    std::fill(dist.begin(), dist.end(), -1);
+    for (int u = 0; u < nl; ++u)
+      if (left[u] == -1)
+        dist[u] = 0, q.push(u);
+    while (!q.empty()) {
+      int u = q.front();
+      q.pop();
+      if (dist[u] >= shortest)
+        continue;
+      for (int v : g[u]) {
+        int w = right[v];
+        if (w == -1)
+          shortest = dist[u] + 1;
+        else if (dist[w] == -1)
+          dist[w] = dist[u] + 1, q.push(w);
+      }
+    }
+    return shortest != INT_MAX;
+  }
+  bool dfs(int u) {
+    for (int v : g[u]) {
+      int w = right[v];
+      if ((w == -1 && dist[u] + 1 == shortest) ||
+          (w != -1 && dist[w] == dist[u] + 1 && dfs(w))) {
+        left[u] = v;
+        right[v] = u;
+        return true;
+      }
+    }
+    dist[u] = -1;
+    return false;
+  }
+  int max_matching() {
+    int ans = 0;
+    for (int v : left) ans += (v != -1);
+    while (bfs())
+      for (int u = 0; u < nl; ++u)
+        if (left[u] == -1 && dfs(u))
+          ++ans;
+    return ans;
+  }
+}; // O(E sqrt(V)); recursion may be deep.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 11.6 Undirected Euler walk
+- **When/contract:** O(V+E). Supports parallel edges and loops; returns no path if degree/connectivity conditions fail.
+- **Source:** KACT graph p. 13
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+// Euler path/circuit of an undirected multigraph; returns vertices or
+// nullopt.
+struct EulerWalk {
+  int n, edges = 0;
+  std::vector<std::vector<std::pair<int, int>>> g;
+  explicit EulerWalk(int n) : n(n), g(n) {}
+  void add_edge(int u, int v) {
+    g[u].push_back({v, edges});
+    g[v].push_back({u, edges});
+    ++edges;
+  }
+  std::optional<std::vector<int>> walk() const {
+    if (!n)
+      return std::vector<int>{};
+    int start = -1, odd = 0;
+    for (int u = 0; u < n; ++u) {
+      if (g[u].size() % 2)
+        ++odd, start = u;
+      else if (start == -1 && !g[u].empty())
+        start = u;
+    }
+    if (odd != 0 && odd != 2)
+      return std::nullopt;
+    if (start == -1)
+      return std::vector<int>{0};
+    std::vector<int> ptr(n), stack{start}, path;
+    std::vector<char> used(edges);
+    while (!stack.empty()) {
+      int u = stack.back();
+      while (ptr[u] < (int)g[u].size() && used[g[u][ptr[u]].second])
+        ++ptr[u];
+      if (ptr[u] == (int)g[u].size())
+        path.push_back(u), stack.pop_back();
+      else {
+        auto [v, id] = g[u][ptr[u]++];
+        if (!used[id])
+          used[id] = 1, stack.push_back(v);
+      }
+    }
+    if ((int)path.size() != edges + 1)
+      return std::nullopt; // disconnected edges
+    std::reverse(path.begin(), path.end());
+    return path;
+  }
+}; // O(V+E). Isolated vertices are irrelevant when edges exist.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+## Section 12: Offline queries and assignment
+
+### 12.1 Mo's algorithm
+- **When/contract:** Offline inclusive [l,r] queries. Supply inverse add/remove callbacks and a current-answer callback.
+- **Source:** Notebook p. 2; linked GitHub Mo skeleton
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct MoQuery {
+  int l, r, id;
+}; // inclusive [l,r], IDs 0..Q-1
+template <class Ans, class Add, class Remove, class Get>
+std::vector<Ans> mo_process(int n, std::vector<MoQuery> qs, Add add,
+                            Remove remove, Get get) {
+  int block = std::max(1, (int)std::sqrt(std::max(1, n)));
+  std::sort(
+      qs.begin(), qs.end(), [&](const MoQuery &a, const MoQuery &b) {
+        int x = a.l / block, y = b.l / block;
+        if (x != y)
+          return x < y;
+        return (x & 1)
+                   ? a.r > b.r
+                   : a.r < b.r; // snake order limits pointer movement
+      });
+  std::vector<Ans> result(qs.size());
+  int l = 0, r = -1; // current window is [l,r], initially empty
+  for (auto q : qs) {
+    while (l > q.l)
+      add(--l);
+    while (r < q.r)
+      add(++r);
+    while (l < q.l)
+      remove(l++);
+    while (r > q.r)
+      remove(r--);
+    result[q.id] = get();
+  }
+  return result;
+} // Add/remove must be inverse; static array, offline queries.
+// Adapted from Mohammadreza-mz's Mo Algorithm.cpp and the supplied
+// notebook.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 12.2 Hungarian minimum-cost assignment
+- **When/contract:** O(n²m), n≤m; negative costs work. Returns total cost and a 0-indexed column for every row.
+- **Source:** Notebook pp. 14–15
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+// Minimum-cost assignment; n rows, m columns, n<=m. Every row gets one
+// distinct column.
+struct Assignment {
+  long long cost;
+  std::vector<int> column_of_row;
+};
+inline Assignment
+hungarian(const std::vector<std::vector<long long>> &a) {
+  int n = (int)a.size();
+  if (!n)
+    return {0, {}};
+  int m = (int)a[0].size();
+  assert(n <= m && m > 0);
+  for (auto &row : a)
+    assert((int)row.size() == m);
+  const long long INF = LLONG_MAX / 4;
+  std::vector<long long> u(n + 1), v(m + 1);
+  std::vector<int> p(m + 1), way(m + 1);
+  for (int i = 1; i <= n; ++i) {
+    p[0] = i;
+    int j0 = 0;
+    std::vector<long long> minv(m + 1, INF);
+    std::vector<char> used(m + 1);
+    do {
+      used[j0] = 1;
+      int i0 = p[j0], j1 = 0;
+      long long delta = INF;
+      for (int j = 1; j <= m; ++j)
+        if (!used[j]) {
+          long long cur = a[i0 - 1][j - 1] - u[i0] - v[j];
+          if (cur < minv[j])
+            minv[j] = cur, way[j] = j0;
+          if (minv[j] < delta)
+            delta = minv[j], j1 = j;
+        }
+      for (int j = 0; j <= m; ++j)
+        if (used[j])
+          u[p[j]] += delta, v[j] -= delta;
+        else
+          minv[j] -= delta;
+      j0 = j1;
+    } while (p[j0] != 0);
+    do {
+      int j1 = way[j0];
+      p[j0] = p[j1];
+      j0 = j1;
+    } while (j0);
+  }
+  std::vector<int> col(n, -1);
+  for (int j = 1; j <= m; ++j)
+    if (p[j])
+      col[p[j] - 1] = j - 1;
+  return {-v[0], col};
+} // O(n^2 m), handles negative costs. Use long long costs with safe
+  // total bounds.
+// Adapted from the supplied notebook, pp. 14-15.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+## Section 13: String algorithms
+
+### 13.1 Z function
+- **When/contract:** O(N). z[i] is the longest prefix matching the substring beginning at i; z[0]=0.
+- **Source:** KACT strings p. 22
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+inline std::vector<int> z_function(const std::string &s) {
+  int n = (int)s.size();
+  std::vector<int> z(n);
+  for (int i = 1, l = 0, r = 0; i < n; ++i) {
+    if (i < r)
+      z[i] = std::min(r - i, z[i - l]);
+    while (i + z[i] < n && s[z[i]] == s[i + z[i]])
+      ++z[i];
+    if (i + z[i] > r)
+      l = i, r = i + z[i];
+  }
+  return z; // z[0]=0; Z box is [l,r).
+}
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 13.2 Manacher palindrome radii
+- **When/contract:** O(N). Separate odd and even radii; formulas for actual lengths are in the code.
+- **Source:** KACT strings p. 22
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct PalRadii {
+  std::vector<int> odd, even;
+};
+inline PalRadii manacher(const std::string &s) {
+  int n = (int)s.size();
+  PalRadii p{{}, {}};
+  p.odd.resize(n);
+  p.even.resize(n);
+  for (int i = 0, l = 0, r = -1; i < n; ++i) {
+    int k = i > r ? 1 : std::min(p.odd[l + r - i], r - i + 1);
+    while (i - k >= 0 && i + k < n && s[i - k] == s[i + k])
+      ++k;
+    p.odd[i] = k;
+    if (i + k - 1 > r)
+      l = i - k + 1, r = i + k - 1;
+  }
+  for (int i = 0, l = 0, r = -1; i < n; ++i) {
+    int k = i > r ? 0 : std::min(p.even[l + r - i + 1], r - i + 1);
+    while (i - k - 1 >= 0 && i + k < n && s[i - k - 1] == s[i + k])
+      ++k;
+    p.even[i] = k;
+    if (i + k - 1 > r)
+      l = i - k, r = i + k - 1;
+  }
+  return p; // odd palindrome length = 2*odd[i]-1; even = 2*even[i].
+}
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 13.3 Aho–Corasick multiple-pattern matching
+- **When/contract:** Lowercase a–z patterns; count overlaps and duplicates. Build after all insertions.
+- **Source:** KACT strings p. 23, generalized
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct AhoCorasick {
+  struct Node {
+    std::array<int, 26> next{};
+    int link = 0, out = 0;
+  };
+  std::vector<Node> t{1};
+  bool built = false;
+  void
+  add(const std::string &s) { // nonempty lowercase a-z patterns only
+    assert(!built && !s.empty());
+    int u = 0;
+    for (char ch : s) {
+      assert('a' <= ch && ch <= 'z');
+      int c = ch - 'a';
+      if (!t[u].next[c]) {
+        t[u].next[c] = (int)t.size();
+        t.emplace_back();
+      }
+      u = t[u].next[c];
+    }
+    ++t[u].out; // duplicates count separately
+  }
+  void build() {
+    assert(!built);
+    std::queue<int> q;
+    for (int c = 0; c < 26; ++c)
+      if (t[0].next[c])
+        q.push(t[0].next[c]);
+    while (!q.empty()) {
+      int u = q.front();
+      q.pop();
+      t[u].out += t[t[u].link].out;
+      for (int c = 0; c < 26; ++c) {
+        int v = t[u].next[c];
+        if (v)
+          t[v].link = t[t[u].link].next[c], q.push(v);
+        else
+          t[u].next[c] = t[t[u].link].next[c];
+      }
+    }
+    built = true;
+  }
+  long long count_matches(const std::string &text) const {
+    assert(built);
+    long long ans = 0;
+    int u = 0;
+    for (char ch : text) {
+      if (ch < 'a' || ch > 'z') {
+        u = 0;
+        continue;
+      }
+      u = t[u].next[ch - 'a'];
+      ans += t[u].out;
+    }
+    return ans;
+  }
+}; // O(total pattern length * alphabet + text length).
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 13.4 Suffix array and LCP
+- **When/contract:** O(N log²N). Uses sorting for clarity; use a radix version only after benchmarking.
+- **Source:** KACT strings p. 22, simplified
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct SuffixArray {
+  std::vector<int> sa,
+      lcp; // sa has n entries, lcp[i]=LCP(sa[i],sa[i-1]), lcp[0]=0
+  explicit SuffixArray(const std::string &s) {
+    int n = (int)s.size();
+    sa.resize(n);
+    lcp.assign(n, 0);
+    if (!n)
+      return;
+    std::vector<int> rank(n), tmp(n), pos(n);
+    for (int i = 0; i < n; ++i)
+      sa[i] = i, rank[i] = (unsigned char)s[i];
+    for (int k = 1; k < n; k *= 2) {
+      auto key = [&](int i) {
+        return std::pair<int, int>{rank[i],
+                                   i + k < n ? rank[i + k] : -1};
+      };
+      std::sort(sa.begin(), sa.end(),
+                [&](int a, int b) { return key(a) < key(b); });
+      tmp[sa[0]] = 0;
+      for (int i = 1; i < n; ++i)
+        tmp[sa[i]] = tmp[sa[i - 1]] + (key(sa[i - 1]) != key(sa[i]));
+      rank.swap(tmp);
+      if (rank[sa.back()] == n - 1)
+        break;
+    }
+    for (int i = 0; i < n; ++i)
+      pos[sa[i]] = i;
+    for (int i = 0, k = 0; i < n; ++i) {
+      int r = pos[i];
+      if (!r)
+        continue;
+      int j = sa[r - 1];
+      while (i + k < n && j + k < n && s[i + k] == s[j + k])
+        ++k;
+      lcp[r] = k;
+      if (k)
+        --k;
+    }
+  }
+}; // O(n log^2 n) with std::sort; simpler to audit than radix version.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 13.5 Static double rolling hash
+- **When/contract:** O(N) build and O(1) substring hash. Uses half-open [l,r) ranges; collisions remain possible.
+- **Source:** KACT strings p. 23, range convention standardized
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+// Static double rolling hash of half-open string ranges [l,r).
+struct DoubleHash {
+  static constexpr long long P1 = 1000000007LL, P2 = 1000000009LL,
+                             B = 911382323LL;
+  std::vector<long long> h1, h2, p1, p2;
+  explicit DoubleHash(const std::string &s) {
+    int n = (int)s.size();
+    h1.resize(n + 1);
+    h2.resize(n + 1);
+    p1.resize(n + 1);
+    p2.resize(n + 1);
+    p1[0] = p2[0] = 1;
+    for (int i = 0; i < n; ++i) {
+      int ch = (unsigned char)s[i] + 1;
+      h1[i + 1] = (h1[i] * B + ch) % P1;
+      h2[i + 1] = (h2[i] * B + ch) % P2;
+      p1[i + 1] = p1[i] * B % P1;
+      p2[i + 1] = p2[i] * B % P2;
+    }
+  }
+  std::pair<long long, long long> get(int l, int r) const {
+    assert(0 <= l && l <= r && r < (int)h1.size());
+    return {(h1[r] - h1[l] * p1[r - l] % P1 + P1) % P1,
+            (h2[r] - h2[l] * p2[r - l] % P2 + P2) % P2};
+  }
+}; // O(N) build, O(1) substring hash; collision probability is low, not
+   // zero.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+## Section 14: Number theory
+
+### 14.1 Extended GCD and general CRT
+- **When/contract:** Handles non-coprime moduli; returns no solution on incompatibility or 64-bit lcm overflow.
+- **Source:** KACT number theory p. 9, checked variant
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+inline long long extended_gcd(long long a, long long b, long long &x,
+                              long long &y) {
+  if (!b) {
+    x = 1;
+    y = 0;
+    return a;
+  }
+  long long x1, y1, g = extended_gcd(b, a % b, x1, y1);
+  x = y1;
+  y = x1 - (a / b) * y1;
+  return g;
+}
+// Return {smallest nonnegative solution, lcm}; nullopt if incompatible
+// or overflow.
+inline std::optional<std::pair<long long, long long>>
+crt(long long a, long long m, long long b, long long n) {
+  assert(m > 0 && n > 0);
+  a %= m;
+  if (a < 0)
+    a += m;
+  b %= n;
+  if (b < 0)
+    b += n;
+  long long x, y, g = extended_gcd(m, n, x, y);
+  __int128 diff = (__int128)b - a;
+  if (diff % g)
+    return std::nullopt;
+  __int128 mod = (__int128)m / g * n;
+  if (mod > LLONG_MAX)
+    return std::nullopt;
+  __int128 k = (diff / g) * x;
+  long long ng = n / g;
+  k = (k % ng + ng) % ng;
+  long long rem = (long long)((a + k * m) % mod);
+  return std::pair<long long, long long>{rem, (long long)mod};
+}
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 14.2 Linear Euler totient sieve
+- **When/contract:** O(N) precomputation; phi[1]=1. Useful for coprime counting.
+- **Source:** KACT number theory p. 9
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+inline std::vector<int> phi_sieve(int n) { // phi[1]=1, phi[0]=0
+  assert(n >= 0);
+  std::vector<int> phi(n + 1), primes;
+  std::vector<char> composite(n + 1);
+  if (n >= 1)
+    phi[1] = 1;
+  for (int i = 2; i <= n; ++i) {
+    if (!composite[i])
+      primes.push_back(i), phi[i] = i - 1;
+    for (int p : primes) {
+      if (1LL * i * p > n)
+        break;
+      composite[i * p] = 1;
+      if (i % p == 0) {
+        phi[i * p] = phi[i] * p;
+        break;
+      }
+      phi[i * p] = phi[i] * (p - 1);
+    }
+  }
+  return phi;
+} // O(n) time and memory.
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 14.3 64-bit Miller–Rabin
+- **When/contract:** Deterministic uint64 primality with __int128 modular multiplication; GNU C++17.
+- **Source:** KACT number theory p. 9, checked variant
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+using u64 = uint64_t;
+using u128 = __uint128_t;
+inline u64 mul_mod(u64 a, u64 b, u64 mod) { return (u128)a * b % mod; }
+inline u64 pow_mod(u64 a, u64 e, u64 mod) {
+  assert(mod > 0);
+  u64 r = 1 % mod;
+  for (; e; e >>= 1, a = mul_mod(a, a, mod))
+    if (e & 1)
+      r = mul_mod(r, a, mod);
+  return r;
+}
+inline bool is_prime(u64 n) { // deterministic for every uint64_t
+  if (n < 2)
+    return false;
+  for (u64 p : {2ULL, 3ULL, 5ULL, 7ULL, 11ULL, 13ULL, 17ULL, 19ULL,
+                23ULL, 29ULL, 31ULL, 37ULL}) {
+    if (n % p == 0)
+      return n == p;
+  }
+  u64 d = n - 1, s = 0;
+  while (!(d & 1))
+    d >>= 1, ++s;
+  for (u64 a : {2ULL, 325ULL, 9375ULL, 28178ULL, 450775ULL, 9780504ULL,
+                1795265022ULL}) {
+    if (a % n == 0)
+      continue;
+    u64 x = pow_mod(a % n, d, n);
+    if (x == 1 || x == n - 1)
+      continue;
+    bool passed = false;
+    for (u64 r = 1; r < s; ++r) {
+      x = mul_mod(x, x, n);
+      if (x == n - 1) {
+        passed = true;
+        break;
+      }
+    }
+    if (!passed)
+      return false;
+  }
+  return true;
+}
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+## Section 15: Geometry algorithms
+
+### 15.1 Exact integer geometry
+- **When/contract:** __int128 orientation; segment intersection, convex hull, twice signed area, point in polygon.
+- **Source:** KACT geometry pp. 15–17, unified
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct IPoint {
+  long long x, y;
+  bool operator<(const IPoint &b) const {
+    return std::tie(x, y) < std::tie(b.x, b.y);
+  }
+  bool operator==(const IPoint &b) const {
+    return x == b.x && y == b.y;
+  }
+};
+inline __int128 cross(IPoint a, IPoint b, IPoint c) {
+  // Requires the determinant to fit signed __int128.
+  return ((__int128)b.x - a.x) * ((__int128)c.y - a.y) -
+         ((__int128)b.y - a.y) * ((__int128)c.x - a.x);
+}
+inline int sign(__int128 x) { return (x > 0) - (x < 0); }
+inline bool on_segment(IPoint a, IPoint b, IPoint p) {
+  return cross(a, b, p) == 0 && std::min(a.x, b.x) <= p.x &&
+         p.x <= std::max(a.x, b.x) && std::min(a.y, b.y) <= p.y &&
+         p.y <= std::max(a.y, b.y);
+}
+inline bool segments_intersect(IPoint a, IPoint b, IPoint c, IPoint d) {
+  int x = sign(cross(a, b, c)), y = sign(cross(a, b, d));
+  int z = sign(cross(c, d, a)), w = sign(cross(c, d, b));
+  if (x == 0 && on_segment(a, b, c))
+    return true;
+  if (y == 0 && on_segment(a, b, d))
+    return true;
+  if (z == 0 && on_segment(c, d, a))
+    return true;
+  if (w == 0 && on_segment(c, d, b))
+    return true;
+  return x != y && z != w;
+}
+inline std::vector<IPoint> convex_hull(std::vector<IPoint> p) {
+  std::sort(p.begin(), p.end());
+  p.erase(std::unique(p.begin(), p.end()), p.end());
+  if (p.size() < 2)
+    return p;
+  std::vector<IPoint> h;
+  for (auto v : p) {
+    while (h.size() >= 2 && cross(h[h.size() - 2], h.back(), v) <= 0)
+      h.pop_back();
+    h.push_back(v);
+  }
+  size_t lower = h.size();
+  for (int i = (int)p.size() - 2; i >= 0; --i) {
+    auto v = p[i];
+    while (h.size() > lower && cross(h[h.size() - 2], h.back(), v) <= 0)
+      h.pop_back();
+    h.push_back(v);
+  }
+  h.pop_back();
+  return h; // CCW, starts at lexicographic min; collinear interior
+            // removed.
+}
+inline __int128
+area2(const std::vector<IPoint> &p) { // signed twice area
+  __int128 a = 0;
+  int n = (int)p.size();
+  for (int i = 0; i < n; ++i)
+    a += (__int128)p[i].x * p[(i + 1) % n].y -
+         (__int128)p[i].y * p[(i + 1) % n].x;
+  return a;
+}
+inline int point_in_polygon(const std::vector<IPoint> &p, IPoint q) {
+  bool inside = false;
+  int n = (int)p.size();
+  for (int i = 0, j = n - 1; i < n; j = i++) {
+    IPoint a = p[j], b = p[i];
+    if (on_segment(a, b, q))
+      return 0; // boundary
+    if ((a.y > q.y) != (b.y > q.y)) {
+      // Compare crossing x without floating point; orientation flips
+      // with edge direction.
+      __int128 c = cross(a, b, q);
+      if ((c > 0) == (b.y > a.y))
+        inside = !inside;
+    }
+  }
+  return inside ? 1 : -1; // inside=1, boundary=0, outside=-1
+}
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+### 15.2 Circle–line intersection
+- **When/contract:** Infinite line AB; returns 0, 1, or 2 points. Rejects degenerate lines.
+- **Source:** KACT geometry p. 16
+```cpp
+#ifdef int
+#pragma push_macro("int")
+#undef int
+#define CPREF_POP_INT
+#endif
+struct FPoint {
+  long double x, y;
+};
+inline FPoint operator+(FPoint a, FPoint b) {
+  return {a.x + b.x, a.y + b.y};
+}
+inline FPoint operator-(FPoint a, FPoint b) {
+  return {a.x - b.x, a.y - b.y};
+}
+inline FPoint operator*(FPoint a, long double k) {
+  return {a.x * k, a.y * k};
+}
+inline long double dot(FPoint a, FPoint b) {
+  return a.x * b.x + a.y * b.y;
+}
+// Intersection of infinite line AB and circle (center O, radius r).
+inline std::vector<FPoint> circle_line(FPoint o, long double r,
+                                       FPoint a, FPoint b) {
+  assert(r >= 0);
+  FPoint d = b - a;
+  long double len2 = dot(d, d);
+  if (len2 == 0)
+    return {}; // degenerate line
+  long double t = dot(o - a, d) / len2;
+  FPoint foot = a + d * t;
+  long double dist2 = dot(foot - o, foot - o);
+  long double h2 = r * r - dist2;
+  // Relative tolerance on squared distances preserves very small circles.
+  long double tol = 64 * std::numeric_limits<long double>::epsilon() *
+                    std::max(r * r, dist2);
+  if (h2 < -tol)
+    return {};
+  if (h2 <= tol)
+    return {foot};
+  long double step = std::sqrt(h2 / len2);
+  return {foot - d * step, foot + d * step};
+}
+#ifdef CPREF_POP_INT
+#pragma pop_macro("int")
+#undef CPREF_POP_INT
+#endif
+```
+
+## Section 16: Illustrated geometry formulas
+
+All angles are in radians unless degrees are stated.
+
+### 2D shapes
+
+![Labeled 2d shapes](assets/geometry-2d.svg)
+
+| Shape / rule | Meaning | Formulas |
+|---|---|---|
+| Triangle | sides a,b,c; base b, height h | A=bh/2=√(s(s−a)(s−b)(s−c)), s=(a+b+c)/2; P=a+b+c; r=A/s; R=abc/(4A). |
+| Right triangle | legs a,b; hypotenuse c | c²=a²+b²; A=ab/2; R=c/2; r=(a+b−c)/2. |
+| Equilateral triangle | side a | A=√3·a²/4; P=3a; h=√3·a/2; r=√3·a/6; R=√3·a/3. |
+| Square | side a | A=a²; P=4a; diagonal d=a√2; inradius a/2; circumradius a/√2. |
+| Rectangle | sides a,b | A=ab; P=2(a+b); diagonal d=√(a²+b²). |
+| Parallelogram | adjacent sides a,b; height h to a; angle θ | A=ah=ab sinθ; P=2(a+b). |
+| Rhombus | side a; height h; diagonals d₁,d₂ | A=d₁d₂/2=ah; P=4a; diagonals bisect at right angles. |
+| Trapezoid | parallel bases a,b; height h | A=(a+b)h/2; midline=(a+b)/2; P=sum of four sides. |
+| Regular n-gon | n sides of length a; apothem t | P=na; t=a/(2tan(π/n)); A=Pt/2=na²/(4tan(π/n)); circumradius R=a/(2sin(π/n)). |
+| Circle | radius r, diameter d=2r | A=πr²; circumference C=2πr; chord length at central angle θ: 2r sin(θ/2). |
+| Sector | radius r; angle θ in radians | A=r²θ/2; arc length=rθ; perimeter=2r+rθ. |
+| Annulus | outer radius R; inner radius r | A=π(R²−r²); total boundary length=2π(R+r). |
+| Ellipse | semiaxes a≥b | A=πab; focal distance c=√(a²−b²); perimeter ≈ π[3(a+b)−√((3a+b)(a+3b))]. |
+| Semicircle | radius r | A=πr²/2; perimeter including diameter=πr+2r. |
+
+### 3D solids
+
+![Labeled 3d solids](assets/geometry-3d.svg)
+
+| Shape / rule | Meaning | Formulas |
+|---|---|---|
+| Cube | edge a | V=a³; surface S=6a²; space diagonal=a√3. |
+| Cuboid | edges a,b,c | V=abc; S=2(ab+bc+ca); space diagonal=√(a²+b²+c²). |
+| Right prism | base area B; base perimeter P; height h | V=Bh; S=2B+Ph. |
+| Cylinder | radius r; height h | V=πr²h; curved area=2πrh; total S=2πr(r+h). |
+| Cone | radius r; height h; slant s=√(r²+h²) | V=πr²h/3; curved area=πrs; total S=πr(r+s). |
+| Sphere | radius r | V=4πr³/3; S=4πr². |
+| Hemisphere | radius r | V=2πr³/3; curved area=2πr²; total S=3πr². |
+| Right pyramid | base area B; perimeter P; height h; common face slant s | V=Bh/3; S=B+Ps/2 when every lateral face shares slant height s. |
+| Cone frustum | radii R≥r; height h; slant s=√(h²+(R−r)²) | V=πh(R²+Rr+r²)/3; S=π(R²+r²)+π(R+r)s. |
+| Regular tetrahedron | edge a | V=a³/(6√2); S=√3·a²; height=a√(2/3). |
+| Torus | major radius R from center to tube center; tube radius r<R | V=2π²Rr²; S=4π²Rr. |
+
+### Coordinate and contest geometry
+
+| Shape / rule | Meaning | Formulas |
+|---|---|---|
+| Two points | P(x₁,y₁), Q(x₂,y₂) | distance=√((x₂−x₁)²+(y₂−y₁)²); midpoint=((x₁+x₂)/2,(y₁+y₂)/2). |
+| Dot and cross | vectors u,v; angle θ | u·v=|u||v|cosθ; cross(u,v)=uₓvᵧ−uᵧvₓ=|u||v|sinθ; sign of cross gives orientation. |
+| Point to line | point P; line through A,B | distance=|cross(B−A,P−A)|/|B−A|; projection=A+(B−A)·dot(P−A,B−A)/|B−A|². |
+| Polygon | vertices in boundary order | signed 2A=Σ cross(Pᵢ,Pᵢ₊₁); perimeter=Σ|Pᵢ₊₁−Pᵢ|; centroid=Σ(Pᵢ+Pᵢ₊₁)cross(Pᵢ,Pᵢ₊₁)/(3·signed 2A). |
+| Lattice polygon | integer vertices; B boundary lattice points | Pick: A=I+B/2−1; B=Σ gcd(|Δx|,|Δy|) over edges. |
+| Triangle laws | opposite sides a,b,c and angles A,B,C | a²=b²+c²−2bc cos A; a/sin A=b/sin B=c/sin C=2R. |
+| Rotation | point (x,y), angle θ counterclockwise | (x′,y′)=(x cosθ−y sinθ, x sinθ+y cosθ). |
+| Circle equations | center (h,k), radius r | (x−h)²+(y−k)²=r²; tangent at point T is perpendicular to radius OT. |
+
+## Section 17: Math and contest formulas
+
+### Number theory and counting
+
+| Topic | Conditions | Formula |
+|---|---|---|
+| Prime factors | n=∏pᵢ^eᵢ | divisor count τ(n)=∏(eᵢ+1); divisor sum σ(n)=∏(pᵢ^(eᵢ+1)−1)/(pᵢ−1); φ(n)=n∏(1−1/pᵢ). |
+| Factorials | prime p | Exponent of p in n!: Σₖ≥1⌊n/pᵏ⌋. Trailing zeros in base b: min over pᵉ|b of ⌊vₚ(n!)/e⌋. |
+| Binomial | 0≤k≤n | C(n,k)=n!/(k!(n−k)!)=C(n−1,k−1)+C(n−1,k); if p is prime, factorial/inverse method needs n<p. |
+| Stars and bars | n identical items; k groups | Allow empty groups: C(n+k−1,k−1). Require positive groups: C(n−1,k−1), n≥k. |
+| Inclusion–exclusion | finite sets A₁…Aₙ | |∪Aᵢ|=Σ|Aᵢ|−Σ|Aᵢ∩Aⱼ|+Σ|Aᵢ∩Aⱼ∩Aₖ|−⋯. |
+| Catalan | n≥0 | Cat(n)=C(2n,n)/(n+1); Cat(0)=1; Cat(n+1)=Σᵢ₌₀ⁿ Cat(i)Cat(n−i). |
+| Repeated permutations | n items, counts c₁…cₖ | Number of distinct permutations=n!/(c₁!⋯cₖ!). Derangements: Dₙ=(n−1)(Dₙ₋₁+Dₙ₋₂). |
+| Burnside | finite symmetry group G acting on X | Orbits=(1/|G|)Σ_{g∈G}|Fix(g)|. Rotational necklaces: (1/n)Σ_{d|n}φ(d)·colors^(n/d). |
+| Lucas | prime modulus p; base-p digits nᵢ,kᵢ | C(n,k) mod p = ∏ᵢ C(nᵢ,kᵢ) mod p. |
+| GCD and CRT | positive moduli m,n | ax+by=c solvable iff gcd(a,b)|c. x≡a (mod m), x≡b (mod n) compatible iff gcd(m,n)|(b−a). |
+| Signed division | b>0; mathematical floor/ceil | C++ integer / truncates toward zero. Normalize remainder to [0,b); floor(a/b)=(a−r)/b, ceil(a/b)=floor(a/b)+(r≠0). |
+
+### Probability, graphs and games
+
+| Topic | Conditions | Formula |
+|---|---|---|
+| Probability | events A,B; P(B)>0 | P(A|B)=P(A∩B)/P(B); P(A∪B)=P(A)+P(B)−P(A∩B); independent ⇒ P(A∩B)=P(A)P(B). |
+| Expectation | random variables X,Y | E[X]=Σx·P(X=x); E[X+Y]=E[X]+E[Y] even without independence; E[1_A]=P(A). |
+| Variance | random variable X | Var(X)=E[X²]−E[X]²; independent X,Y ⇒ Var(X+Y)=Var(X)+Var(Y). |
+| Binomial distribution | X~Bin(n,p) | P(X=k)=C(n,k)pᵏ(1−p)^(n−k); E[X]=np; Var(X)=np(1−p). |
+| Euler trails | connected undirected graph after ignoring isolated vertices | Euler circuit iff every degree is even; Euler path iff exactly 0 or 2 vertices have odd degree. |
+| Planar graphs | connected planar embedding | V−E+F=2. Simple planar V≥3 ⇒ E≤3V−6; simple bipartite planar V≥3 ⇒ E≤2V−4. |
+| Bipartite matching | bipartite graph | König: maximum matching size = minimum vertex-cover size. DAG minimum path cover = V−maximum matching in split graph. |
+| Grundy | finite impartial game with normal play | g(v)=mex{g(u): v→u}; disjoint games combine by XOR; losing position iff combined Grundy=0. |
+
+### Source and use notes
+
+- Basic Mo loop adapted from [Mohammadreza-mz's Mo Algorithm.cpp](https://github.com/Mohammadreza-mz/icpc-cheatsheet/blob/main/Data%20Structure/Mo%20Algorithm.cpp) and the supplied Shahid Beheshti notebook; its original add/remove/get placeholders are implemented as callbacks here.
+- Graph, string, number theory, and geometry topics were selected from the supplied BRACU Crows KACT PDF, then rewritten as self-contained, tested C++17 snippets.
+- The Hungarian assignment was adapted from the supplied Shahid Beheshti notebook and returns a row-to-column map.
+<!-- EXTENDED_REFERENCE_END -->

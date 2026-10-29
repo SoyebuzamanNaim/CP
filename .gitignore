@@ -1,0 +1,7 @@
+# Local source PDFs used to build this reference.
+/kactl-1.pdf
+/notebook.pdf
+
+# Python build artifacts.
+__pycache__/
+*.pyc
